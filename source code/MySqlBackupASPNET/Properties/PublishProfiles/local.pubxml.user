@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit http://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_PublishTargetUrl>D:\wwwroot</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="bin/MySql.Data.dll">
+      <publishTime>06/20/2013 00:34:56</publishTime>
+    </File>
+    <File Include="bin/MySqlBackup.dll">
+      <publishTime>12/23/2013 15:53:58</publishTime>
+    </File>
+    <File Include="bin/MySqlBackupASPNET.dll">
+      <publishTime>12/23/2013 15:53:59</publishTime>
+    </File>
+    <File Include="css/ddsmoothmenu.css">
+      <publishTime>12/22/2013 19:18:28</publishTime>
+    </File>
+    <File Include="images/templatemo_bg.jpg">
+      <publishTime>12/22/2013 19:22:43</publishTime>
+    </File>
+    <File Include="images/templatemo_footer.png">
+      <publishTime>12/22/2013 19:22:43</publishTime>
+    </File>
+    <File Include="images/templatemo_header.jpg">
+      <publishTime>12/22/2013 19:21:30</publishTime>
+    </File>
+    <File Include="images/templatemo_list.png">
+      <publishTime>12/22/2013 19:23:44</publishTime>
+    </File>
+    <File Include="images/templatemo_logo.png">
+      <publishTime>12/22/2013 19:29:44</publishTime>
+    </File>
+    <File Include="Index.aspx">
+      <publishTime>12/23/2013 15:07:08</publishTime>
+    </File>
+    <File Include="Result.aspx">
+      <publishTime>12/23/2013 15:26:59</publishTime>
+    </File>
+    <File Include="scripts/ddsmoothmenu.js">
+      <publishTime>12/22/2013 19:12:11</publishTime>
+    </File>
+    <File Include="scripts/jquery.min.js">
+      <publishTime>12/22/2013 19:12:11</publishTime>
+    </File>
+    <File Include="templatemo_style.css">
+      <publishTime>12/22/2013 22:17:22</publishTime>
+    </File>
+    <File Include="Web.config">
+      <publishTime>12/23/2013 15:54:00</publishTime>
+    </File>
+  </ItemGroup>
+</Project>

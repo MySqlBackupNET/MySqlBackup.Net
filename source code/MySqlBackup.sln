@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackupTestApp", "MySqlBackupTestApp\MySqlBackupTestApp.csproj", "{0C44B679-BC54-4818-9E77-6BE2C14E680B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup", "MySqlBackup\MySqlBackup.csproj", "{2625A6B7-505A-43F7-9282-24AFE5A3DB64}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackupASPNET", "MySqlBackupASPNET\MySqlBackupASPNET.csproj", "{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2625A6B7-505A-43F7-9282-24AFE5A3DB64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2625A6B7-505A-43F7-9282-24AFE5A3DB64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2625A6B7-505A-43F7-9282-24AFE5A3DB64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2625A6B7-505A-43F7-9282-24AFE5A3DB64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
