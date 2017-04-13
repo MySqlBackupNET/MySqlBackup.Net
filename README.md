@@ -1,3 +1,4 @@
+This project is moved from [https://mysqlbackupnet.codeplex.com/](https://mysqlbackupnet.codeplex.com/).
 # MySqlBackupNet
 A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET.
 
