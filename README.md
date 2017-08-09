@@ -7,7 +7,7 @@ Article at [CodeProject.com](http://www.codeproject.com/Articles/256466/MySqlBac
 Install via NuGet: **PM> Install-Package MySqlBackup.NET**  
 [https://www.nuget.org/packages/MySqlBackup.NET/](https://www.nuget.org/packages/MySqlBackup.NET/)
 
-## Simple Example: Backup/Export a MySQL Database
+## Backup/Export a MySQL Database
 
 ```C#
 string constring = "server=localhost;user=root;pwd=qwerty;database=test;";
@@ -31,7 +31,7 @@ using (MySqlConnection conn = new MySqlConnection(constring))
 }
 ```
 
-## Simple Example: Import/Restore a MySQL Database
+## Import/Restore a MySQL Database
 
 ```C#
 string constring = "server=localhost;user=root;pwd=qwerty;database=test;";
