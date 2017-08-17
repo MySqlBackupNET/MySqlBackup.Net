@@ -94,10 +94,12 @@ MySqlBackup.NET relies on the following component to work.
 ### Reminder 1
 
 MySqlBackup.NET (or MySqlBackup.DLL) stands on top of MySql.Data.DLL which also stands on top of .NET Framework, which uses UTF8 encoding by default.
-If your database involves any UTF8 or Unicode Characters. You must use a MySQL database with default character of UTF8 while handling Unicode Characters, such as
+If your database involves any UTF8 or Unicode Characters. You must use a MySQL database with default character of **UTF8** while handling Unicode Characters, such as
+
 * Western European specific languages, the character of 'À', 'ë', 'õ', 'Ñ'.
 * Russian, Hebrew, India, Arabic, Chinese, Korean, Japanese characters, etc.
-and you are recommended to apply the connection string option of charset=utf8. Example:
+
+You are recommended to apply the connection string option of charset=utf8. Example:
 
 ```
 server=localhost;user=root;pwd=mypwd;charset=utf8;
