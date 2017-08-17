@@ -1,5 +1,7 @@
 This project is moved from [https://mysqlbackupnet.codeplex.com/](https://mysqlbackupnet.codeplex.com/).
+
 # MySqlBackupNet
+
 A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET.
 
 Article at [CodeProject.com](http://www.codeproject.com/Articles/256466/MySqlBackup-NET)
@@ -8,7 +10,6 @@ Install via NuGet: **PM> Install-Package MySqlBackup.NET**
 [https://www.nuget.org/packages/MySqlBackup.NET/](https://www.nuget.org/packages/MySqlBackup.NET/)
 
 ## Backup/Export a MySQL Database
-
 ```C#
 string constring = "server=localhost;user=root;pwd=qwerty;database=test;";
 
@@ -16,6 +17,7 @@ string constring = "server=localhost;user=root;pwd=qwerty;database=test;";
 constring += "charset=utf8;convertzerodatetime=true;";
 
 string file = "C:\\backup.sql";
+
 using (MySqlConnection conn = new MySqlConnection(constring))
 {
     using (MySqlCommand cmd = new MySqlCommand())
@@ -38,6 +40,8 @@ string constring = "server=localhost;user=root;pwd=qwerty;database=test;";
 
 // Important Additional Connection Options
 constring += "charset=utf8;convertzerodatetime=true;";
+
+string file = "C:\\backup.sql";
 
 using (MySqlConnection conn = new MySqlConnection(constring))
 {
@@ -66,14 +70,7 @@ The most common way to backup a MySQL Database is by using MySqlDump and MySQL W
 
 MySQL Workbench is good for developers, but, when comes to client or end-user, the recommended way is to get every parameter preset and all they need to know is press the big button "Backup" and everything is done. Using MySQL Workbench as a backup tool is not a suitable solution for client or end-user.
 
-On the other hand, MySqlDump.exe cannot be used for Web applications. As most providers forbid that, MySqlBackup will be helpful in building a web-based (ASP.NET) backup tool. 
-
-## Reminder for Using UTF8 and Unicode Characters
-
-If your database involves any UTF8 or Unicode Characters. You must use a MySQL database with default character of UTF8. MySqlBackup.NET stands on top of MySql.Data.DLL. MySql.Data.DLL only works well with UTF8 database and tables while handling Unicode Characters, such as
-
-* Western European specific languages, the character of 'À', 'ë', 'õ', 'Ñ'.
-* Russian, Hebrew, India, Arabic, Chinese, Korean, Japanese characters, etc.
+On the other hand, MySqlDump.exe cannot be executed directly from the Web Server. As most providers forbid that, MySqlBackup will be helpful in building a web-based (ASP.NET) backup tool. 
 
 ## Features
 
