@@ -18,7 +18,7 @@ namespace MySql.Data.MySqlClient
         Dictionary<string, string> _customTable = new Dictionary<string, string>();
 
         List<string> _lstExcludeTables = null;
-
+        
         /// <summary>
         /// Gets or Sets the tables (black list) that will be excluded for export. The rows of the these tables will not be exported too.
         /// </summary>
@@ -150,11 +150,13 @@ namespace MySql.Data.MySqlClient
         /// <summary>
         /// Gets or Sets a value indicates whether the Exported Dump File should be encrypted. Enabling encryption will slow down the whole process.
         /// </summary>
+        [System.Obsolete("This implementation will slow down the whole process which is not recommended. Encrypt the content externally after the export process completed. For more information, please read documentation.")]
         public bool EnableEncryption = false;
 
         /// <summary>
         /// Sets the password used to encrypt the exported dump file.
         /// </summary>
+        [System.Obsolete("This implementation will slow down the whole process which is not recommended. Encrypt the content externally after the export process completed. For more information, please read documentation.")]
         public string EncryptionPassword = "";
 
         /// <summary>

@@ -13,11 +13,13 @@ namespace MySql.Data.MySqlClient
         /// <summary>
         /// Gets or Sets a value indicates whether the Imported Dump File is encrypted.
         /// </summary>
+        [System.Obsolete("This implementation will slow down the whole process which is not recommended. Encrypt the content externally after the export process completed. For more information, please read documentation.")]
         public bool EnableEncryption = false;
 
         /// <summary>
         /// Sets the password used to decrypt the exported dump file.
         /// </summary>
+        [System.Obsolete("This implementation will slow down the whole process which is not recommended. Encrypt the content externally after the export process completed. For more information, please read documentation.")]
         public string EncryptionPassword = "";
 
         /// <summary>
