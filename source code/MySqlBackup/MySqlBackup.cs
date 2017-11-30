@@ -27,7 +27,7 @@ namespace MySql.Data.MySqlClient
             Error
         }
 
-        public const string Version = "2.0.9.2";
+        public const string Version = "2.0.10";
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
@@ -631,6 +631,11 @@ namespace MySql.Data.MySqlClient
 
             for (int i = 0; i < rdr.FieldCount; i++)
             {
+                string _colname = rdr.GetName(i);
+
+                if (_database.Tables[tableName].Columns[_colname].IsGeneratedColumn)
+                    continue;
+
                 if (i > 0)
                     sb.Append(",");
                 sb.Append("`");
@@ -648,12 +653,17 @@ namespace MySql.Data.MySqlClient
 
             for (int i = 0; i < rdr.FieldCount; i++)
             {
+                string columnName = rdr.GetName(i);
+
+                if (table.Columns[columnName].IsGeneratedColumn)
+                    continue;
+
                 if (sb.Length == 0)
                     sb.AppendFormat("(");
                 else
                     sb.AppendFormat(",");
 
-                string columnName = rdr.GetName(i);
+                
                 object ob = rdr[i];
                 var col = table.Columns[columnName];
 

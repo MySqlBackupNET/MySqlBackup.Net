@@ -8,10 +8,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MySqlBackupASPNET")]
 [assembly: AssemblyDescription("ASP.NET Test App for MySqlBackup.NET")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("mysqlbackupnet.codeplex.com")]
-[assembly: AssemblyProduct("mysqlbackupnet.codeplex.com")]
-[assembly: AssemblyCopyright("mysqlbackupnet.codeplex.com")]
-[assembly: AssemblyTrademark("mysqlbackupnet.codeplex.com")]
+[assembly: AssemblyCompany("https://github.com/MySqlBackupNET/MySqlBackup.Net")]
+[assembly: AssemblyProduct("https://github.com/MySqlBackupNET/MySqlBackup.Net")]
+[assembly: AssemblyCopyright("https://github.com/MySqlBackupNET/MySqlBackup.Net")]
+[assembly: AssemblyTrademark("https://github.com/MySqlBackupNET/MySqlBackup.Net")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 

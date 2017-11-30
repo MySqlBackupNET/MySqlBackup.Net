@@ -8,10 +8,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MySqlBackup.NET")]
 [assembly: AssemblyDescription("A tool to backup MySQL database in C#")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("mysqlbackupnet.codeplex.com")]
-[assembly: AssemblyProduct("mysqlbackupnet.codeplex.com")]
-[assembly: AssemblyCopyright("mysqlbackupnet.codeplex.com")]
-[assembly: AssemblyTrademark("mysqlbackupnet.codeplex.com")]
+[assembly: AssemblyCompany("https://github.com/MySqlBackupNET/MySqlBackup.Net")]
+[assembly: AssemblyProduct("https://github.com/MySqlBackupNET/MySqlBackup.Net")]
+[assembly: AssemblyCopyright("https://github.com/MySqlBackupNET/MySqlBackup.Net")]
+[assembly: AssemblyTrademark("https://github.com/MySqlBackupNET/MySqlBackup.Net")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.9.2")]
-[assembly: AssemblyFileVersion("2.0.9.2")]
+[assembly: AssemblyVersion("2.0.10.0")]
+[assembly: AssemblyFileVersion("2.0.10.0")]

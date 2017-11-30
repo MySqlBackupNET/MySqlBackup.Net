@@ -25,6 +25,7 @@ namespace MySql.Data.MySqlClient
         string _comment = "";
         bool _isPrimaryKey = false;
         int _timeFractionLength = 0;
+        bool _isGeneratedColumn = false;
 
         public string Name { get { return _name; } }
         public Type DataType { get { return _dataType; } }
@@ -38,6 +39,7 @@ namespace MySql.Data.MySqlClient
         public string Comment { get { return _comment; } }
         public bool IsPrimaryKey { get { return _isPrimaryKey; } }
         public int TimeFractionLength { get { return _timeFractionLength; } }
+        public bool IsGeneratedColumn { get { return _isGeneratedColumn; } }
 
         public MySqlColumn(string name, Type type, string mySqlDataType,
             string collation, bool allowNull, string key, string defaultValue,
@@ -76,6 +78,15 @@ namespace MySql.Data.MySqlClient
                         int.TryParse(_fractionLength, out _timeFractionLength);
                     }
                 }
+            }
+
+            if (_extra.ToLower().Contains("generated"))
+            {
+                _isGeneratedColumn = true;
+            }
+            else
+            {
+                _isGeneratedColumn = false;
             }
         }
     }
