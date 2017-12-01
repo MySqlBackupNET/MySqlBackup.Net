@@ -1,32 +1,52 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2009
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackupTestApp", "MySqlBackupTestApp\MySqlBackupTestApp.csproj", "{0C44B679-BC54-4818-9E77-6BE2C14E680B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup", "MySqlBackup\MySqlBackup.csproj", "{2625A6B7-505A-43F7-9282-24AFE5A3DB64}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackupASPNET", "MySqlBackupASPNET\MySqlBackupASPNET.csproj", "{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.Net20", "MySql.Data.Net20\MySql.Data.Net20.csproj", "{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		ReleaseNET40_Only|Any CPU = ReleaseNET40_Only|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
+		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
 		{2625A6B7-505A-43F7-9282-24AFE5A3DB64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2625A6B7-505A-43F7-9282-24AFE5A3DB64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2625A6B7-505A-43F7-9282-24AFE5A3DB64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2625A6B7-505A-43F7-9282-24AFE5A3DB64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2625A6B7-505A-43F7-9282-24AFE5A3DB64}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
+		{2625A6B7-505A-43F7-9282-24AFE5A3DB64}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
 		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
+		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
+		{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}.ReleaseNET40_Only|Any CPU.ActiveCfg = ReleaseNET40_Only|Any CPU
+		{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}.ReleaseNET40_Only|Any CPU.Build.0 = ReleaseNET40_Only|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {84B7F404-E06F-43CC-9129-AFD655515B00}
 	EndGlobalSection
 EndGlobal
