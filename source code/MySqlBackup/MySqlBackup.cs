@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Globalization;
 using System.Security.Cryptography;
+using System.Reflection;
 
 namespace MySql.Data.MySqlClient
 {
@@ -27,7 +28,7 @@ namespace MySql.Data.MySqlClient
             Error
         }
 
-        public const string Version = "2.0.10";
+        public const string Version = "2.0.11";
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
@@ -111,18 +112,30 @@ namespace MySql.Data.MySqlClient
 
         public MySqlBackup(MySqlCommand cmd)
         {
-            Command = cmd;
             InitializeComponents();
+            Command = cmd;
         }
 
         void InitializeComponents()
         {
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             _database.GetTotalRowsProgressChanged += _database_GetTotalRowsProgressChanged;
             
             timerReport = new Timer();
             timerReport.Elapsed += timerReport_Elapsed;
 
             utf8WithoutBOM = new UTF8Encoding(false);
+        }
+
+        private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            System.IO.File.WriteAllText("mysql_error_log.txt", "hi :)");
+            AssemblyName asname = new AssemblyName(args.Name);
+            if (asname.Name == "MySql.Data")
+            {
+                return Assembly.LoadFile("MySql.Data.dll");
+            }
+            return null;
         }
 
         void _database_GetTotalRowsProgressChanged(object sender, GetTotalRowsArgs e)
@@ -739,6 +752,10 @@ namespace MySql.Data.MySqlClient
                 if (stopProcess)
                     return;
 
+                if (procedure.CreateProcedureSQLWithoutDefiner.Trim().Length == 0 ||
+                    procedure.CreateProcedureSQL.Trim().Length == 0)
+                    continue;
+
                 Export_WriteLine(string.Format("DROP PROCEDURE IF EXISTS `{0}`;", procedure.Name));
                 Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
 
@@ -767,6 +784,10 @@ namespace MySql.Data.MySqlClient
             {
                 if (stopProcess)
                     return;
+
+                if (function.CreateFunctionSQL.Trim().Length == 0 ||
+                    function.CreateFunctionSQLWithoutDefiner.Trim().Length == 0)
+                    continue;
 
                 Export_WriteLine(string.Format("DROP FUNCTION IF EXISTS `{0}`;", function.Name));
                 Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
@@ -798,6 +819,10 @@ namespace MySql.Data.MySqlClient
                 if (stopProcess)
                     return;
 
+                if (view.CreateViewSQL.Trim().Length == 0 ||
+                    view.CreateViewSQLWithoutDefiner.Trim().Length == 0)
+                    continue;
+
                 Export_WriteLine(string.Format("DROP TABLE IF EXISTS `{0}`;", view.Name));
                 Export_WriteLine(string.Format("DROP VIEW IF EXISTS `{0}`;", view.Name));
 
@@ -828,6 +853,10 @@ namespace MySql.Data.MySqlClient
                 if (stopProcess)
                     return;
 
+                if (e.CreateEventSql.Trim().Length == 0 ||
+                    e.CreateEventSqlWithoutDefiner.Trim().Length == 0)
+                    continue;
+
                 Export_WriteLine(string.Format("DROP EVENT IF EXISTS `{0}`;", e.Name));
                 Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
 
@@ -857,6 +886,10 @@ namespace MySql.Data.MySqlClient
             {
                 if (stopProcess)
                     return;
+
+                if (trigger.CreateTriggerSQL.Trim().Length == 0 ||
+                    trigger.CreateTriggerSQLWithoutDefiner.Trim().Length == 0)
+                    continue;
 
                 Export_WriteLine(string.Format("DROP TRIGGER /*!50030 IF EXISTS */ `{0}`;", trigger.Name));
                 Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
@@ -995,6 +1028,7 @@ namespace MySql.Data.MySqlClient
                 }
                 catch (Exception ex)
                 {
+                    line = "";
 
                     _lastError = ex;
                     if (ImportInfo.IgnoreSqlError)
