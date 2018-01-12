@@ -549,17 +549,7 @@ namespace MySql.Data.MySqlClient.Properties {
         ///DETERMINISTIC
         ///DISTINCT
         ///DISTINCTROW
-        ///DIV
-        ///DO
-        ///DOUBLE
-        ///DROP
-        ///DUAL
-        ///EACH
-        ///ELSE
-        ///ELSEIF
-        ///ENCLOSED
-        ///END
-        ///ESC [rest of string was truncated]&quot;;.
+        ///D [rest of string was truncated]&quot;;.
         /// </summary>
         public static string keywords {
             get {
