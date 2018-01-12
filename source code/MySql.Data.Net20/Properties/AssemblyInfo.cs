@@ -34,15 +34,17 @@ using System.Security;
 [assembly: AssemblyDescription("ADO.Net driver for MySQL")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
-[assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("Copyright ?2004, 2015, Oracle and/or its affiliates. All rights reserved.")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyProduct("www.mysql.com")]
+[assembly: AssemblyCopyright("Copyright (C) 2004, 2015, Oracle and/or its affiliates. All rights reserved.")]
+[assembly: AssemblyTrademark("www.mysql.com")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(false)]
 [assembly: AssemblyTitle("MySql.Data.dll")]
 #if !RT
 [assembly: AllowPartiallyTrustedCallers()]
+[assembly: AssemblyVersion("6.9.10.0")]
+[assembly: AssemblyFileVersion("6.9.10.0")]
 #endif
 
 //#if NET_40_OR_GREATER
