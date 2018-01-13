@@ -1,13 +1,10 @@
 MySql.Data Version: 6.9.10
-URL: https://dev.mysql.com/downloads/connector/net/6.10.html
+Source Code: https://dev.mysql.com/downloads/connector/net/6.10.html
 
-.NET Framework 4.0 & 4.5
->> The binaries are the Original binary from Oracle official release.
+1. The source code is originally obtained from www.mysql.com (oracle)
+2. The binaries of MySql.Data.DLL in this repository are manually recompiled by me from the source code.
+3. The reason of manually recompiling MySql.Data.DLL
+- Reason 1:  mysql.com no more release official binary for older framework such as .NET Framework 2.0 and 4.0
+- Reason 2: there are too many versions of MySql.Data.DLL among developers. During compilation of MySqlBackup.NET, it only recognize the version of MySql.Data.DLL when it is compiled. Therefore, I statically compile MySqlBackup.NET with specific version of MySql.Data.DLL.
 
-.NET Framework 2.0
->> Not included in the Oracle official release
->> Therefore, I modified the source code to exclude .NET 4.0 async/await feature for compiling .NET 2.0 version.
-
-.NET Framework 4.6.1
->> Not included in the Oracle official release
->> I compile it directly from Oracle's source code.
+4. If you wish to use other version of MySql.Data.DLL (such as the latest version), you can manually recompile MySqlBackup.NET which referencing the version of MySql.Data.DLL that you prefer.
