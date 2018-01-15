@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MySqlBackupTestApp</RootNamespace>
     <AssemblyName>MySqlBackupTestApp</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -314,9 +314,9 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MySql.Data.Net20\MySql.Data.Net20.csproj">
-      <Project>{e9df5ed1-4cbd-4226-b931-9a51610ac14d}</Project>
-      <Name>MySql.Data.Net20</Name>
+    <ProjectReference Include="..\MySql.Data.6.10.5\MySQL.Data.6.10.5.csproj">
+      <Project>{6b7d4e8a-9349-4315-b247-77ba821532b9}</Project>
+      <Name>MySQL.Data.6.10.5</Name>
     </ProjectReference>
     <ProjectReference Include="..\MySqlBackup\MySqlBackup.csproj">
       <Project>{2625a6b7-505a-43f7-9282-24afe5a3db64}</Project>

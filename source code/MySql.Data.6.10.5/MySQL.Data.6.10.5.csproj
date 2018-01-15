@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6B7D4E8A-9349-4315-B247-77BA821532B9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MySQL.Data</RootNamespace>
+    <AssemblyName>MySQL.Data</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'NET20|AnyCPU'">
+    <OutputPath>bin\NET20\</OutputPath>
+    <DefineConstants>NET20;</DefineConstants>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Authentication\AuthenticationManager.cs" />
+    <Compile Include="Authentication\MySQLAuthenticationPlugin.cs" />
+    <Compile Include="Authentication\NativePasswordPlugins.cs" />
+    <Compile Include="Authentication\Sha256AuthenticationPlugin.cs" />
+    <Compile Include="Authentication\WindowsAuthenticationPlugin.cs" />
+    <Compile Include="BulkLoader.cs" />
+    <Compile Include="CharSetMap.cs" />
+    <Compile Include="command.cs" />
+    <Compile Include="common\Cache.cs" />
+    <Compile Include="common\ContextString.cs" />
+    <Compile Include="common\LowResolutionStopwatch.cs" />
+    <Compile Include="common\MySqlTokenizer.cs" />
+    <Compile Include="common\NativeMethods.cs" />
+    <Compile Include="common\netstandard2_0\NamedPipeStream.cs" />
+    <Compile Include="common\netstandard2_0\SharedMemoryStream.cs" />
+    <Compile Include="common\Platform.cs" />
+    <Compile Include="common\QueryNormalizer.cs" />
+    <Compile Include="common\SHA1.cs" />
+    <Compile Include="common\Ssl.cs" />
+    <Compile Include="common\StreamCreator.cs" />
+    <Compile Include="common\StringUtility.cs" />
+    <Compile Include="common\UnixEndPoint.cs" />
+    <Compile Include="common\Version.cs" />
+    <Compile Include="CompressedStream.cs" />
+    <Compile Include="Connection.cs" />
+    <Compile Include="Crypt.cs" />
+    <Compile Include="datareader.cs" />
+    <Compile Include="Driver.cs" />
+    <Compile Include="Exception.cs" />
+    <Compile Include="Field.cs" />
+    <Compile Include="Framework\netstandard2_0\AuthenticationManager.cs" />
+    <Compile Include="Framework\netstandard2_0\CommandBuilder.cs" />
+    <Compile Include="Framework\netstandard2_0\dataadapter.cs" />
+    <Compile Include="Framework\netstandard2_0\MySqlClientPermission.cs" />
+    <Compile Include="Framework\netstandard2_0\MySqlClientPermissionAttribute.cs" />
+    <Compile Include="Framework\netstandard2_0\MySqlCommand.cs" />
+    <Compile Include="Framework\netstandard2_0\MySqlConfiguration.cs" />
+    <Compile Include="Framework\netstandard2_0\MySqlConnection.cs" />
+    <Compile Include="Framework\netstandard2_0\MySqlDataReader.cs" />
+    <Compile Include="Framework\netstandard2_0\MySqlHelper.cs" />
+    <Compile Include="Framework\netstandard2_0\MySqlParameter.cs" />
+    <Compile Include="Framework\netstandard2_0\MySqlParameterCollection.cs" />
+    <Compile Include="Framework\netstandard2_0\MySqlPromotableTransaction.cs" />
+    <Compile Include="Framework\netstandard2_0\MySqlSecurityPermission.cs" />
+    <Compile Include="Interceptors\CommandInterceptor.cs" />
+    <Compile Include="Interceptors\ExceptionInterceptor.cs" />
+    <Compile Include="Interceptors\Interceptor.cs" />
+    <Compile Include="ISSchemaProvider.cs" />
+    <Compile Include="LinqBridge-1.3.cs" />
+    <Compile Include="Memcached\BinaryClient.cs" />
+    <Compile Include="Memcached\Client.cs" />
+    <Compile Include="Memcached\MemcachedException.cs" />
+    <Compile Include="Memcached\TextClient.cs" />
+    <Compile Include="MySqlClientFactory.cs" />
+    <Compile Include="MySqlConnectionStringBuilder.cs" />
+    <Compile Include="MysqlDefs.cs" />
+    <Compile Include="MySqlError.cs" />
+    <Compile Include="MySqlHelper.cs" />
+    <Compile Include="MySqlPacket.cs" />
+    <Compile Include="MySqlPool.cs" />
+    <Compile Include="MySqlPoolManager.cs" />
+    <Compile Include="MySqlScript.cs" />
+    <Compile Include="MySqlStream.cs" />
+    <Compile Include="MySqlTrace.cs" />
+    <Compile Include="NativeDriver.cs" />
+    <Compile Include="parameter.cs" />
+    <Compile Include="parameter_collection.cs" />
+    <Compile Include="PerformanceMonitor.cs" />
+    <Compile Include="PreparableStatement.cs" />
+    <Compile Include="ProcedureCache.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Replication\ReplicationConfiguration.cs" />
+    <Compile Include="Replication\ReplicationManager.cs" />
+    <Compile Include="Replication\ReplicationRoundRobinServerGroup.cs" />
+    <Compile Include="Replication\ReplicationServer.cs" />
+    <Compile Include="Replication\ReplicationServerGroup.cs" />
+    <Compile Include="Resources.cs" />
+    <Compile Include="ResultSet.cs" />
+    <Compile Include="Runtime.cs" />
+    <Compile Include="Schema.cs" />
+    <Compile Include="SchemaProvider.cs" />
+    <Compile Include="Statement.cs" />
+    <Compile Include="StoredProcedure.cs" />
+    <Compile Include="TableCache.cs" />
+    <Compile Include="TimedStream.cs" />
+    <Compile Include="TracingDriver.cs" />
+    <Compile Include="transaction.cs" />
+    <Compile Include="Types\MetaData.cs" />
+    <Compile Include="Types\MySqlBinary.cs" />
+    <Compile Include="Types\MySqlBit.cs" />
+    <Compile Include="Types\MySqlByte.cs" />
+    <Compile Include="Types\MySqlConversionException.cs" />
+    <Compile Include="Types\MySqlDateTime.cs" />
+    <Compile Include="Types\MySqlDecimal.cs" />
+    <Compile Include="Types\MySqlDouble.cs" />
+    <Compile Include="Types\MySqlGeometry.cs" />
+    <Compile Include="Types\MySqlGuid.cs" />
+    <Compile Include="Types\MySqlInt16.cs" />
+    <Compile Include="Types\MySqlInt32.cs" />
+    <Compile Include="Types\MySqlInt64.cs" />
+    <Compile Include="Types\MySqlSingle.cs" />
+    <Compile Include="Types\MySqlString.cs" />
+    <Compile Include="Types\MySqlTime.cs" />
+    <Compile Include="Types\MySqlUByte.cs" />
+    <Compile Include="Types\MySqlUInt16.cs" />
+    <Compile Include="Types\MySqlUInt32.cs" />
+    <Compile Include="Types\MySqlUInt64.cs" />
+    <Compile Include="Types\MySqlValue.cs" />
+    <Compile Include="Utils.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
