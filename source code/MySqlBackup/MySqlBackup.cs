@@ -1227,6 +1227,7 @@ namespace MySql.Data.MySqlClient
             _mySqlScript.Execute();
             _sbImport = new StringBuilder();
 
+            GC.Collect();
         }
 
         bool Import_IsEmptyLine(string line)
