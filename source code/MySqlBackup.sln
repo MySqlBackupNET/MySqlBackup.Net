@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup", "MySqlBackup\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackupASPNET", "MySqlBackupASPNET\MySqlBackupASPNET.csproj", "{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data.6.9.10(for.Net2.0)", "MySql.Data.6.9.10\MySql.Data.6.9.10(for.Net2.0).csproj", "{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySQL.Data.6.9.10(for.Net2.0)", "MySql.Data.6.9.10\MySQL.Data.6.9.10(for.Net2.0).csproj", "{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
