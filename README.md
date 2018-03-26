@@ -14,7 +14,13 @@ Install via NuGet: **PM> Install-Package MySqlBackup.NET**
 
 ## Acknowledgement
 
-This class library stands on top of **MySQL.Data** [https://dev.mysql.com/downloads/connector/net/](https://dev.mysql.com/downloads/connector/net/). The development team of MySQL.Data has done a great job that enable .NET developers connect to MySQL at ease. Therefore a big credit and thanks to MySQL.Data development team.
+MySqlBackup.NET stands on top of 2 options of connector:
+
+Option 1: **MySql.Data.DLL**
+Developped by MySQL (Oracle), [https://dev.mysql.com/downloads/connector/net/](https://dev.mysql.com/downloads/connector/net/).
+
+Option 2: **Devart dotConnect Express**
+Developped by Devart, [https://www.devart.com/dotconnect/mysql/](https://www.devart.com/dotconnect/mysql/).
 
 ## Backup/Export a MySQL Database
 ```C#
@@ -91,11 +97,19 @@ On the other hand, MySqlDump.exe cannot be executed directly from the Web Server
 * Able to export rows into different mode. (Insert, Insert Ignore, Replace, On Duplicate Key Update, Update)
 * Can be used directly in ASP.NET or web services.
 
-## Prerequisite / Dependencies
+## Prerequisite and Dependencies for Development, Compile and Production Usage
 
 MySqlBackup.NET relies on the following component to work.
-* [MySQL dot net Connector/Net (MySql.Data.DLL)](http://www.mysql.com/downloads/connector/net/)<br />_A reference of this DLL must be added into your project in order for MySqlBackup.NET to work.<br />MySql.Data.DLL is developed by Oracle Corporation, licensed under GPL License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)._
 
+Option 1: MySql.Data (Connector/NET)
+* [MySQL dot net Connector/Net (MySql.Data.DLL)](http://www.mysql.com/downloads/connector/net/)<br />_A reference of this DLL must be added into your project in order for MySqlBackup.NET to work.<br />MySql.Data.DLL is developed by Oracle Corporation, licensed under GPL License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)._
+* MySql.Data.DLL
+
+Option 2: Devart Express (dotConnect)
+* [Devart dotConnect for MySQL Express](https://www.devart.com/dotconnect/mysql/)<br />_A reference of this DLL must be added into your project in order for to compile or work with MySqlBackup.NET._
+* For license agreement, please read: [https://www.devart.com/dotconnect/mysql/licensing-faq.html](https://www.devart.com/dotconnect/mysql/licensing-faq.html)
+* Devart.Data.DLL
+* Devart.Data.MySql.DLL
 ## Reminder
 
 ### Reminder 1
@@ -114,6 +128,7 @@ server=localhost;user=root;pwd=mypwd;charset=utf8;
 
 ### Reminder 2
 
+(For MySql.Data connector only)
 DateTime conversion between MySQL and .NET Framework. In MySQL, there are various of DateTime format, such as null value or Date only data. But, in .NET Framework, there is no null value (or Date only) for DateTime. This error is not caused by MySqlBackup.DLL. MySql.Data.DLL (developed by Oracle) has decided to throw an exception of Data Conversion Error. Therefore, you are strongly recommended to apply the connection string option of **convertzerodatetime=true**. Example:
 
 ```
