@@ -7,6 +7,7 @@ using MySql.Data.MySqlClient;
 using System.IO;
 using System.Text;
 using System.IO.Compression;
+using MySql.Data.MySqlClient;
 
 namespace MySqlBackupASPNET
 {

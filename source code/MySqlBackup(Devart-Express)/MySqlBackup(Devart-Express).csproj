@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{39E2242B-54EA-4A5D-916F-7EB30625FAD7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Devart.Data.MySql</RootNamespace>
+    <AssemblyName>MySqlBackupNet.DevartExpress</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Devart.Data, Version=5.0.1878.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Devart\dotConnect\MySQL\Devart.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Devart.Data.MySql, Version=8.10.1086.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Devart\dotConnect\MySQL\Devart.Data.MySql.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EventArgs\ExportCompleteArgs.cs" />
+    <Compile Include="EventArgs\ExportProgressArgs.cs" />
+    <Compile Include="EventArgs\GetTotalRowsArgs.cs" />
+    <Compile Include="EventArgs\ImportCompleteArgs.cs" />
+    <Compile Include="EventArgs\ImportProgressArgs.cs" />
+    <Compile Include="InfoObjects\enumRowsDataExportMode.cs" />
+    <Compile Include="InfoObjects\ExportInformations.cs" />
+    <Compile Include="InfoObjects\ImportInformations.cs" />
+    <Compile Include="Methods\CryptoExpress.cs" />
+    <Compile Include="Methods\QueryExpress.cs" />
+    <Compile Include="MySqlBackup.cs" />
+    <Compile Include="MySqlObjects\MySqlColumn.cs" />
+    <Compile Include="MySqlObjects\MySqlColumnList.cs" />
+    <Compile Include="MySqlObjects\MySqlDatabase.cs" />
+    <Compile Include="MySqlObjects\MySqlEvent.cs" />
+    <Compile Include="MySqlObjects\MySqlEventList.cs" />
+    <Compile Include="MySqlObjects\MySqlFunction.cs" />
+    <Compile Include="MySqlObjects\MySqlFunctionList.cs" />
+    <Compile Include="MySqlObjects\MySqlProcedure.cs" />
+    <Compile Include="MySqlObjects\MySqlProcedureList.cs" />
+    <Compile Include="MySqlObjects\MySqlServer.cs" />
+    <Compile Include="MySqlObjects\MySqlTable.cs" />
+    <Compile Include="MySqlObjects\MySqlTableList.cs" />
+    <Compile Include="MySqlObjects\MySqlTrigger.cs" />
+    <Compile Include="MySqlObjects\MySqlTriggerList.cs" />
+    <Compile Include="MySqlObjects\MySqlView.cs" />
+    <Compile Include="MySqlObjects\MySqlViewList.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

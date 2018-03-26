@@ -314,13 +314,13 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MySql.Data.6.9.10\MySQL.Data.6.9.10%28for.Net2.0%29.csproj">
+    <ProjectReference Include="..\MySql.Data%286.9.8%29\MySql.Data%286.9.8%29.csproj">
       <Project>{e9df5ed1-4cbd-4226-b931-9a51610ac14d}</Project>
-      <Name>MySQL.Data.6.9.10%28for.Net2.0%29</Name>
+      <Name>MySql.Data%286.9.8%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MySqlBackup\MySqlBackup.csproj">
+    <ProjectReference Include="..\MySqlBackup\MySqlBackup%28MySql.Data%29.csproj">
       <Project>{2625a6b7-505a-43f7-9282-24afe5a3db64}</Project>
-      <Name>MySqlBackup</Name>
+      <Name>MySqlBackup%28MySql.Data%29</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
