@@ -102,7 +102,7 @@ On the other hand, MySqlDump.exe cannot be executed directly from the Web Server
 MySqlBackup.NET relies on the following component to work.
 
 Option 1: MySql.Data (Connector/NET)
-* [MySQL dot net Connector/Net (MySql.Data.DLL)](http://www.mysql.com/downloads/connector/net/)<br />_A reference of this DLL must be added into your project in order for MySqlBackup.NET to work.<br />MySql.Data.DLL is developed by Oracle Corporation, licensed under GPL License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)._
+* [MySQL dot net Connector/Net (MySql.Data.DLL)](http://www.mysql.com/downloads/connector/net/)<br />_A reference of this DLL must be added into your project in order for to compile or work with MySqlBackup.NET.<br />MySql.Data.DLL is developed by Oracle Corporation, licensed under GPL License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)._
 * MySql.Data.DLL
 
 Option 2: Devart Express (dotConnect)
