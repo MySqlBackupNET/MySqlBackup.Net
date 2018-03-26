@@ -6,11 +6,11 @@ A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET.
 
 Article at [CodeProject.com](http://www.codeproject.com/Articles/256466/MySqlBackup-NET)
 
-Install via NuGet: **PM> Install-Package MySqlBackup.NET**  
-[https://www.nuget.org/packages/MySqlBackup.NET/](https://www.nuget.org/packages/MySqlBackup.NET/)
-
 ## Download
 https://github.com/MySqlBackupNET/MySqlBackup.Net/releases
+
+Install via NuGet: **PM> Install-Package MySqlBackup.NET**  
+[https://www.nuget.org/packages/MySqlBackup.NET/](https://www.nuget.org/packages/MySqlBackup.NET/)
 
 ## Acknowledgement
 
