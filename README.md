@@ -9,6 +9,9 @@ Article at [CodeProject.com](http://www.codeproject.com/Articles/256466/MySqlBac
 Install via NuGet: **PM> Install-Package MySqlBackup.NET**  
 [https://www.nuget.org/packages/MySqlBackup.NET/](https://www.nuget.org/packages/MySqlBackup.NET/)
 
+## Download
+https://github.com/MySqlBackupNET/MySqlBackup.Net/releases
+
 ## Acknowledgement
 
 This class library stands on top of **MySQL.Data** [https://dev.mysql.com/downloads/connector/net/](https://dev.mysql.com/downloads/connector/net/). The development team of MySQL.Data has done a great job that enable .NET developers connect to MySQL at ease. Therefore a big credit and thanks to MySQL.Data development team.
