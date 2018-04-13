@@ -73,17 +73,17 @@ using (MySqlConnection conn = new MySqlConnection(constring))
 
 ## Introduction
 
-MySqlBackup.NET is a tool (DLL) that can backup/restore MySQL database in .NET Programming Language. It is an alternative to MySqlDump. 
+MySqlBackup.NET is a tool (DLL) that can backup/restore MySQL database in .NET Programming Language. It is an alternative to MySqlDump.
 
-This tool is develop in C# but able to be used in any .NET Language (i.e. VB.NET, F#, etc).
+This tool is developed in C# but able to be used in any .NET Language (i.e. VB.NET, F#, etc.).
 
-Another benefits of making this tool is, we don't have to rely on two small programs - MySqlDump.exe and MySql.exe to perform the backup and restore task. We will have better control on the output result in .NET way.
+Another benefit of making this tool is, we don't have to rely on two small programs - MySqlDump.exe and MySql.exe to perform the backup and restore task. We will have better control on the output result in .NET way.
 
 The most common way to backup a MySQL Database is by using MySqlDump and MySQL Workbench.
 
-MySQL Workbench is good for developers, but, when comes to client or end-user, the recommended way is to get every parameter preset and all they need to know is press the big button "Backup" and everything is done. Using MySQL Workbench as a backup tool is not a suitable solution for client or end-user.
+MySQL Workbench is good for developers, but when comes to the client or end-user, the recommended way is to get every parameter preset and all they need to know is press the big button "Backup" and everything is done. Using MySQL Workbench as a backup tool is not a suitable solution for the client or end-user.
 
-On the other hand, MySqlDump.exe cannot be executed directly from the Web Server. As most providers forbid that, MySqlBackup will be helpful in building a web-based (ASP.NET) backup tool. 
+On the other hand, MySqlDump.exe cannot be executed directly from the Web Server. As most providers forbid that, MySqlBackup will be helpful in building a web-based (ASP.NET) backup tool.
 
 ## Features
 
@@ -91,10 +91,10 @@ On the other hand, MySqlDump.exe cannot be executed directly from the Web Server
 * Can be used in any .NET Languages.
 * Export/Import to/from MemoryStream
 * Conditional Rows Export (Filter Tables or Rows)
-* Build-In Internal Encryption Function
+* Built-in Internal Encryption Function
 * Able Restore to New Non-Existed Database
 * Progress Report is Available for Both Export and Import Task.
-* Able to export rows into different mode. (Insert, Insert Ignore, Replace, On Duplicate Key Update, Update)
+* Able to export rows into different modes. (Insert, Insert Ignore, Replace, On Duplicate Key Update, Update)
 * Can be used directly in ASP.NET or web services.
 
 ## Prerequisite and Dependencies for Development, Compile and Production Usage
