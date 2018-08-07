@@ -1,101 +1,28 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2625A6B7-505A-43F7-9282-24AFE5A3DB64}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MySql.Data.MySqlClient</RootNamespace>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>MySqlBackup</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <RootNamespace>MySql.Data.MySqlClient</RootNamespace>
+    <Product>MySqlBackup.NET</Product>
+    <PackageId>MySqlBackup.NET</PackageId>
+    <Version>2.0.12</Version>
+    <Authors>adriancs</Authors>
+    <Copyright>Public Domain</Copyright>
+    <PackageLicenseUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Company />
+    <Description>A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET.</Description>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DelaySign>true</DelaySign>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="MySql.Data" Version="8.0.12" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="EventArgs\ExportCompleteArgs.cs" />
-    <Compile Include="EventArgs\ExportProgressArgs.cs" />
-    <Compile Include="EventArgs\GetTotalRowsArgs.cs" />
-    <Compile Include="EventArgs\ImportCompleteArgs.cs" />
-    <Compile Include="EventArgs\ImportProgressArgs.cs" />
-    <Compile Include="InfoObjects\enumRowsDataExportMode.cs" />
-    <Compile Include="InfoObjects\ExportInformations.cs" />
-    <Compile Include="InfoObjects\ImportInformations.cs" />
-    <Compile Include="Methods\CryptoExpress.cs" />
-    <Compile Include="Methods\QueryExpress.cs" />
-    <Compile Include="MySqlBackup.cs" />
-    <Compile Include="MySqlObjects\MySqlColumn.cs" />
-    <Compile Include="MySqlObjects\MySqlColumnList.cs" />
-    <Compile Include="MySqlObjects\MySqlDatabase.cs" />
-    <Compile Include="MySqlObjects\MySqlEvent.cs" />
-    <Compile Include="MySqlObjects\MySqlEventList.cs" />
-    <Compile Include="MySqlObjects\MySqlFunction.cs" />
-    <Compile Include="MySqlObjects\MySqlFunctionList.cs" />
-    <Compile Include="MySqlObjects\MySqlProcedure.cs" />
-    <Compile Include="MySqlObjects\MySqlProcedureList.cs" />
-    <Compile Include="MySqlObjects\MySqlServer.cs" />
-    <Compile Include="MySqlObjects\MySqlTable.cs" />
-    <Compile Include="MySqlObjects\MySqlTableList.cs" />
-    <Compile Include="MySqlObjects\MySqlTrigger.cs" />
-    <Compile Include="MySqlObjects\MySqlTriggerList.cs" />
-    <Compile Include="MySqlObjects\MySqlView.cs" />
-    <Compile Include="MySqlObjects\MySqlViewList.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Folder Include="Properties\" />
   </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="ConnectorNetPublicKey.snk" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MySql.Data%286.9.8%29\MySql.Data%286.9.8%29.csproj">
-      <Project>{e9df5ed1-4cbd-4226-b931-9a51610ac14d}</Project>
-      <Name>MySql.Data%286.9.8%29</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>
