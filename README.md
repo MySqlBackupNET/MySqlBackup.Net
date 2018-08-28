@@ -135,7 +135,10 @@ DateTime conversion between MySQL and .NET Framework. In MySQL, there are variou
 server=localhost;user=root;pwd=mypwd;charset=utf8;convertzerodatetime=true;
 ```
 
-----
+
+
+## License
+
 MySqlBackup.Net is licensed under the [The Unlicense](https://github.com/MySqlBackupNET/MySqlBackup.Net/blob/master/LICENSE).
 
 ## Acknowledgement
