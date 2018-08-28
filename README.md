@@ -141,3 +141,4 @@ MySqlBackup.Net is licensed under the [The Unlicense](https://github.com/MySqlBa
 ## Acknowledgement
 
 Thanks to [trembon](https://github.com/trembon) for repackaging this project into .NET Standard 2.0 and nuget package
+[https://github.com/MySqlBackupNET/MySqlBackup.Net/issues/17](https://github.com/MySqlBackupNET/MySqlBackup.Net/issues/17)
