@@ -137,3 +137,7 @@ server=localhost;user=root;pwd=mypwd;charset=utf8;convertzerodatetime=true;
 
 ----
 MySqlBackup.Net is licensed under the [The Unlicense](https://github.com/MySqlBackupNET/MySqlBackup.Net/blob/master/LICENSE).
+
+## Acknowledgement
+
+Thanks to [trembon](https://github.com/trembon) for repackaging this project into .NET Standard 2.0 and nuget package
