@@ -9,6 +9,9 @@ Article at [CodeProject.com](http://www.codeproject.com/Articles/256466/MySqlBac
 ## How to Add This Library into Your Project
 Read [this wiki: How to Add This Library into Your Project](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/How-to-Add-This-Library-into-Your-Project)
 
+## Backup ALL Databases in 1 Click
+Export all the databases one by one to separate SQL dump files. This a sub-project expansion using MySqlBackup.NET. Read more: [MySqlBackup_All_DB](https://github.com/MySqlBackupNET/MySqlBackup_All_DB)
+
 ## Download
 https://github.com/MySqlBackupNET/MySqlBackup.Net/releases
 
