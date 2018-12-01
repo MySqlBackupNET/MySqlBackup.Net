@@ -28,7 +28,7 @@ namespace MySql.Data.MySqlClient
             Error
         }
 
-        public const string Version = "2.0.12";
+        public const string Version = "2.1";
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
@@ -61,6 +61,8 @@ namespace MySql.Data.MySqlClient
         string _delimiter = "";
         bool _nameIsSet = false;
         bool _isNewDatabase = false;
+        Dictionary<string, bool> _dicImportRoutines = new Dictionary<string, bool>();
+        bool _createViewDetected = false;
 
         enum NextImportAction
         {
@@ -1046,6 +1048,8 @@ namespace MySql.Data.MySqlClient
                 }
             }
 
+            Import_Routines();
+
             ReportEndProcess();
         }
 
@@ -1066,6 +1070,8 @@ namespace MySql.Data.MySqlClient
                 throw new Exception("MySqlCommand.Connection is not opened.");
             }
 
+            _createViewDetected = false;
+            _dicImportRoutines = new Dictionary<string, bool>();
             stopProcess = false;
             GetSHA512HashFromPassword(ImportInfo.EncryptionPassword);
             _lastError = null;
@@ -1222,11 +1228,42 @@ namespace MySql.Data.MySqlClient
             if (!line.EndsWith(_delimiter))
                 return;
 
-            _mySqlScript.Query = _sbImport.ToString();
-            _mySqlScript.Delimiter = _delimiter;
-            _mySqlScript.Execute();
-            _sbImport = new StringBuilder();
+            string _importQuery = _sbImport.ToString();
 
+            bool skipexecute = false;
+
+            // collecting routines
+
+            if (_importQuery[0].ToString().ToUpper() == "C")
+            {
+                string _iq = _importQuery.ToLower();
+
+                if (_iq.StartsWith("create "))
+                {
+
+                    if (_iq.StartsWith("create table ") ||
+                    _iq.StartsWith("create database ") ||
+                    _iq.StartsWith("create schema "))
+                    {
+                        // do nothing
+                    }
+                    else
+                    {
+                        _dicImportRoutines[_importQuery] = false;
+                        skipexecute = true;
+                    }
+                }
+            } 
+            
+            if(!skipexecute)
+            {
+                _mySqlScript.Query = _importQuery;
+                _mySqlScript.Delimiter = _delimiter;
+                _mySqlScript.Execute();
+            }
+
+            _sbImport.Clear();
+            _sbImport = new StringBuilder();
             GC.Collect();
         }
 
@@ -1248,6 +1285,75 @@ namespace MySql.Data.MySqlClient
                 return true;
 
             return false;
+        }
+
+        void Import_Routines()
+        {
+            bool excutedOnce = true;
+
+            Dictionary<string, Exception> _dicViewErr = new Dictionary<string, Exception>();
+
+            while (excutedOnce)
+            {
+                excutedOnce = false;
+                string lastExecutedView = "";
+
+                foreach (var kv in _dicImportRoutines)
+                {
+                    if (kv.Value)
+                        continue;
+
+                    if (stopProcess)
+                    {
+                        processCompletionType = ProcessEndType.Cancelled;
+                        break;
+                    }
+
+                    _mySqlScript.Query = kv.Key;
+                    _mySqlScript.Delimiter = _delimiter;
+
+                    try
+                    {
+                        _mySqlScript.Execute();
+                        excutedOnce = true;
+                        lastExecutedView = kv.Key;
+                        if (_dicViewErr.ContainsKey(kv.Key))
+                        {
+                            _dicViewErr.Remove(kv.Key);
+                        }
+                        break;
+                    }
+                    catch(Exception ex)
+                    {
+                        _dicViewErr[kv.Key] = ex;
+                    }
+                }
+
+                if (lastExecutedView.Length > 0)
+                {
+                    _dicImportRoutines[lastExecutedView] = true;
+                }
+            }
+
+            if (_dicViewErr.Count > 0)
+            {
+                foreach(var kv in _dicViewErr)
+                {
+                    _lastError = kv.Value;
+                    if (ImportInfo.IgnoreSqlError)
+                    {
+                        if (!string.IsNullOrEmpty(ImportInfo.ErrorLogFile))
+                        {
+                            File.AppendAllText(ImportInfo.ErrorLogFile, Environment.NewLine + Environment.NewLine + kv.Value.ToString());
+                        }
+                    }
+                    else
+                    {
+                        StopAllProcess();
+                        throw kv.Value;
+                    }
+                }
+            }
         }
 
         #endregion

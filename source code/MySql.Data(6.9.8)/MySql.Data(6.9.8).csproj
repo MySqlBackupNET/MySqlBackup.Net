@@ -260,6 +260,7 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ConnectorNetPublicKey.snk" />
     <None Include="Properties\keywords.txt" />
   </ItemGroup>
   <ItemGroup>

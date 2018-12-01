@@ -70,7 +70,10 @@
             this.button_SelectFile = new System.Windows.Forms.Button();
             this.ewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.exportImportVIEWWithDependenciesWithinVIEWsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -167,100 +170,102 @@
             this.excludeTablesNewFeatureToolStripMenuItem,
             this.modifyHeadersAndFootersNewInV205ToolStripMenuItem,
             this.toolStripSeparator4,
-            this.exportImportToFromStringNewFeatureInV207ToolStripMenuItem});
+            this.exportImportToFromStringNewFeatureInV207ToolStripMenuItem,
+            this.toolStripSeparator5,
+            this.exportImportVIEWWithDependenciesWithinVIEWsToolStripMenuItem});
             this.testToolStripMenuItem1.Name = "testToolStripMenuItem1";
-            this.testToolStripMenuItem1.Size = new System.Drawing.Size(41, 20);
+            this.testToolStripMenuItem1.Size = new System.Drawing.Size(40, 20);
             this.testToolStripMenuItem1.Text = "Test";
             // 
             // testBasicWithDefaultSettingsToolStripMenuItem
             // 
             this.testBasicWithDefaultSettingsToolStripMenuItem.Name = "testBasicWithDefaultSettingsToolStripMenuItem";
-            this.testBasicWithDefaultSettingsToolStripMenuItem.Size = new System.Drawing.Size(361, 22);
+            this.testBasicWithDefaultSettingsToolStripMenuItem.Size = new System.Drawing.Size(360, 22);
             this.testBasicWithDefaultSettingsToolStripMenuItem.Text = "Basic with Default Settings";
             this.testBasicWithDefaultSettingsToolStripMenuItem.Click += new System.EventHandler(this.testBasicWithDefaultSettingsToolStripMenuItem_Click);
             // 
             // testExportImportWithOptionsToolStripMenuItem
             // 
             this.testExportImportWithOptionsToolStripMenuItem.Name = "testExportImportWithOptionsToolStripMenuItem";
-            this.testExportImportWithOptionsToolStripMenuItem.Size = new System.Drawing.Size(361, 22);
+            this.testExportImportWithOptionsToolStripMenuItem.Size = new System.Drawing.Size(360, 22);
             this.testExportImportWithOptionsToolStripMenuItem.Text = "Export / Import with Options (Updated in v2.0.7)";
             this.testExportImportWithOptionsToolStripMenuItem.Click += new System.EventHandler(this.testExportImportWithOptionsToolStripMenuItem_Click);
             // 
             // testCustomExportOfTablesAndRowsToolStripMenuItem
             // 
             this.testCustomExportOfTablesAndRowsToolStripMenuItem.Name = "testCustomExportOfTablesAndRowsToolStripMenuItem";
-            this.testCustomExportOfTablesAndRowsToolStripMenuItem.Size = new System.Drawing.Size(361, 22);
+            this.testCustomExportOfTablesAndRowsToolStripMenuItem.Size = new System.Drawing.Size(360, 22);
             this.testCustomExportOfTablesAndRowsToolStripMenuItem.Text = "Custom Export of Tables and Rows";
             this.testCustomExportOfTablesAndRowsToolStripMenuItem.Click += new System.EventHandler(this.testCustomExportOfTablesAndRowsToolStripMenuItem_Click);
             // 
             // testExportWithProgressBarToolStripMenuItem
             // 
             this.testExportWithProgressBarToolStripMenuItem.Name = "testExportWithProgressBarToolStripMenuItem";
-            this.testExportWithProgressBarToolStripMenuItem.Size = new System.Drawing.Size(361, 22);
+            this.testExportWithProgressBarToolStripMenuItem.Size = new System.Drawing.Size(360, 22);
             this.testExportWithProgressBarToolStripMenuItem.Text = "Progress Report - Export";
             this.testExportWithProgressBarToolStripMenuItem.Click += new System.EventHandler(this.testExportWithProgressBarToolStripMenuItem_Click);
             // 
             // testProgressReportImportToolStripMenuItem
             // 
             this.testProgressReportImportToolStripMenuItem.Name = "testProgressReportImportToolStripMenuItem";
-            this.testProgressReportImportToolStripMenuItem.Size = new System.Drawing.Size(361, 22);
+            this.testProgressReportImportToolStripMenuItem.Size = new System.Drawing.Size(360, 22);
             this.testProgressReportImportToolStripMenuItem.Text = "Progress Report - Import";
             this.testProgressReportImportToolStripMenuItem.Click += new System.EventHandler(this.testProgressReportImportToolStripMenuItem_Click);
             // 
             // testEncryptDecryptDumpFileToolStripMenuItem
             // 
             this.testEncryptDecryptDumpFileToolStripMenuItem.Name = "testEncryptDecryptDumpFileToolStripMenuItem";
-            this.testEncryptDecryptDumpFileToolStripMenuItem.Size = new System.Drawing.Size(361, 22);
+            this.testEncryptDecryptDumpFileToolStripMenuItem.Size = new System.Drawing.Size(360, 22);
             this.testEncryptDecryptDumpFileToolStripMenuItem.Text = "Encrypt / Decrypt Dump File";
             this.testEncryptDecryptDumpFileToolStripMenuItem.Click += new System.EventHandler(this.testEncryptDecryptDumpFileToolStripMenuItem_Click);
             // 
             // testExportImportWithZipToolStripMenuItem
             // 
             this.testExportImportWithZipToolStripMenuItem.Name = "testExportImportWithZipToolStripMenuItem";
-            this.testExportImportWithZipToolStripMenuItem.Size = new System.Drawing.Size(361, 22);
+            this.testExportImportWithZipToolStripMenuItem.Size = new System.Drawing.Size(360, 22);
             this.testExportImportWithZipToolStripMenuItem.Text = "Export / Import with Zip";
             this.testExportImportWithZipToolStripMenuItem.Click += new System.EventHandler(this.testExportImportWithZipToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(358, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(357, 6);
             // 
             // testExportImportFromMemoryToolStripMenuItem
             // 
             this.testExportImportFromMemoryToolStripMenuItem.Name = "testExportImportFromMemoryToolStripMenuItem";
-            this.testExportImportFromMemoryToolStripMenuItem.Size = new System.Drawing.Size(361, 22);
+            this.testExportImportFromMemoryToolStripMenuItem.Size = new System.Drawing.Size(360, 22);
             this.testExportImportFromMemoryToolStripMenuItem.Text = "Export / Import To/From Memory (Simplify in v2.0.5)";
             this.testExportImportFromMemoryToolStripMenuItem.Click += new System.EventHandler(this.testExportImportFromMemoryToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(358, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(357, 6);
             // 
             // excludeTablesNewFeatureToolStripMenuItem
             // 
             this.excludeTablesNewFeatureToolStripMenuItem.Name = "excludeTablesNewFeatureToolStripMenuItem";
-            this.excludeTablesNewFeatureToolStripMenuItem.Size = new System.Drawing.Size(361, 22);
+            this.excludeTablesNewFeatureToolStripMenuItem.Size = new System.Drawing.Size(360, 22);
             this.excludeTablesNewFeatureToolStripMenuItem.Text = "Exclude Tables (New Feature in v2.0.5)";
             this.excludeTablesNewFeatureToolStripMenuItem.Click += new System.EventHandler(this.excludeTablesNewFeatureToolStripMenuItem_Click);
             // 
             // modifyHeadersAndFootersNewInV205ToolStripMenuItem
             // 
             this.modifyHeadersAndFootersNewInV205ToolStripMenuItem.Name = "modifyHeadersAndFootersNewInV205ToolStripMenuItem";
-            this.modifyHeadersAndFootersNewInV205ToolStripMenuItem.Size = new System.Drawing.Size(361, 22);
+            this.modifyHeadersAndFootersNewInV205ToolStripMenuItem.Size = new System.Drawing.Size(360, 22);
             this.modifyHeadersAndFootersNewInV205ToolStripMenuItem.Text = "Modify Headers and Footers (New Feature in v2.0.5)";
             this.modifyHeadersAndFootersNewInV205ToolStripMenuItem.Click += new System.EventHandler(this.modifyHeadersAndFootersNewInV205ToolStripMenuItem_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(358, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(357, 6);
             // 
             // exportImportToFromStringNewFeatureInV207ToolStripMenuItem
             // 
             this.exportImportToFromStringNewFeatureInV207ToolStripMenuItem.Name = "exportImportToFromStringNewFeatureInV207ToolStripMenuItem";
-            this.exportImportToFromStringNewFeatureInV207ToolStripMenuItem.Size = new System.Drawing.Size(361, 22);
+            this.exportImportToFromStringNewFeatureInV207ToolStripMenuItem.Size = new System.Drawing.Size(360, 22);
             this.exportImportToFromStringNewFeatureInV207ToolStripMenuItem.Text = "Export / Import To/From String (New Feature in v2.0.7)";
             this.exportImportToFromStringNewFeatureInV207ToolStripMenuItem.Click += new System.EventHandler(this.exportImportToFromStringNewFeatureInV207ToolStripMenuItem_Click);
             // 
@@ -275,7 +280,7 @@
             this.createSampleDataToolStripMenuItem,
             this.decryptOldEncryptedDumpFileToolStripMenuItem});
             this.testToolStripMenuItem.Name = "testToolStripMenuItem";
-            this.testToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.testToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
             this.testToolStripMenuItem.Text = "Tools";
             // 
             // queryBrowserToolStripMenuItem
@@ -439,6 +444,18 @@
             this.fewToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.fewToolStripMenuItem.Text = "few";
             // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(357, 6);
+            // 
+            // exportImportVIEWWithDependenciesWithinVIEWsToolStripMenuItem
+            // 
+            this.exportImportVIEWWithDependenciesWithinVIEWsToolStripMenuItem.Name = "exportImportVIEWWithDependenciesWithinVIEWsToolStripMenuItem";
+            this.exportImportVIEWWithDependenciesWithinVIEWsToolStripMenuItem.Size = new System.Drawing.Size(360, 22);
+            this.exportImportVIEWWithDependenciesWithinVIEWsToolStripMenuItem.Text = "Export / Import VIEW with Dependencies within VIEWs";
+            this.exportImportVIEWWithDependenciesWithinVIEWsToolStripMenuItem.Click += new System.EventHandler(this.exportImportVIEWWithDependenciesWithinVIEWsToolStripMenuItem_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -460,6 +477,7 @@
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -509,5 +527,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem exportImportToFromStringNewFeatureInV207ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem queryBrowser2ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripMenuItem exportImportVIEWWithDependenciesWithinVIEWsToolStripMenuItem;
     }
 }

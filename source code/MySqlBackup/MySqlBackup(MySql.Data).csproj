@@ -6,7 +6,7 @@
     <RootNamespace>MySql.Data.MySqlClient</RootNamespace>
     <Product>MySqlBackup.NET</Product>
     <PackageId>MySqlBackup.NET</PackageId>
-    <Version>2.0.12</Version>
+    <Version>2.1</Version>
     <Authors>adriancs</Authors>
     <Copyright>Public Domain</Copyright>
     <PackageLicenseUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net/blob/master/LICENSE</PackageLicenseUrl>
@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MySql.Data" Version="8.0.12" />
+    <PackageReference Include="MySql.Data" Version="8.0.13" />
   </ItemGroup>
 
   <ItemGroup>

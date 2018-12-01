@@ -302,5 +302,10 @@ namespace MySqlBackupTestApp
             OpenForm(typeof(FormQueryBrowser2));
         }
 
+        private void exportImportVIEWWithDependenciesWithinVIEWsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormTestViewDependencies f = new FormTestViewDependencies();
+            f.ShowDialog();
+        }
     }
 }
