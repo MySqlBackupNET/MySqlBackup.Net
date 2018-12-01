@@ -61,6 +61,7 @@ namespace Devart.Data.MySql
         string _delimiter = "";
         bool _nameIsSet = false;
         bool _isNewDatabase = false;
+        Dictionary<string, bool> _dicImportRoutines = new Dictionary<string, bool>();
 
         enum NextImportAction
         {
@@ -1046,6 +1047,8 @@ namespace Devart.Data.MySql
                 }
             }
 
+            Import_Routines();
+
             ReportEndProcess();
         }
 
@@ -1066,6 +1069,8 @@ namespace Devart.Data.MySql
                 throw new Exception("MySqlCommand.Connection is not opened.");
             }
 
+            //_createViewDetected = false;
+            _dicImportRoutines = new Dictionary<string, bool>();
             stopProcess = false;
             GetSHA512HashFromPassword(ImportInfo.EncryptionPassword);
             _lastError = null;
@@ -1222,14 +1227,45 @@ namespace Devart.Data.MySql
             if (!line.EndsWith(_delimiter))
                 return;
 
-            Command.CommandText = _sbImport.ToString();
-            Command.ExecuteNonQuery();
-            //_mySqlScript.Query = _sbImport.ToString();
-            //_mySqlScript.Delimiter = _delimiter;
-            //_mySqlScript.Execute();
-            _sbImport = new StringBuilder();
+            string _importQuery = _sbImport.ToString();
 
-            GC.Collect();
+            bool skipexecute = false;
+
+            // collecting routines
+
+            if (_importQuery[0].ToString().ToUpper() == "C")
+            {
+                string _iq = _importQuery.ToLower();
+
+                if (_iq.StartsWith("create "))
+                {
+
+                    if (_iq.StartsWith("create table ") ||
+                    _iq.StartsWith("create database ") ||
+                    _iq.StartsWith("create schema "))
+                    {
+                        // do nothing
+                    }
+                    else
+                    {
+                        _dicImportRoutines[_importQuery] = false;
+                        skipexecute = true;
+                    }
+                }
+            }
+
+            if (!skipexecute)
+            {
+                _sbImport.AppendLine(line);
+                if (!line.EndsWith(_delimiter))
+                    return;
+
+                Command.CommandText = _sbImport.ToString();
+                Command.ExecuteNonQuery();
+                _sbImport = new StringBuilder();
+
+                GC.Collect();
+            }
         }
 
         bool Import_IsEmptyLine(string line)
@@ -1250,6 +1286,77 @@ namespace Devart.Data.MySql
                 return true;
 
             return false;
+        }
+
+        void Import_Routines()
+        {
+            bool excutedOnce = true;
+
+            Dictionary<string, Exception> _dicViewErr = new Dictionary<string, Exception>();
+
+            while (excutedOnce)
+            {
+                excutedOnce = false;
+                string lastExecutedView = "";
+
+                foreach (var kv in _dicImportRoutines)
+                {
+                    if (kv.Value)
+                        continue;
+
+                    if (stopProcess)
+                    {
+                        processCompletionType = ProcessEndType.Cancelled;
+                        break;
+                    }
+
+                    Command.CommandText = kv.Key;
+                    //_mySqlScript.Query = kv.Key;
+                    //_mySqlScript.Delimiter = _delimiter;
+
+                    try
+                    {
+                        //_mySqlScript.Execute();
+                        Command.ExecuteNonQuery();
+                        excutedOnce = true;
+                        lastExecutedView = kv.Key;
+                        if (_dicViewErr.ContainsKey(kv.Key))
+                        {
+                            _dicViewErr.Remove(kv.Key);
+                        }
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        _dicViewErr[kv.Key] = ex;
+                    }
+                }
+
+                if (lastExecutedView.Length > 0)
+                {
+                    _dicImportRoutines[lastExecutedView] = true;
+                }
+            }
+
+            if (_dicViewErr.Count > 0)
+            {
+                foreach (var kv in _dicViewErr)
+                {
+                    _lastError = kv.Value;
+                    if (ImportInfo.IgnoreSqlError)
+                    {
+                        if (!string.IsNullOrEmpty(ImportInfo.ErrorLogFile))
+                        {
+                            File.AppendAllText(ImportInfo.ErrorLogFile, Environment.NewLine + Environment.NewLine + kv.Value.ToString());
+                        }
+                    }
+                    else
+                    {
+                        StopAllProcess();
+                        throw kv.Value;
+                    }
+                }
+            }
         }
 
         #endregion

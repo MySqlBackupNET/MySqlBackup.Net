@@ -62,7 +62,7 @@ namespace MySql.Data.MySqlClient
         bool _nameIsSet = false;
         bool _isNewDatabase = false;
         Dictionary<string, bool> _dicImportRoutines = new Dictionary<string, bool>();
-        bool _createViewDetected = false;
+        //bool _createViewDetected = false;
 
         enum NextImportAction
         {
@@ -1070,7 +1070,7 @@ namespace MySql.Data.MySqlClient
                 throw new Exception("MySqlCommand.Connection is not opened.");
             }
 
-            _createViewDetected = false;
+            //_createViewDetected = false;
             _dicImportRoutines = new Dictionary<string, bool>();
             stopProcess = false;
             GetSHA512HashFromPassword(ImportInfo.EncryptionPassword);
