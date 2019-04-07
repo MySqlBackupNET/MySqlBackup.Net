@@ -1290,7 +1290,7 @@ namespace Devart.Data.MySql
                 {
                     string[] splitoption = new string[] { " as " };
                     string[] _saq = _iq.Split(splitoption, 1, StringSplitOptions.RemoveEmptyEntries);
-                    if (_saq[0].Contains(" view"))
+                    if (_saq[0].Contains(" view "))
                     {
                         _dicImportRoutines[_importQuery] = false;
                         skipexecute = true;
