@@ -130,7 +130,7 @@ namespace Devart.Data.MySql
 
         private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            System.IO.File.WriteAllText("mysql_error_log.txt", "hi :)");
+            //System.IO.File.WriteAllText("mysql_error_log.txt", "hi :)");
             AssemblyName asname = new AssemblyName(args.Name);
             if (asname.Name == "MySql.Data")
             {
