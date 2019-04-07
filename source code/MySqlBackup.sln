@@ -5,13 +5,15 @@ VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackupTestApp", "MySqlBackupTestApp\MySqlBackupTestApp.csproj", "{0C44B679-BC54-4818-9E77-6BE2C14E680B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup(MySql.Data)", "MySqlBackup\MySqlBackup(MySql.Data).csproj", "{2625A6B7-505A-43F7-9282-24AFE5A3DB64}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySqlBackup(MySql.Data)NetStandard", "MySqlBackup\MySqlBackup(MySql.Data)NetStandard.csproj", "{2625A6B7-505A-43F7-9282-24AFE5A3DB64}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackupASPNET", "MySqlBackupASPNET\MySqlBackupASPNET.csproj", "{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup(Devart-Express)", "MySqlBackup(Devart-Express)\MySqlBackup(Devart-Express).csproj", "{39E2242B-54EA-4A5D-916F-7EB30625FAD7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySql.Data(6.9.8)", "MySql.Data(6.9.8)\MySql.Data(6.9.8).csproj", "{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup.NET_NetFramework", "MySqlBackup.NET_NetFramework\MySqlBackup.NET_NetFramework.csproj", "{EE40A688-1473-45B5-A380-98BEC985BE4E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,14 @@ Global
 		{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
 		{E9DF5ED1-4CBD-4226-B931-9A51610AC14D}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
+		{EE40A688-1473-45B5-A380-98BEC985BE4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE40A688-1473-45B5-A380-98BEC985BE4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE40A688-1473-45B5-A380-98BEC985BE4E}.NET20|Any CPU.ActiveCfg = Release|Any CPU
+		{EE40A688-1473-45B5-A380-98BEC985BE4E}.NET20|Any CPU.Build.0 = Release|Any CPU
+		{EE40A688-1473-45B5-A380-98BEC985BE4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE40A688-1473-45B5-A380-98BEC985BE4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE40A688-1473-45B5-A380-98BEC985BE4E}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
+		{EE40A688-1473-45B5-A380-98BEC985BE4E}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -459,7 +459,7 @@ namespace MySql.Data.MySqlClient
                                 dic2[kv.Key] = kv.Value;
                                 requireLoop = true;
                             }
-                            
+
                             continue;
                         }
                     }

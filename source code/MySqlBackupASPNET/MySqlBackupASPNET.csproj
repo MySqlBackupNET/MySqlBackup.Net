@@ -47,8 +47,8 @@
       <HintPath>..\packages\Google.Protobuf.3.5.1\lib\net45\Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="MySql.Data, Version=8.0.13.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>..\packages\MySql.Data.8.0.13\lib\net452\MySql.Data.dll</HintPath>
+    <Reference Include="MySql.Data, Version=8.0.15.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.8.0.15\lib\net452\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
@@ -116,9 +116,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MySqlBackup\MySqlBackup%28MySql.Data%29.csproj">
+    <ProjectReference Include="..\MySqlBackup\MySqlBackup%28MySql.Data%29NetStandard.csproj">
       <Project>{2625a6b7-505a-43f7-9282-24afe5a3db64}</Project>
-      <Name>MySqlBackup%28MySql.Data%29</Name>
+      <Name>MySqlBackup%28MySql.Data%29NetStandard</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

@@ -28,7 +28,7 @@ namespace Devart.Data.MySql
             Error
         }
 
-        public const string Version = "2.0.12";
+        public const string Version = "2.2";
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
@@ -418,7 +418,60 @@ namespace Devart.Data.MySql
                 }
             }
 
+            dic = Export_RearrangeTableOrderForForeignKey(dic);
+
             return dic;
+        }
+
+        Dictionary<string, string> Export_RearrangeTableOrderForForeignKey(Dictionary<string, string> dic1)
+        {
+            System.Data.DataTable dtForeignKeyTables = QueryExpress.GetTable(Command, string.Format("select table_name, referenced_table_name from information_schema.key_column_usage where constraint_schema='{0}' and referenced_table_name IS NOT NULL;", QueryExpress.EscapeStringSequence(_database.Name)));
+            if (dtForeignKeyTables.Rows.Count == 0)
+                return dic1;
+
+            Dictionary<string, string> dic2 = new Dictionary<string, string>();
+
+            bool requireLoop = true;
+
+            while (requireLoop)
+            {
+                requireLoop = false;
+
+                foreach (var kv in dic1)
+                {
+                    if (dic2.ContainsKey(kv.Key))
+                        continue;
+
+                    bool handledInForeignKeySearch = false;
+
+                    for (int i = 0; i < dtForeignKeyTables.Rows.Count; i++)
+                    {
+                        string _tb_name = dtForeignKeyTables.Rows[i]["table_name"] + "";
+                        string _fk_tb_name = dtForeignKeyTables.Rows[i]["referenced_table_name"] + "";
+
+                        if (kv.Key == _tb_name)
+                        {
+                            handledInForeignKeySearch = true;
+
+                            if (dic2.ContainsKey(_fk_tb_name))
+                            {
+                                dic2[kv.Key] = kv.Value;
+                                requireLoop = true;
+                            }
+
+                            continue;
+                        }
+                    }
+
+                    if (!handledInForeignKeySearch)
+                    {
+                        dic2[kv.Key] = kv.Value;
+                        requireLoop = true;
+                    }
+                }
+            }
+
+            return dic2;
         }
 
         void Export_Rows(string tableName, string selectSQL)
@@ -677,7 +730,7 @@ namespace Devart.Data.MySql
                 else
                     sb.AppendFormat(",");
 
-                
+
                 object ob = rdr[i];
                 var col = table.Columns[columnName];
 
@@ -1230,23 +1283,14 @@ namespace Devart.Data.MySql
             string _importQuery = _sbImport.ToString();
 
             bool skipexecute = false;
-
-            // collecting routines
-
             if (_importQuery[0].ToString().ToUpper() == "C")
             {
                 string _iq = _importQuery.ToLower();
-
                 if (_iq.StartsWith("create "))
                 {
-
-                    if (_iq.StartsWith("create table ") ||
-                    _iq.StartsWith("create database ") ||
-                    _iq.StartsWith("create schema "))
-                    {
-                        // do nothing
-                    }
-                    else
+                    string[] splitoption = new string[] { " as " };
+                    string[] _saq = _iq.Split(splitoption, 1, StringSplitOptions.RemoveEmptyEntries);
+                    if (_saq[0].Contains(" view"))
                     {
                         _dicImportRoutines[_importQuery] = false;
                         skipexecute = true;
@@ -1256,16 +1300,58 @@ namespace Devart.Data.MySql
 
             if (!skipexecute)
             {
-                _sbImport.AppendLine(line);
-                if (!line.EndsWith(_delimiter))
-                    return;
-
-                Command.CommandText = _sbImport.ToString();
+                Command.CommandText = _importQuery;
                 Command.ExecuteNonQuery();
-                _sbImport = new StringBuilder();
-
-                GC.Collect();
+                //_mySqlScript.Query = _importQuery;
+                //_mySqlScript.Delimiter = _delimiter;
+                //_mySqlScript.Execute();
             }
+
+            _sbImport.Clear();
+            _sbImport = new StringBuilder();
+            GC.Collect();
+
+            //_sbImport.AppendLine(line);
+            //if (!line.EndsWith(_delimiter))
+            //    return;
+
+            //string _importQuery = _sbImport.ToString();
+
+            //bool skipexecute = false;
+
+            //// collecting routines
+
+            //if (_importQuery[0].ToString().ToUpper() == "C")
+            //{
+            //    string _iq = _importQuery.ToLower();
+
+            //    if (_iq.StartsWith("create "))
+            //    {
+
+            //        if (_iq.StartsWith("create table ") ||
+            //        _iq.StartsWith("create database ") ||
+            //        _iq.StartsWith("create schema "))
+            //        {
+            //            // do nothing
+            //        }
+            //        else
+            //        {
+            //            _dicImportRoutines[_importQuery] = false;
+            //            skipexecute = true;
+            //        }
+            //    }
+            //}
+
+            //if (!skipexecute)
+            //{
+            //    _mySqlScript.Query = _importQuery;
+            //    _mySqlScript.Delimiter = _delimiter;
+            //    _mySqlScript.Execute();
+            //}
+
+            //_sbImport.Clear();
+            //_sbImport = new StringBuilder();
+            //GC.Collect();
         }
 
         bool Import_IsEmptyLine(string line)
@@ -1310,13 +1396,12 @@ namespace Devart.Data.MySql
                         break;
                     }
 
-                    Command.CommandText = kv.Key;
                     //_mySqlScript.Query = kv.Key;
                     //_mySqlScript.Delimiter = _delimiter;
+                    Command.CommandText = kv.Key;
 
                     try
                     {
-                        //_mySqlScript.Execute();
                         Command.ExecuteNonQuery();
                         excutedOnce = true;
                         lastExecutedView = kv.Key;
