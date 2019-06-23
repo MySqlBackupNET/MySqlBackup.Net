@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
+using System.Collections;
 
 namespace Devart.Data.MySql
 {
-    public class MySqlTableList : IDisposable
+    public class MySqlTableList : IDisposable, IEnumerable<MySqlTable>
     {
         List<MySqlTable> _lst = new List<MySqlTable>();
         string _sqlShowFullTables = "";
@@ -68,6 +69,27 @@ namespace Devart.Data.MySql
                 _lst[i] = null;
             }
             _lst = null;
+        }
+
+        public List<MySqlTable> GetList()
+        {
+            return _lst;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<MySqlTable>)_lst).GetEnumerator();
+        }
+
+        public bool Contains(string name)
+        {
+            foreach(var t in _lst)
+            {
+                if (t.Name == name)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

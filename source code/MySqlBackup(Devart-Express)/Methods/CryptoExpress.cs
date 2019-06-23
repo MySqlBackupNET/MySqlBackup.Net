@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using Devart.Data.MySql;
+
 using System.Security.Cryptography;
 
 namespace System.Security.Cryptography
@@ -69,77 +69,77 @@ namespace System.Security.Cryptography
             return BitConverter.ToString(ba2).Replace("-", string.Empty).ToLower();
         }
 
-        public static string AES_Encrypt(string input, string password)
-        {
-            byte[] clearBytes = System.Text.Encoding.UTF8.GetBytes(input);
-            byte[] encryptedData = AES_Encrypt(clearBytes, password);
-            return Convert.ToBase64String(encryptedData);
-        }
+        //public static string AES_Encrypt(string input, string password)
+        //{
+        //    byte[] clearBytes = System.Text.Encoding.UTF8.GetBytes(input);
+        //    byte[] encryptedData = AES_Encrypt(clearBytes, password);
+        //    return Convert.ToBase64String(encryptedData);
+        //}
 
-        public static byte[] AES_Encrypt(byte[] input, string password)
-        {
-            PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-            return AES_Encrypt(input, pdb.GetBytes(32), pdb.GetBytes(16));
-        }
+        //public static byte[] AES_Encrypt(byte[] input, string password)
+        //{
+        //    PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+        //    return AES_Encrypt(input, pdb.GetBytes(32), pdb.GetBytes(16));
+        //}
 
-        public static string AES_Decrypt(string input, string password)
-        {
-            byte[] cipherBytes = Convert.FromBase64String(input);
-            byte[] decryptedData = AES_Decrypt(cipherBytes, password);
-            return System.Text.Encoding.UTF8.GetString(decryptedData);
-        }
+        //public static string AES_Decrypt(string input, string password)
+        //{
+        //    byte[] cipherBytes = Convert.FromBase64String(input);
+        //    byte[] decryptedData = AES_Decrypt(cipherBytes, password);
+        //    return System.Text.Encoding.UTF8.GetString(decryptedData);
+        //}
 
-        public static byte[] AES_Decrypt(byte[] input, string password)
-        {
-            PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-            return AES_Decrypt(input, pdb.GetBytes(32), pdb.GetBytes(16));
-        }
+        //public static byte[] AES_Decrypt(byte[] input, string password)
+        //{
+        //    PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+        //    return AES_Decrypt(input, pdb.GetBytes(32), pdb.GetBytes(16));
+        //}
 
-        static byte[] AES_Encrypt(byte[] clearData, byte[] Key, byte[] IV)
-        {
-            byte[] encryptedData = null;
-            using (MemoryStream ms = new MemoryStream())
-            {
-                using (Rijndael alg = Rijndael.Create())
-                {
-                    alg.Key = Key;
-                    alg.IV = IV;
-                    using (CryptoStream cs = new CryptoStream(ms, alg.CreateEncryptor(), CryptoStreamMode.Write))
-                    {
-                        cs.Write(clearData, 0, clearData.Length);
-                        cs.Close();
-                    }
-                    encryptedData = ms.ToArray();
-                }
-            }
-            return encryptedData;
-        }
+        //static byte[] AES_Encrypt(byte[] clearData, byte[] Key, byte[] IV)
+        //{
+        //    byte[] encryptedData = null;
+        //    using (MemoryStream ms = new MemoryStream())
+        //    {
+        //        using (Rijndael alg = Rijndael.Create())
+        //        {
+        //            alg.Key = Key;
+        //            alg.IV = IV;
+        //            using (CryptoStream cs = new CryptoStream(ms, alg.CreateEncryptor(), CryptoStreamMode.Write))
+        //            {
+        //                cs.Write(clearData, 0, clearData.Length);
+        //                cs.Close();
+        //            }
+        //            encryptedData = ms.ToArray();
+        //        }
+        //    }
+        //    return encryptedData;
+        //}
 
-        static byte[] AES_Decrypt(byte[] cipherData, byte[] Key, byte[] IV)
-        {
-            try
-            {
-                byte[] decryptedData = null;
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    using (Rijndael alg = Rijndael.Create())
-                    {
-                        alg.Key = Key;
-                        alg.IV = IV;
-                        using (CryptoStream cs = new CryptoStream(ms, alg.CreateDecryptor(), CryptoStreamMode.Write))
-                        {
-                            cs.Write(cipherData, 0, cipherData.Length);
-                            cs.Close();
-                        }
-                        decryptedData = ms.ToArray();
-                    }
-                }
-                return decryptedData;
-            }
-            catch
-            {
-                throw new Exception("Incorrect password or corrupted context.");
-            }
-        }
+        //static byte[] AES_Decrypt(byte[] cipherData, byte[] Key, byte[] IV)
+        //{
+        //    try
+        //    {
+        //        byte[] decryptedData = null;
+        //        using (MemoryStream ms = new MemoryStream())
+        //        {
+        //            using (Rijndael alg = Rijndael.Create())
+        //            {
+        //                alg.Key = Key;
+        //                alg.IV = IV;
+        //                using (CryptoStream cs = new CryptoStream(ms, alg.CreateDecryptor(), CryptoStreamMode.Write))
+        //                {
+        //                    cs.Write(cipherData, 0, cipherData.Length);
+        //                    cs.Close();
+        //                }
+        //                decryptedData = ms.ToArray();
+        //            }
+        //        }
+        //        return decryptedData;
+        //    }
+        //    catch
+        //    {
+        //        throw new Exception("Incorrect password or corrupted context.");
+        //    }
+        //}
     }
 }

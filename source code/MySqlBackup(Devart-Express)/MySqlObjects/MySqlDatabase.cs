@@ -53,7 +53,7 @@ namespace Devart.Data.MySql
         public MySqlDatabase()
         { }
 
-        public void GetDatabaseInfo(MySqlCommand cmd, bool getTotalRowsForEachTable)
+        public void GetDatabaseInfo(MySqlCommand cmd, GetTotalRowsMethod enumGetTotalRowsMode)
         {
             _name = QueryExpress.ExecuteScalarStr(cmd, "SELECT DATABASE();");
             _defaultCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW VARIABLES LIKE 'character_set_database';", 1);
@@ -67,56 +67,40 @@ namespace Devart.Data.MySql
             _listEvent = new MySqlEventList(cmd);
             _listView = new MySqlViewList(cmd);
 
-            if (getTotalRowsForEachTable)
-                GetTotalRows(cmd);
+            if (enumGetTotalRowsMode != GetTotalRowsMethod.Skip)
+                GetTotalRows(cmd, enumGetTotalRowsMode);
         }
 
-        public void GetTotalRows(MySqlCommand cmd)
+        public void GetTotalRows(MySqlCommand cmd, GetTotalRowsMethod enumGetTotalRowsMode)
         {
-            DataTable dtTotalRows = QueryExpress.GetTable(cmd, string.Format("SELECT TABLE_NAME, TABLE_ROWS FROM `information_schema`.`tables` WHERE `table_schema` = '{0}';", _name));
-
-            int _tableCountTotalRow = 0;
-
-            foreach(DataRow dr in dtTotalRows.Rows)
+            if (enumGetTotalRowsMode == GetTotalRowsMethod.InformationSchema)
             {
-                string _thisTableName = dr["TABLE_NAME"] + "";
-                
-                long _totalRowsThisTable = 0L;
+                DataTable dtTotalRows = QueryExpress.GetTable(cmd, string.Format("SELECT TABLE_NAME, TABLE_ROWS FROM `information_schema`.`tables` WHERE `table_schema` = '{0}';", _name));
 
-                try
+                int _tableCountTotalRow = 0;
+
+                foreach (DataRow dr in dtTotalRows.Rows)
                 {
+                    string _tbname = dr["TABLE_NAME"] + "";
+                    long _totalRowsThisTable = 0L;
                     long.TryParse(dr["TABLE_ROWS"] + "", out _totalRowsThisTable);
-                }
-                catch { }
 
+                    if (_listTable.Contains(_tbname))
+                        _listTable[_tbname].SetTotalRows(_totalRowsThisTable);
+                }
+            }
+            else if (enumGetTotalRowsMode == GetTotalRowsMethod.SelectCount)
+            {
                 for (int i = 0; i < _listTable.Count; i++)
                 {
-                    if (_listTable[i].Name != _thisTableName)
-                        continue;
-
-                    _tableCountTotalRow = _tableCountTotalRow + 1;
-
-                    _listTable[i].SetTotalRows(_totalRowsThisTable);
+                    _listTable[i].GetTotalRowsByCounting(cmd);
 
                     if (GetTotalRowsProgressChanged != null)
                     {
-                        GetTotalRowsProgressChanged(this, new GetTotalRowsArgs(_listTable.Count, _tableCountTotalRow));
+                        GetTotalRowsProgressChanged(this, new GetTotalRowsArgs(_listTable.Count, i + 1));
                     }
-
-                    break;
                 }
             }
-
-            
-            //for (int i = 0; i < _listTable.Count; i++)
-            //{
-            //    _listTable[i].GetTotalRows(cmd);
-
-            //    if (GetTotalRowsProgressChanged != null)
-            //    {
-            //        GetTotalRowsProgressChanged(this, new GetTotalRowsArgs(_listTable.Count, i + 1));
-            //    }
-            //}
         }
 
         public void Dispose()

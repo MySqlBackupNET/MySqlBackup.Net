@@ -33,11 +33,11 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Devart.Data, Version=5.0.2045.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
-      <HintPath>..\packages\dotConnect.Express.for.MySQL.8.12.1253\lib\Devart.Data.dll</HintPath>
+    <Reference Include="Devart.Data, Version=5.0.2194.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
+      <HintPath>..\packages\dotConnect.Express.for.MySQL.8.13.1402\lib\Devart.Data.dll</HintPath>
     </Reference>
-    <Reference Include="Devart.Data.MySql, Version=8.12.1253.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
-      <HintPath>..\packages\dotConnect.Express.for.MySQL.8.12.1253\lib\Devart.Data.MySql.dll</HintPath>
+    <Reference Include="Devart.Data.MySql, Version=8.13.1402.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
+      <HintPath>..\packages\dotConnect.Express.for.MySQL.8.13.1402\lib\Devart.Data.MySql.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -49,6 +49,8 @@
     <Compile Include="EventArgs\GetTotalRowsArgs.cs" />
     <Compile Include="EventArgs\ImportCompleteArgs.cs" />
     <Compile Include="EventArgs\ImportProgressArgs.cs" />
+    <Compile Include="InfoObjects\enumBlobDataExportMode.cs" />
+    <Compile Include="InfoObjects\enumGetTotalRowsMethod.cs" />
     <Compile Include="InfoObjects\enumRowsDataExportMode.cs" />
     <Compile Include="InfoObjects\ExportInformations.cs" />
     <Compile Include="InfoObjects\ImportInformations.cs" />

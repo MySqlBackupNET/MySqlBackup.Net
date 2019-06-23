@@ -2,7 +2,7 @@
 using System.Timers;
 using System.Collections.Generic;
 using System.Text;
-using Devart.Data.MySql;
+
 using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
@@ -28,22 +28,36 @@ namespace Devart.Data.MySql
             Error
         }
 
-        public const string Version = "2.2";
+        public const string Version = "2.3";
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
 
-        Encoding utf8WithoutBOM;
+        Encoding textEncoding
+        {
+            get
+            {
+
+                try
+                {
+                    return ExportInfo.TextEncoding;
+                }
+                catch { }
+                return new UTF8Encoding(false);
+            }
+        }
+
         TextWriter textWriter;
         TextReader textReader;
         DateTime timeStart;
         DateTime timeEnd;
         ProcessType currentProcess;
 
-        string sha512HashedPassword = "";
+        //string sha512HashedPassword = "";
         ProcessEndType processCompletionType;
         bool stopProcess = false;
         Exception _lastError = null;
+        string _lastErrorSql = "";
 
         string _currentTableName = "";
         long _totalRowsInCurrentTable = 0;
@@ -57,11 +71,7 @@ namespace Devart.Data.MySql
         long _currentBytes = 0L;
         long _totalBytes = 0L;
         StringBuilder _sbImport = null;
-        //MySqlScript _mySqlScript = null;
         string _delimiter = "";
-        bool _nameIsSet = false;
-        bool _isNewDatabase = false;
-        Dictionary<string, bool> _dicImportRoutines = new Dictionary<string, bool>();
 
         enum NextImportAction
         {
@@ -69,11 +79,12 @@ namespace Devart.Data.MySql
             SetNames,
             CreateNewDatabase,
             AppendLine,
-            //ChangeDelimiter,
+            ChangeDelimiter,
             AppendLineAndExecute
         }
 
         public Exception LastError { get { return _lastError; } }
+        public string LastErrorSQL { get { return _lastErrorSql; } }
 
         /// <summary>
         /// Gets the information about the connected database.
@@ -119,24 +130,13 @@ namespace Devart.Data.MySql
 
         void InitializeComponents()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+            //AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             _database.GetTotalRowsProgressChanged += _database_GetTotalRowsProgressChanged;
-            
+
             timerReport = new Timer();
             timerReport.Elapsed += timerReport_Elapsed;
 
-            utf8WithoutBOM = new UTF8Encoding(false);
-        }
-
-        private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            //System.IO.File.WriteAllText("mysql_error_log.txt", "hi :)");
-            AssemblyName asname = new AssemblyName(args.Name);
-            if (asname.Name == "MySql.Data")
-            {
-                return Assembly.LoadFile("MySql.Data.dll");
-            }
-            return null;
+            //textEncoding = new UTF8Encoding(false);
         }
 
         void _database_GetTotalRowsProgressChanged(object sender, GetTotalRowsArgs e)
@@ -164,7 +164,7 @@ namespace Devart.Data.MySql
 
         public void ExportToFile(string filePath)
         {
-            using (textWriter = new StreamWriter(filePath, false, utf8WithoutBOM))
+            using (textWriter = new StreamWriter(filePath, false, textEncoding))
             {
                 ExportStart();
                 textWriter.Close();
@@ -193,7 +193,7 @@ namespace Devart.Data.MySql
                 ms.Position = 0L;
             }
 
-            textWriter = new StreamWriter(ms, utf8WithoutBOM);
+            textWriter = new StreamWriter(ms, textEncoding);
             ExportStart();
         }
 
@@ -259,6 +259,12 @@ namespace Devart.Data.MySql
                 throw new Exception("MySqlCommand.Connection is not opened.");
             }
 
+            if (ExportInfo.BlobExportMode == BlobDataExportMode.BinaryChar &&
+                !ExportInfo.BlobExportModeForBinaryStringAllow)
+            {
+                throw new Exception("[ExportInfo.BlobExportMode = BlobDataExportMode.BinaryString] is still under development. Please join the discussion at https://github.com/MySqlBackupNET/MySqlBackup.Net/issues (Title: Help requires. Unable to export BLOB in Char Format)");
+            }
+
             timeStart = DateTime.Now;
 
             stopProcess = false;
@@ -266,13 +272,18 @@ namespace Devart.Data.MySql
             currentProcess = ProcessType.Export;
             _lastError = null;
             timerReport.Interval = ExportInfo.IntervalForProgressReport;
-            GetSHA512HashFromPassword(ExportInfo.EncryptionPassword);
+            //GetSHA512HashFromPassword(ExportInfo.EncryptionPassword);
 
-            _database.GetDatabaseInfo(Command, ExportInfo.GetTotalRowsBeforeExport);
+            _database.GetDatabaseInfo(Command, ExportInfo.GetTotalRowsMode);
             _server.GetServerInfo(Command);
             _currentTableName = "";
-            _totalRowsInCurrentTable = 0;
-            _totalRowsInAllTables = _database.TotalRows;
+            _totalRowsInCurrentTable = 0L;
+            _totalRowsInAllTables = 0L;
+            var dicTables = Export_GetTablesToBeExported();
+            foreach (var kv in dicTables)
+            {
+                _totalRowsInAllTables = _totalRowsInAllTables + _database.Tables[kv.Key].TotalRows;
+            }
             _currentRowIndexInCurrentTable = 0;
             _currentRowIndexInAllTable = 0;
             _totalTables = 0;
@@ -295,15 +306,18 @@ namespace Devart.Data.MySql
 
         void Export_CreateDatabase()
         {
-            if (!ExportInfo.AddCreateDatabase)
+            if (!ExportInfo.AddCreateDatabase && !ExportInfo.AddDropDatabase)
                 return;
 
-            Export_WriteComment("");
-            Export_WriteComment(string.Format("Create schema {0}", _database.Name));
-            Export_WriteComment("");
             textWriter.WriteLine();
-            Export_WriteLine(_database.CreateDatabaseSQL);
-            Export_WriteLine(string.Format("Use `{0}`;", _database.Name));
+            textWriter.WriteLine();
+            if (ExportInfo.AddDropDatabase)
+                Export_WriteLine(String.Format("DROP DATABASE `{0}`;", _database.Name));
+            if (ExportInfo.AddCreateDatabase)
+            {
+                Export_WriteLine(_database.CreateDatabaseSQL);
+                Export_WriteLine(string.Format("USE `{0}`;", _database.Name));
+            }
             textWriter.WriteLine();
             textWriter.WriteLine();
         }
@@ -387,7 +401,8 @@ namespace Devart.Data.MySql
 
             textWriter.WriteLine();
 
-            Export_WriteLine(string.Format("DROP TABLE IF EXISTS `{0}`;", tableName));
+            if (ExportInfo.AddDropTable)
+                Export_WriteLine(string.Format("DROP TABLE IF EXISTS `{0}`;", tableName));
 
             if (ExportInfo.ResetAutoIncrement)
                 Export_WriteLine(_database.Tables[tableName].CreateTableSqlWithoutAutoIncrement);
@@ -414,22 +429,36 @@ namespace Devart.Data.MySql
             {
                 foreach (KeyValuePair<string, string> kv in ExportInfo.TablesToBeExportedDic)
                 {
-                    dic[kv.Key] = kv.Value;
+                    foreach (var kv2 in _database.Tables)
+                    {
+                        if (kv2.Name == kv.Key)
+                        {
+                            dic[kv.Key] = kv.Value;
+                            continue;
+                        }
+                    }
                 }
             }
 
-            dic = Export_RearrangeTableOrderForForeignKey(dic);
+            Dictionary<string, string> dic2 = new Dictionary<string, string>();
+            foreach (var kv in dic)
+            {
+                dic2[kv.Key] = _database.Tables[kv.Key].CreateTableSql;
+            }
 
-            return dic;
+            var lst = Export_ReArrangeDependencies(dic2, "foreign key", "`");
+
+            dic2.Clear();
+
+            foreach (var tbname in lst)
+                dic2.Add(tbname, dic[tbname]);
+
+            return dic2;
         }
 
-        Dictionary<string, string> Export_RearrangeTableOrderForForeignKey(Dictionary<string, string> dic1)
+        List<string> Export_ReArrangeDependencies(Dictionary<string, string> dic1, string splitKeyword, string keyNameWrapper)
         {
-            System.Data.DataTable dtForeignKeyTables = QueryExpress.GetTable(Command, string.Format("select table_name, referenced_table_name from information_schema.key_column_usage where constraint_schema='{0}' and referenced_table_name IS NOT NULL;", QueryExpress.EscapeStringSequence(_database.Name)));
-            if (dtForeignKeyTables.Rows.Count == 0)
-                return dic1;
-
-            Dictionary<string, string> dic2 = new Dictionary<string, string>();
+            List<string> lst = new List<string>();
 
             bool requireLoop = true;
 
@@ -439,39 +468,66 @@ namespace Devart.Data.MySql
 
                 foreach (var kv in dic1)
                 {
-                    if (dic2.ContainsKey(kv.Key))
+                    if (lst.Contains(kv.Key))
                         continue;
 
-                    bool handledInForeignKeySearch = false;
+                    bool allReferencedAdded = true;
 
-                    for (int i = 0; i < dtForeignKeyTables.Rows.Count; i++)
+                    string createSql = kv.Value.ToLower();
+                    string referenceInfo = "";
+
+                    bool referenceTaken = false;
+                    if (splitKeyword != null && splitKeyword != "")
                     {
-                        string _tb_name = dtForeignKeyTables.Rows[i]["table_name"] + "";
-                        string _fk_tb_name = dtForeignKeyTables.Rows[i]["referenced_table_name"] + "";
-
-                        if (kv.Key == _tb_name)
+                        if (createSql.Contains(string.Format(" {0} ", splitKeyword)))
                         {
-                            handledInForeignKeySearch = true;
-
-                            if (dic2.ContainsKey(_fk_tb_name))
-                            {
-                                dic2[kv.Key] = kv.Value;
-                                requireLoop = true;
-                            }
-
-                            continue;
+                            string[] sa = createSql.Split(new string[] { string.Format(" {0} ", splitKeyword) }, StringSplitOptions.RemoveEmptyEntries);
+                            referenceInfo = sa[sa.Length - 1];
+                            referenceTaken = true;
                         }
                     }
 
-                    if (!handledInForeignKeySearch)
+                    if (!referenceTaken)
+                        referenceInfo = createSql;
+
+                    foreach (var kv2 in dic1)
                     {
-                        dic2[kv.Key] = kv.Value;
-                        requireLoop = true;
+                        if (kv.Key == kv2.Key)
+                            continue;
+
+                        if (lst.Contains(kv2.Key))
+                            continue;
+
+                        string _thisTBname = string.Format("{0}{1}{0}", keyNameWrapper, kv2.Key.ToLower());
+
+                        if (referenceInfo.Contains(_thisTBname))
+                        {
+                            allReferencedAdded = false;
+                            break;
+                        }
+                    }
+
+                    if (allReferencedAdded)
+                    {
+                        if (!lst.Contains(kv.Key))
+                        {
+                            lst.Add(kv.Key);
+                            requireLoop = true;
+                            break;
+                        }
                     }
                 }
             }
 
-            return dic2;
+            foreach (var kv in dic1)
+            {
+                if (!lst.Contains(kv.Key))
+                {
+                    lst.Add(kv.Key);
+                }
+            }
+
+            return lst;
         }
 
         void Export_Rows(string tableName, string selectSQL)
@@ -599,6 +655,9 @@ namespace Devart.Data.MySql
                 if (stopProcess)
                     return;
 
+                _currentRowIndexInAllTable = _currentRowIndexInAllTable + 1;
+                _currentRowIndexInCurrentTable = _currentRowIndexInCurrentTable + 1;
+
                 StringBuilder sb = new StringBuilder();
 
                 if (allPrimaryField)
@@ -660,6 +719,9 @@ namespace Devart.Data.MySql
             {
                 if (stopProcess)
                     return;
+
+                _currentRowIndexInAllTable = _currentRowIndexInAllTable + 1;
+                _currentRowIndexInCurrentTable = _currentRowIndexInCurrentTable + 1;
 
                 StringBuilder sb = new StringBuilder();
                 sb.Append("UPDATE `");
@@ -734,7 +796,8 @@ namespace Devart.Data.MySql
                 object ob = rdr[i];
                 var col = table.Columns[columnName];
 
-                sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
+                //sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
+                sb.Append(QueryExpress.ConvertToSqlFormat(ob, true, true, col, ExportInfo.BlobExportMode));
             }
 
             sb.AppendFormat(")");
@@ -761,7 +824,8 @@ namespace Devart.Data.MySql
                     sb.Append("`");
                     sb.Append(colName);
                     sb.Append("`=");
-                    sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
+                    //sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
+                    sb.Append(QueryExpress.ConvertToSqlFormat(rdr[i], true, true, col, ExportInfo.BlobExportMode));
                 }
             }
         }
@@ -786,7 +850,8 @@ namespace Devart.Data.MySql
                     sb.Append("`");
                     sb.Append(colName);
                     sb.Append("`=");
-                    sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
+                    //sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
+                    sb.Append(QueryExpress.ConvertToSqlFormat(rdr[i], true, true, col, ExportInfo.BlobExportMode));
                 }
             }
         }
@@ -863,15 +928,26 @@ namespace Devart.Data.MySql
             if (!ExportInfo.ExportViews || _database.Views.Count == 0)
                 return;
 
+            // ReArrange Views
+            Dictionary<string, string> dicView_Create = new Dictionary<string, string>();
+            foreach (var view in _database.Views)
+            {
+                dicView_Create[view.Name] = view.CreateViewSQL;
+            }
+
+            var lst = Export_ReArrangeDependencies(dicView_Create, null, "`");
+
             Export_WriteComment("");
             Export_WriteComment("Dumping views");
             Export_WriteComment("");
             textWriter.WriteLine();
 
-            foreach (MySqlView view in _database.Views)
+            foreach (var viewname in lst)
             {
                 if (stopProcess)
                     return;
+
+                var view = _database.Views[viewname];
 
                 if (view.CreateViewSQL.Trim().Length == 0 ||
                     view.CreateViewSQLWithoutDefiner.Trim().Length == 0)
@@ -995,14 +1071,14 @@ namespace Devart.Data.MySql
 
         void Export_WriteLine(string text)
         {
-            if (ExportInfo.EnableEncryption)
-            {
-                textWriter.WriteLine(Encrypt(text));
-            }
-            else
-            {
-                textWriter.WriteLine(text);
-            }
+            //if (ExportInfo.EnableEncryption)
+            //{
+            //    textWriter.WriteLine(Encrypt(text));
+            //}
+            //else
+            //{
+            textWriter.WriteLine(text);
+            //}
         }
 
         #endregion
@@ -1078,6 +1154,12 @@ namespace Devart.Data.MySql
                 {
                     line = Import_GetLine();
 
+                    if (line == null)
+                        break;
+
+                    if (line.Length == 0)
+                        continue;
+
                     Import_ProcessLine(line);
                 }
                 catch (Exception ex)
@@ -1085,12 +1167,18 @@ namespace Devart.Data.MySql
                     line = "";
 
                     _lastError = ex;
+                    _lastErrorSql = _sbImport.ToString();
+
+                    if (!string.IsNullOrEmpty(ImportInfo.ErrorLogFile))
+                    {
+                        File.AppendAllText(ImportInfo.ErrorLogFile, ex.ToString() + Environment.NewLine + Environment.NewLine);
+                    }
+
+                    _sbImport = new StringBuilder();
+
                     if (ImportInfo.IgnoreSqlError)
                     {
-                        if (!string.IsNullOrEmpty(ImportInfo.ErrorLogFile))
-                        {
-                            File.AppendAllText(ImportInfo.ErrorLogFile, Environment.NewLine + Environment.NewLine + ex.ToString());
-                        }
+                        
                     }
                     else
                     {
@@ -1100,7 +1188,7 @@ namespace Devart.Data.MySql
                 }
             }
 
-            Import_Routines();
+            //Import_Routines();
 
             ReportEndProcess();
         }
@@ -1123,9 +1211,9 @@ namespace Devart.Data.MySql
             }
 
             //_createViewDetected = false;
-            _dicImportRoutines = new Dictionary<string, bool>();
+            //_dicImportRoutines = new Dictionary<string, bool>();
             stopProcess = false;
-            GetSHA512HashFromPassword(ImportInfo.EncryptionPassword);
+            //GetSHA512HashFromPassword(ImportInfo.EncryptionPassword);
             _lastError = null;
             timeStart = DateTime.Now;
             _currentBytes = 0L;
@@ -1134,14 +1222,15 @@ namespace Devart.Data.MySql
             currentProcess = ProcessType.Import;
             processCompletionType = ProcessEndType.Complete;
             _delimiter = ";";
+            _lastErrorSql = "";
 
             if (ImportProgressChanged != null)
                 timerReport.Start();
 
-            if (ImportInfo.TargetDatabase.Length > 0)
-            {
-                Import_CreateNewDatabase();
-            }
+            //if (ImportInfo.TargetDatabase.Length > 0)
+            //{
+            //    Import_CreateNewDatabase();
+            //}
         }
 
         string Import_GetLine()
@@ -1156,19 +1245,20 @@ namespace Devart.Data.MySql
                 _currentBytes = _currentBytes + (long)line.Length;
             }
 
+            line = line.Trim();
+
             if (Import_IsEmptyLine(line))
             {
                 return string.Empty;
             }
 
-            line = line.Trim();
+            return line;
+            //if (!ImportInfo.EnableEncryption)
+            //    return line;
 
-            if (!ImportInfo.EnableEncryption)
-                return line;
+            //line = Decrypt(line);
 
-            line = Decrypt(line);
-
-            return line.Trim();
+            //return line.Trim();
         }
 
         void Import_ProcessLine(string line)
@@ -1179,15 +1269,15 @@ namespace Devart.Data.MySql
             {
                 case NextImportAction.Ignore:
                     break;
-                case NextImportAction.SetNames:
-                    Import_SetNames();
-                    break;
+                //case NextImportAction.SetNames:
+                //    Import_SetNames();
+                //    break;
                 case NextImportAction.AppendLine:
                     Import_AppendLine(line);
                     break;
-                //case NextImportAction.ChangeDelimiter:
-                //    Import_ChangeDelimiter(line);
-                //    break;
+                case NextImportAction.ChangeDelimiter:
+                    Import_ChangeDelimiter(line);
+                    break;
                 case NextImportAction.AppendLineAndExecute:
                     Import_AppendLineAndExecute(line);
                     break;
@@ -1198,116 +1288,118 @@ namespace Devart.Data.MySql
 
         NextImportAction Import_AnalyseNextAction(string line)
         {
-            if (Import_IsEmptyLine(line))
+            if (line == null)
+                return NextImportAction.Ignore;
+            if (line == string.Empty)
                 return NextImportAction.Ignore;
 
-            if (_isNewDatabase)
-            {
-                if (line.StartsWith("CREATE DATABASE ", StringComparison.OrdinalIgnoreCase))
-                    return NextImportAction.Ignore;
-                if (line.StartsWith("USE ", StringComparison.OrdinalIgnoreCase))
-                    return NextImportAction.Ignore;
-            }
+            //if (_isNewDatabase)
+            //{
+            //    if (line.StartsWith("CREATE DATABASE ", StringComparison.OrdinalIgnoreCase))
+            //        return NextImportAction.Ignore;
+            //    if (line.StartsWith("USE ", StringComparison.OrdinalIgnoreCase))
+            //        return NextImportAction.Ignore;
+            //}
 
-            if (_nameIsSet)
-            {
-                if (line.StartsWith("/*!40101 SET NAMES ", StringComparison.OrdinalIgnoreCase) || line.StartsWith("SET NAMES ", StringComparison.OrdinalIgnoreCase))
-                {
-                    return NextImportAction.Ignore;
-                }
-                if (line.StartsWith("/*!40101 SET CHARACTER_SET_CLIENT", StringComparison.OrdinalIgnoreCase) || line.StartsWith("SET CHARACTER_SET_CLIENT", StringComparison.OrdinalIgnoreCase))
-                {
-                    return NextImportAction.Ignore;
-                }
-            }
-            else
-            {
-                if (line.StartsWith("/*!40101 SET NAMES ", StringComparison.OrdinalIgnoreCase) || line.StartsWith("SET NAMES ", StringComparison.OrdinalIgnoreCase))
-                {
-                    return NextImportAction.SetNames;
-                }
-            }
+            //if (_nameIsSet)
+            //{
+            //    if (line.StartsWith("/*!40101 SET NAMES ", StringComparison.OrdinalIgnoreCase) || line.StartsWith("SET NAMES ", StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        return NextImportAction.Ignore;
+            //    }
+            //    if (line.StartsWith("/*!40101 SET CHARACTER_SET_CLIENT", StringComparison.OrdinalIgnoreCase) || line.StartsWith("SET CHARACTER_SET_CLIENT", StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        return NextImportAction.Ignore;
+            //    }
+            //}
+            //else
+            //{
+            //    if (line.StartsWith("/*!40101 SET NAMES ", StringComparison.OrdinalIgnoreCase) || line.StartsWith("SET NAMES ", StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        return NextImportAction.SetNames;
+            //    }
+            //}
 
             if (line.EndsWith(_delimiter))
                 return NextImportAction.AppendLineAndExecute;
 
-            //if (line.StartsWith("DELIMITER ", StringComparison.OrdinalIgnoreCase))
-            //    return NextImportAction.ChangeDelimiter;
+            if (line.StartsWith("DELIMITER ", StringComparison.OrdinalIgnoreCase))
+                return NextImportAction.ChangeDelimiter;
 
             return NextImportAction.AppendLine;
         }
 
-        void Import_CreateNewDatabase()
-        {
-            if (ImportInfo.DatabaseDefaultCharSet.Length == 0)
-                Command.CommandText = string.Format("CREATE DATABASE IF NOT EXISTS `{0}`;", ImportInfo.TargetDatabase);
-            else
-                Command.CommandText = string.Format("CREATE DATABASE IF NOT EXISTS `{0}` /*!40100 DEFAULT CHARACTER SET {1} */;", ImportInfo.TargetDatabase, ImportInfo.DatabaseDefaultCharSet);
+        //void Import_CreateNewDatabase()
+        //{
+        //    if (ImportInfo.DatabaseDefaultCharSet.Length == 0)
+        //        Command.CommandText = string.Format("CREATE DATABASE IF NOT EXISTS `{0}`;", ImportInfo.TargetDatabase);
+        //    else
+        //        Command.CommandText = string.Format("CREATE DATABASE IF NOT EXISTS `{0}` /*!40100 DEFAULT CHARACTER SET {1} */;", ImportInfo.TargetDatabase, ImportInfo.DatabaseDefaultCharSet);
 
-            Command.ExecuteNonQuery();
+        //    Command.ExecuteNonQuery();
 
-            Command.CommandText = string.Format("USE `{0}`;", ImportInfo.TargetDatabase);
-            Command.ExecuteNonQuery();
+        //    Command.CommandText = string.Format("USE `{0}`;", ImportInfo.TargetDatabase);
+        //    Command.ExecuteNonQuery();
 
-            Import_SetNames();
+        //    Import_SetNames();
 
-            _isNewDatabase = true;
-            _nameIsSet = true;
-        }
+        //    _isNewDatabase = true;
+        //    _nameIsSet = true;
+        //}
 
-        void Import_SetNames()
-        {
-            string setname = QueryExpress.ExecuteScalarStr(Command, "SHOW VARIABLES LIKE 'character_set_database';", 1);
-            Command.CommandText = string.Format("/*!40101 SET NAMES {0} */;", setname);
-            Command.ExecuteNonQuery();
-            _nameIsSet = true;
-        }
+        //void Import_SetNames()
+        //{
+        //    string setname = QueryExpress.ExecuteScalarStr(Command, "SHOW VARIABLES LIKE 'character_set_database';", 1);
+        //    Command.CommandText = string.Format("/*!40101 SET NAMES {0} */;", setname);
+        //    Command.ExecuteNonQuery();
+        //    _nameIsSet = true;
+        //}
 
         void Import_AppendLine(string line)
         {
             _sbImport.AppendLine(line);
         }
 
-        //void Import_ChangeDelimiter(string line)
-        //{
-        //    string nextDelimiter = line.Substring(9);
-        //    _delimiter = nextDelimiter.Replace(" ", string.Empty);
-        //}
+        void Import_ChangeDelimiter(string line)
+        {
+            string nextDelimiter = line.Substring(9);
+            _delimiter = nextDelimiter.Replace(" ", string.Empty);
+        }
 
         void Import_AppendLineAndExecute(string line)
         {
             _sbImport.AppendLine(line);
-            if (!line.EndsWith(_delimiter))
-                return;
+            //if (!line.EndsWith(_delimiter))
+            //    return;
 
             string _importQuery = _sbImport.ToString();
 
-            bool skipexecute = false;
-            if (_importQuery[0].ToString().ToUpper() == "C")
-            {
-                string _iq = _importQuery.ToLower();
-                if (_iq.StartsWith("create "))
-                {
-                    string[] splitoption = new string[] { " as " };
-                    string[] _saq = _iq.Split(splitoption, 1, StringSplitOptions.RemoveEmptyEntries);
-                    if (_saq[0].Contains(" view "))
-                    {
-                        _dicImportRoutines[_importQuery] = false;
-                        skipexecute = true;
-                    }
-                }
-            }
+            //bool skipexecute = false;
+            //if (_importQuery[0].ToString().ToUpper() == "C")
+            //{
+            //    string _iq = _importQuery.ToLower();
+            //    if (_iq.StartsWith("create "))
+            //    {
+            //        string[] splitoption = new string[] { " as " };
+            //        string[] _saq = _iq.Split(splitoption, 1, StringSplitOptions.RemoveEmptyEntries);
+            //        if (_saq[0].Contains(" view "))
+            //        {
+            //            _dicImportRoutines[_importQuery] = false;
+            //            skipexecute = true;
+            //        }
+            //    }
+            //}
 
-            if (!skipexecute)
-            {
-                Command.CommandText = _importQuery;
-                Command.ExecuteNonQuery();
-                //_mySqlScript.Query = _importQuery;
-                //_mySqlScript.Delimiter = _delimiter;
-                //_mySqlScript.Execute();
-            }
+            //if (!skipexecute)
+            //{
+            //_mySqlScript.Query = _importQuery;
+            //_mySqlScript.Delimiter = _delimiter;
+            //_mySqlScript.Execute();
+            Command.CommandText = _importQuery;
+            Command.ExecuteNonQuery();
+            //}
 
-            _sbImport.Clear();
+            //_sbImport.Clear();
             _sbImport = new StringBuilder();
             GC.Collect();
 
@@ -1360,7 +1452,7 @@ namespace Devart.Data.MySql
                 return true;
             if (line == string.Empty)
                 return true;
-            if (line.Trim().Length == 0)
+            if (line.Length == 0)
                 return true;
             if (line.StartsWith("--"))
                 return true;
@@ -1374,165 +1466,164 @@ namespace Devart.Data.MySql
             return false;
         }
 
-        void Import_Routines()
-        {
-            bool excutedOnce = true;
+        //void Import_Routines()
+        //{
+        //    bool excutedOnce = true;
 
-            Dictionary<string, Exception> _dicViewErr = new Dictionary<string, Exception>();
+        //    Dictionary<string, Exception> _dicViewErr = new Dictionary<string, Exception>();
 
-            while (excutedOnce)
-            {
-                excutedOnce = false;
-                string lastExecutedView = "";
+        //    while (excutedOnce)
+        //    {
+        //        excutedOnce = false;
+        //        string lastExecutedView = "";
 
-                foreach (var kv in _dicImportRoutines)
-                {
-                    if (kv.Value)
-                        continue;
+        //        foreach (var kv in _dicImportRoutines)
+        //        {
+        //            if (kv.Value)
+        //                continue;
 
-                    if (stopProcess)
-                    {
-                        processCompletionType = ProcessEndType.Cancelled;
-                        break;
-                    }
+        //            if (stopProcess)
+        //            {
+        //                processCompletionType = ProcessEndType.Cancelled;
+        //                break;
+        //            }
 
-                    //_mySqlScript.Query = kv.Key;
-                    //_mySqlScript.Delimiter = _delimiter;
-                    Command.CommandText = kv.Key;
+        //            _mySqlScript.Query = kv.Key;
+        //            _mySqlScript.Delimiter = _delimiter;
 
-                    try
-                    {
-                        Command.ExecuteNonQuery();
-                        excutedOnce = true;
-                        lastExecutedView = kv.Key;
-                        if (_dicViewErr.ContainsKey(kv.Key))
-                        {
-                            _dicViewErr.Remove(kv.Key);
-                        }
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        _dicViewErr[kv.Key] = ex;
-                    }
-                }
+        //            try
+        //            {
+        //                _mySqlScript.Execute();
+        //                excutedOnce = true;
+        //                lastExecutedView = kv.Key;
+        //                if (_dicViewErr.ContainsKey(kv.Key))
+        //                {
+        //                    _dicViewErr.Remove(kv.Key);
+        //                }
+        //                break;
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                _dicViewErr[kv.Key] = ex;
+        //            }
+        //        }
 
-                if (lastExecutedView.Length > 0)
-                {
-                    _dicImportRoutines[lastExecutedView] = true;
-                }
-            }
+        //        if (lastExecutedView.Length > 0)
+        //        {
+        //            _dicImportRoutines[lastExecutedView] = true;
+        //        }
+        //    }
 
-            if (_dicViewErr.Count > 0)
-            {
-                foreach (var kv in _dicViewErr)
-                {
-                    _lastError = kv.Value;
-                    if (ImportInfo.IgnoreSqlError)
-                    {
-                        if (!string.IsNullOrEmpty(ImportInfo.ErrorLogFile))
-                        {
-                            File.AppendAllText(ImportInfo.ErrorLogFile, Environment.NewLine + Environment.NewLine + kv.Value.ToString());
-                        }
-                    }
-                    else
-                    {
-                        StopAllProcess();
-                        throw kv.Value;
-                    }
-                }
-            }
-        }
+        //    if (_dicViewErr.Count > 0)
+        //    {
+        //        foreach (var kv in _dicViewErr)
+        //        {
+        //            _lastError = kv.Value;
+        //            if (ImportInfo.IgnoreSqlError)
+        //            {
+        //                if (!string.IsNullOrEmpty(ImportInfo.ErrorLogFile))
+        //                {
+        //                    File.AppendAllText(ImportInfo.ErrorLogFile, Environment.NewLine + Environment.NewLine + kv.Value.ToString());
+        //                }
+        //            }
+        //            else
+        //            {
+        //                StopAllProcess();
+        //                throw kv.Value;
+        //            }
+        //        }
+        //    }
+        //}
 
         #endregion
 
         #region Encryption
 
-        void GetSHA512HashFromPassword(string password)
-        {
-            sha512HashedPassword = CryptoExpress.Sha512Hash(password);
-        }
+        //void GetSHA512HashFromPassword(string password)
+        //{
+        //    sha512HashedPassword = CryptoExpress.Sha512Hash(password);
+        //}
 
-        string Encrypt(string text)
-        {
-            return CryptoExpress.AES_Encrypt(text, sha512HashedPassword);
-        }
+        //string Encrypt(string text)
+        //{
+        //    return CryptoExpress.AES_Encrypt(text, sha512HashedPassword);
+        //}
 
-        string Decrypt(string text)
-        {
-            return CryptoExpress.AES_Decrypt(text, sha512HashedPassword);
-        }
+        //string Decrypt(string text)
+        //{
+        //    return CryptoExpress.AES_Decrypt(text, sha512HashedPassword);
+        //}
 
-        public void EncryptDumpFile(string sourceFile, string outputFile, string password)
-        {
-            using (TextReader trSource = new StreamReader(sourceFile))
-            {
-                using (TextWriter twOutput = new StreamWriter(outputFile, false, utf8WithoutBOM))
-                {
-                    EncryptDumpFile(trSource, twOutput, password);
-                    twOutput.Close();
-                }
-                trSource.Close();
-            }
-        }
+        //public void EncryptDumpFile(string sourceFile, string outputFile, string password)
+        //{
+        //    using (TextReader trSource = new StreamReader(sourceFile))
+        //    {
+        //        using (TextWriter twOutput = new StreamWriter(outputFile, false, utf8WithoutBOM))
+        //        {
+        //            EncryptDumpFile(trSource, twOutput, password);
+        //            twOutput.Close();
+        //        }
+        //        trSource.Close();
+        //    }
+        //}
 
-        public void EncryptDumpFile(TextReader trSource, TextWriter twOutput, string password)
-        {
-            GetSHA512HashFromPassword(password);
+        //public void EncryptDumpFile(TextReader trSource, TextWriter twOutput, string password)
+        //{
+        //    GetSHA512HashFromPassword(password);
 
-            string line = "";
+        //    string line = "";
 
-            while (line != null)
-            {
-                line = trSource.ReadLine();
+        //    while (line != null)
+        //    {
+        //        line = trSource.ReadLine();
 
-                if (line == null)
-                    break;
+        //        if (line == null)
+        //            break;
 
-                line = Encrypt(line);
+        //        line = Encrypt(line);
 
-                twOutput.WriteLine(line);
-                twOutput.Flush();
-            }
-        }
+        //        twOutput.WriteLine(line);
+        //        twOutput.Flush();
+        //    }
+        //}
 
-        public void DecryptDumpFile(string sourceFile, string outputFile, string password)
-        {
-            using (TextReader trSource = new StreamReader(sourceFile))
-            {
-                using (TextWriter twOutput = new StreamWriter(outputFile, false, utf8WithoutBOM))
-                {
-                    DecryptDumpFile(trSource, twOutput, password);
-                    twOutput.Close();
-                }
-                trSource.Close();
-            }
-        }
+        //public void DecryptDumpFile(string sourceFile, string outputFile, string password)
+        //{
+        //    using (TextReader trSource = new StreamReader(sourceFile))
+        //    {
+        //        using (TextWriter twOutput = new StreamWriter(outputFile, false, utf8WithoutBOM))
+        //        {
+        //            DecryptDumpFile(trSource, twOutput, password);
+        //            twOutput.Close();
+        //        }
+        //        trSource.Close();
+        //    }
+        //}
 
-        public void DecryptDumpFile(TextReader trSource, TextWriter twOutput, string password)
-        {
-            GetSHA512HashFromPassword(password);
+        //public void DecryptDumpFile(TextReader trSource, TextWriter twOutput, string password)
+        //{
+        //    GetSHA512HashFromPassword(password);
 
-            string line = "";
+        //    string line = "";
 
-            while (line != null)
-            {
-                line = trSource.ReadLine();
+        //    while (line != null)
+        //    {
+        //        line = trSource.ReadLine();
 
-                if (line == null)
-                    break;
+        //        if (line == null)
+        //            break;
 
-                if (line.Trim().Length == 0)
-                {
-                    twOutput.WriteLine();
-                }
+        //        if (line.Trim().Length == 0)
+        //        {
+        //            twOutput.WriteLine();
+        //        }
 
-                line = Decrypt(line);
+        //        line = Decrypt(line);
 
-                twOutput.WriteLine(line);
-                twOutput.Flush();
-            }
-        }
+        //        twOutput.WriteLine(line);
+        //        twOutput.Flush();
+        //    }
+        //}
 
         #endregion
 
@@ -1609,11 +1700,11 @@ namespace Devart.Data.MySql
             }
             catch { }
 
-            try
-            {
-                //_mySqlScript = null;
-            }
-            catch { }
+            //try
+            //{
+            //    _mySqlScript = null;
+            //}
+            //catch { }
         }
     }
 }

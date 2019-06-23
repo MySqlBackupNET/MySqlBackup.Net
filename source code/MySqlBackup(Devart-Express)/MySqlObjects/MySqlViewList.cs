@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
+using System.Collections;
 
 namespace Devart.Data.MySql
 {
-    public class MySqlViewList : IDisposable
+    public class MySqlViewList : IDisposable, IEnumerable<MySqlView>
     {
         List<MySqlView> _lst = new List<MySqlView>();
         string _sqlShowViewList = "";
@@ -90,6 +91,11 @@ namespace Devart.Data.MySql
                 _lst[i] = null;
             }
             _lst = null;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<MySqlView>)_lst).GetEnumerator();
         }
     }
 }

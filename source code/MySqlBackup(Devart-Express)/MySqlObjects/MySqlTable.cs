@@ -55,11 +55,12 @@ namespace Devart.Data.MySql
             _insertStatementHeader = sb.ToString();
         }
 
-        //public void GetTotalRows(MySqlCommand cmd)
-        //{
-        //    string sql = string.Format("SELECT COUNT(*) FROM `{0}`;", _name);
-        //    _totalRows = QueryExpress.ExecuteScalarLong(cmd, sql);
-        //}
+        public void GetTotalRowsByCounting(MySqlCommand cmd)
+        {
+            string sql = string.Format("SELECT COUNT(*) FROM `{0}`;", _name);
+            _totalRows = QueryExpress.ExecuteScalarLong(cmd, sql);
+        }
+
         public void SetTotalRows(long _trows)
         {
             _totalRows = _trows;

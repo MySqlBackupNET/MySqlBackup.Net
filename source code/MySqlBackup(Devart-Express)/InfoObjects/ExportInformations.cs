@@ -150,24 +150,34 @@ namespace Devart.Data.MySql
         /// <summary>
         /// Gets or Sets a value indicates whether the Exported Dump File should be encrypted. Enabling encryption will slow down the whole process.
         /// </summary>
-        [System.Obsolete("This implementation will slow down the whole process which is not recommended. Encrypt the content externally after the export process completed. For more information, please read documentation.")]
-        public bool EnableEncryption = false;
+        //[System.Obsolete("This implementation will slow down the whole process which is not recommended. Encrypt the content externally after the export process completed. For more information, please read documentation.")]
+        //public bool EnableEncryption = false;
 
         /// <summary>
         /// Sets the password used to encrypt the exported dump file.
         /// </summary>
-        [System.Obsolete("This implementation will slow down the whole process which is not recommended. Encrypt the content externally after the export process completed. For more information, please read documentation.")]
-        public string EncryptionPassword = "";
+        //[System.Obsolete("This implementation will slow down the whole process which is not recommended. Encrypt the content externally after the export process completed. For more information, please read documentation.")]
+        //public string EncryptionPassword = "";
 
         /// <summary>
-        /// Gets or Sets a value indicates whether the SQL statement of "CREATE DATABASE" should added into dump file.
+        /// Gets or Sets a value indicates whether the SQL statement of "CREATE DATABASE" should be added into dump file.
         /// </summary>
         public bool AddCreateDatabase = false;
+
+        /// <summary>
+        /// Gets or Sets a value indicates whether the SQL statement of "DROP DATABASE" should be added into dump file.
+        /// </summary>
+        public bool AddDropDatabase = false;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Table Structure (CREATE TABLE) should be exported.
         /// </summary>
         public bool ExportTableStructure = true;
+
+        /// <summary>
+        /// Gets or Sets a value indicates whether the SQL statement of "DROP TABLE" should be added into the dump file.
+        /// </summary>
+        public bool AddDropTable = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the value of auto-increment of each table should be reset to 1.
@@ -217,7 +227,7 @@ namespace Devart.Data.MySql
         /// <summary>
         /// Gets or Sets a value indicates whether the totals of rows should be counted before export process commence. The value of total rows is used for progress reporting. Extra time is needed to get the total rows. Sets this value to FALSE if not applying progress reporting.
         /// </summary>
-        public bool GetTotalRowsBeforeExport = true;
+        //public bool GetTotalRowsBeforeExport = true;
 
         /// <summary>
         /// Gets or Sets the delimiter used for exporting Procedures, Functions, Events and Triggers. Default delimiter is "|".
@@ -238,6 +248,26 @@ namespace Devart.Data.MySql
         /// Gets or Sets a value indicates whether the rows dump should be wrapped with transaction. Recommended to set this value to FALSE if using RowsExportMode = "INSERT" or "INSERTIGNORE" or "REPLACE", else TRUE.
         /// </summary>
         public bool WrapWithinTransaction = false;
+
+        /// <summary>
+        /// Gets or Sets a value indicates the encoding to be used for exporting the dump. Default = UTF8Coding(false)
+        /// </summary>
+        public Encoding TextEncoding = new UTF8Encoding(false);
+
+        /// <summary>
+        /// Gets or Sets a enum value indicates how the BLOB should be exported. HexString = Hexa Decimal String (default); BinaryChar = char format.
+        /// </summary>
+        public BlobDataExportMode BlobExportMode = BlobDataExportMode.HexString;
+
+        /// <summary>
+        /// BlobExportMode = BlobDataExportMode.BinaryChar is disabled by default as this feature is under development. Set this value to true if you wish continue to export BLOB into binary string/char format. This is temporary available for debugging and development purposes.
+        /// </summary>
+        public bool BlobExportModeForBinaryStringAllow = false;
+
+        /// <summary>
+        /// Gets or Sets a value indicates the method of how the total rows value is being obtained. InformationSchema = Fast, but approximate value; SelectCount = Slow but accurate; Skip = Skip obtaining total rows.
+        /// </summary>
+        public GetTotalRowsMethod GetTotalRowsMode = GetTotalRowsMethod.InformationSchema;
 
         public ExportInformations()
         {
