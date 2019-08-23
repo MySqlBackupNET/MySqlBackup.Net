@@ -97,8 +97,6 @@ On the other hand, MySqlDump.exe cannot be executed directly from the Web Server
 * Can be used in any .NET Languages.
 * Export/Import to/from MemoryStream
 * Conditional Rows Export (Filter Tables or Rows)
-* Built-in Internal Encryption Function
-* Able Restore to New Non-Existed Database
 * Progress Report is Available for Both Export and Import Task.
 * Able to export rows into different modes. (Insert, Insert Ignore, Replace, On Duplicate Key Update, Update)
 * Can be used directly in ASP.NET or web services.
