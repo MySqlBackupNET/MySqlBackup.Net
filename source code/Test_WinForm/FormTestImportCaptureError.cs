@@ -37,6 +37,68 @@ namespace MySqlBackupTestApp
             }
         }
 
+        void RunTest(string sql)
+        {
+            txtError.Text = "";
+            txtLastErrorSqlSyntax.Text = "";
+            this.Refresh();
+
+            try
+            {
+                string oldlocation = File.ReadAllText(cacheLogFilePath);
+
+                if (oldlocation != txtLogFilePath.Text)
+                    File.WriteAllText(cacheLogFilePath, txtLogFilePath.Text);
+            }
+            catch
+            {
+                File.WriteAllText(cacheLogFilePath, txtLogFilePath.Text);
+            }
+
+            try
+            {
+                File.Delete(txtLogFilePath.Text);
+            }
+            catch { }
+
+            using (MySqlConnection conn = new MySqlConnection(Program.ConnectionString))
+            {
+                using (MySqlCommand cmd = new MySqlCommand())
+                {
+                    using (MySqlBackup mb = new MySqlBackup(cmd))
+                    {
+                        conn.Open();
+
+                        try
+                        {
+                            cmd.Connection = conn;
+
+                            mb.ImportInfo.IgnoreSqlError = cbIgnoreSqlError.Checked;
+                            mb.ImportInfo.ErrorLogFile = txtLogFilePath.Text;
+                            mb.ImportFromString(sql);
+                        }
+                        catch
+                        { }
+
+                        conn.Close();
+
+                        try
+                        {
+                            if (txtLogFilePath.Text.Length > 0)
+                                txtError.Text = File.ReadAllText(txtLogFilePath.Text);
+                            else
+                                txtError.Text = mb.LastError.ToString();
+                        }
+                        catch { }
+
+                        txtLastErrorSqlSyntax.Text = mb.LastErrorSQL;
+                    }
+                }
+            }
+
+            MessageBox.Show("Task ended.");
+        }
+
         string GetDumpContent()
         {
             StringBuilder sb = new StringBuilder();
@@ -71,64 +133,9 @@ ENGINE = InnoDB;
 
         private void btStart_Click(object sender, EventArgs e)
         {
-            txtError.Text = "";
-            txtLastErrorSqlSyntax.Text = "";
-            this.Refresh();
+            string sql = GetDumpContent();
 
-            try
-            {
-                string oldlocation = File.ReadAllText(cacheLogFilePath);
-
-                if (oldlocation != txtLogFilePath.Text)
-                    File.WriteAllText(cacheLogFilePath, txtLogFilePath.Text);
-            }
-            catch
-            {
-                File.WriteAllText(cacheLogFilePath, txtLogFilePath.Text);
-            }
-
-            try
-            {
-                File.Delete(txtLogFilePath.Text);
-            }
-            catch { }
-
-            string data = GetDumpContent();
-
-            using (MySqlConnection conn = new MySqlConnection(Program.ConnectionString))
-            {
-                using (MySqlCommand cmd = new MySqlCommand())
-                {
-                    using (MySqlBackup mb = new MySqlBackup(cmd))
-                    {
-                        conn.Open();
-
-                        try
-                        {
-                            cmd.Connection = conn;
-
-                            mb.ImportInfo.IgnoreSqlError = cbIgnoreSqlError.Checked;
-                            mb.ImportInfo.ErrorLogFile = txtLogFilePath.Text;
-                            mb.ImportFromString(data);
-                        }
-                        catch
-                        { }
-
-                        conn.Close();
-
-                        try
-                        {
-                            if (txtLogFilePath.Text.Length > 0)
-                                txtError.Text = File.ReadAllText(txtLogFilePath.Text);
-                            else
-                                txtError.Text = mb.LastError.ToString();
-                        }
-                        catch { }
-
-                        txtLastErrorSqlSyntax.Text = mb.LastErrorSQL;
-                    }
-                }
-            }
+            RunTest(sql);
         }
 
         private void btSetLogFilePath_Click(object sender, EventArgs e)
@@ -142,8 +149,6 @@ ENGINE = InnoDB;
             }
 
             txtLogFilePath.Text = sf.FileName;
-
-
         }
 
         private void btResetLogFilePath_Click(object sender, EventArgs e)
@@ -192,6 +197,12 @@ ENGINE = InnoDB;
                 MessageBox.Show("File not exists. Cannot view content");
                 txtError.Text = "File not exists. Cannot view content\r\n\r\n" + ex.Message;
             }
+        }
+
+        private void BtStartFile_Click(object sender, EventArgs e)
+        {
+            string sql = File.ReadAllText(Program.TargetFile);
+            RunTest(sql);
         }
     }
 }

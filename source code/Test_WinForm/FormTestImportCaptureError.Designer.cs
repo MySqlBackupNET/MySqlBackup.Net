@@ -44,23 +44,24 @@
             this.btViewDump = new System.Windows.Forms.Button();
             this.btExport = new System.Windows.Forms.Button();
             this.btViewErrorLog = new System.Windows.Forms.Button();
+            this.btStartFile = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.nmErrorCount)).BeginInit();
             this.SuspendLayout();
             // 
             // btStart
             // 
             this.btStart.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.btStart.Location = new System.Drawing.Point(12, 11);
+            this.btStart.Location = new System.Drawing.Point(155, 11);
             this.btStart.Name = "btStart";
-            this.btStart.Size = new System.Drawing.Size(124, 28);
+            this.btStart.Size = new System.Drawing.Size(166, 28);
             this.btStart.TabIndex = 0;
-            this.btStart.Text = "Run Error Test";
+            this.btStart.Text = "Run Error Test (Sample Dump)";
             this.btStart.UseVisualStyleBackColor = false;
             this.btStart.Click += new System.EventHandler(this.btStart_Click);
             // 
             // btSetLogFilePath
             // 
-            this.btSetLogFilePath.Location = new System.Drawing.Point(142, 12);
+            this.btSetLogFilePath.Location = new System.Drawing.Point(327, 12);
             this.btSetLogFilePath.Name = "btSetLogFilePath";
             this.btSetLogFilePath.Size = new System.Drawing.Size(174, 27);
             this.btSetLogFilePath.TabIndex = 1;
@@ -77,7 +78,7 @@
             // 
             // btResetLogFilePath
             // 
-            this.btResetLogFilePath.Location = new System.Drawing.Point(322, 12);
+            this.btResetLogFilePath.Location = new System.Drawing.Point(507, 11);
             this.btResetLogFilePath.Name = "btResetLogFilePath";
             this.btResetLogFilePath.Size = new System.Drawing.Size(174, 28);
             this.btResetLogFilePath.TabIndex = 3;
@@ -136,12 +137,12 @@
             this.txtError.Multiline = true;
             this.txtError.Name = "txtError";
             this.txtError.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtError.Size = new System.Drawing.Size(810, 257);
+            this.txtError.Size = new System.Drawing.Size(892, 257);
             this.txtError.TabIndex = 8;
             // 
             // btClearLogFilePath
             // 
-            this.btClearLogFilePath.Location = new System.Drawing.Point(502, 12);
+            this.btClearLogFilePath.Location = new System.Drawing.Point(687, 11);
             this.btClearLogFilePath.Name = "btClearLogFilePath";
             this.btClearLogFilePath.Size = new System.Drawing.Size(174, 28);
             this.btClearLogFilePath.TabIndex = 9;
@@ -159,7 +160,7 @@
             this.txtLastErrorSqlSyntax.Multiline = true;
             this.txtLastErrorSqlSyntax.Name = "txtLastErrorSqlSyntax";
             this.txtLastErrorSqlSyntax.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtLastErrorSqlSyntax.Size = new System.Drawing.Size(810, 57);
+            this.txtLastErrorSqlSyntax.Size = new System.Drawing.Size(892, 57);
             this.txtLastErrorSqlSyntax.TabIndex = 11;
             // 
             // label3
@@ -210,10 +211,22 @@
             this.btViewErrorLog.UseVisualStyleBackColor = true;
             this.btViewErrorLog.Click += new System.EventHandler(this.btViewErrorLog_Click);
             // 
+            // btStartFile
+            // 
+            this.btStartFile.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.btStartFile.Location = new System.Drawing.Point(12, 11);
+            this.btStartFile.Name = "btStartFile";
+            this.btStartFile.Size = new System.Drawing.Size(137, 28);
+            this.btStartFile.TabIndex = 16;
+            this.btStartFile.Text = "Run Error Test (File)";
+            this.btStartFile.UseVisualStyleBackColor = false;
+            this.btStartFile.Click += new System.EventHandler(this.BtStartFile_Click);
+            // 
             // FormTestImportCaptureError
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(834, 511);
+            this.ClientSize = new System.Drawing.Size(916, 511);
+            this.Controls.Add(this.btStartFile);
             this.Controls.Add(this.btViewErrorLog);
             this.Controls.Add(this.btExport);
             this.Controls.Add(this.btViewDump);
@@ -257,5 +270,6 @@
         private System.Windows.Forms.Button btViewDump;
         private System.Windows.Forms.Button btExport;
         private System.Windows.Forms.Button btViewErrorLog;
+        private System.Windows.Forms.Button btStartFile;
     }
 }

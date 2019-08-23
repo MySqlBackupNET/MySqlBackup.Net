@@ -28,7 +28,7 @@ namespace Devart.Data.MySql
             Error
         }
 
-        public const string Version = "2.3";
+        public const string Version = "2.3.1";
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
@@ -1320,11 +1320,11 @@ namespace Devart.Data.MySql
             //    }
             //}
 
-            if (line.EndsWith(_delimiter))
-                return NextImportAction.AppendLineAndExecute;
-
             if (line.StartsWith("DELIMITER ", StringComparison.OrdinalIgnoreCase))
                 return NextImportAction.ChangeDelimiter;
+
+            if (line.EndsWith(_delimiter))
+                return NextImportAction.AppendLineAndExecute;
 
             return NextImportAction.AppendLine;
         }
