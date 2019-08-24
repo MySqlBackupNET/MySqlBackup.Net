@@ -238,6 +238,10 @@ namespace MySqlBackupTestApp
                 {
                     cbAutosave.Checked = false;
                 }
+                if(textBox_Connection.Text.Length==0)
+                {
+                    textBox_Connection.Text = "server=127.0.0.1;user=root;pwd=1234;convertzerodatetime=true;charset=utf8;";
+                }
             }
             catch (Exception ex)
             {
@@ -316,6 +320,15 @@ namespace MySqlBackupTestApp
         private void importCaptureErrorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenForm(typeof(FormTestImportCaptureError));
+        }
+
+        private void BtConnStrBuilder_Click(object sender, EventArgs e)
+        {
+            FormConnStringBuilder f = new FormConnStringBuilder(textBox_Connection.Text);
+            if (f.ShowDialog() == DialogResult.OK)
+            {
+                textBox_Connection.Text = f.ConnStr;
+            }
         }
     }
 }

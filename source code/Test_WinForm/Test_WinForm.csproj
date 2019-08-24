@@ -88,6 +88,12 @@
     <Compile Include="FormAbout.Designer.cs">
       <DependentUpon>FormAbout.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormConnStringBuilder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormConnStringBuilder.Designer.cs">
+      <DependentUpon>FormConnStringBuilder.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormDecryptOldDumpFile.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -232,6 +238,9 @@
     <Compile Include="ZipStorer.cs" />
     <EmbeddedResource Include="FormAbout.resx">
       <DependentUpon>FormAbout.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormConnStringBuilder.resx">
+      <DependentUpon>FormConnStringBuilder.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormDecryptOldDumpFile.resx">
       <DependentUpon>FormDecryptOldDumpFile.cs</DependentUpon>
