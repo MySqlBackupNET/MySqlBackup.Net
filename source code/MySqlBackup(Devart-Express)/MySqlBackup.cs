@@ -28,7 +28,7 @@ namespace Devart.Data.MySql
             Error
         }
 
-        public const string Version = "2.3.1";
+        public const string Version = "2.3.3";
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
@@ -71,6 +71,7 @@ namespace Devart.Data.MySql
         long _currentBytes = 0L;
         long _totalBytes = 0L;
         StringBuilder _sbImport = null;
+        //MySqlScript _mySqlScript = null;
         string _delimiter = "";
 
         enum NextImportAction
@@ -194,6 +195,15 @@ namespace Devart.Data.MySql
             }
 
             textWriter = new StreamWriter(ms, textEncoding);
+            ExportStart();
+        }
+
+        public void ExportToStream(Stream sm)
+        {
+            if (sm.CanSeek)
+                sm.Seek(0, SeekOrigin.Begin);
+
+            textWriter = new StreamWriter(sm, textEncoding);
             ExportStart();
         }
 
@@ -1124,6 +1134,15 @@ namespace Devart.Data.MySql
             Import_Start();
         }
 
+        public void ImportFromStream(Stream sm)
+        {
+            if (sm.CanSeek)
+                sm.Seek(0, SeekOrigin.Begin);
+
+            textReader = new StreamReader(sm);
+            Import_Start();
+        }
+
         void ImportFromTextReaderStream(TextReader tr, FileInfo fileInfo)
         {
             if (fileInfo != null)
@@ -1178,7 +1197,7 @@ namespace Devart.Data.MySql
 
                     if (ImportInfo.IgnoreSqlError)
                     {
-                        
+
                     }
                     else
                     {
@@ -1368,7 +1387,7 @@ namespace Devart.Data.MySql
 
         void Import_AppendLineAndExecute(string line)
         {
-            _sbImport.AppendLine(line);
+            _sbImport.Append(line);
             //if (!line.EndsWith(_delimiter))
             //    return;
 
@@ -1395,9 +1414,9 @@ namespace Devart.Data.MySql
             //_mySqlScript.Query = _importQuery;
             //_mySqlScript.Delimiter = _delimiter;
             //_mySqlScript.Execute();
-            Command.CommandText = _importQuery;
-            Command.ExecuteNonQuery();
             //}
+            Command.CommandText = _sbImport.ToString();
+            Command.ExecuteNonQuery();
 
             //_sbImport.Clear();
             _sbImport = new StringBuilder();

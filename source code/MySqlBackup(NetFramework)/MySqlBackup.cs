@@ -28,7 +28,7 @@ namespace MySql.Data.MySqlClient
             Error
         }
 
-        public const string Version = "2.3.1";
+        public const string Version = "2.3.3";
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
@@ -195,6 +195,15 @@ namespace MySql.Data.MySqlClient
             }
 
             textWriter = new StreamWriter(ms, textEncoding);
+            ExportStart();
+        }
+
+        public void ExportToStream(Stream sm)
+        {
+            if (sm.CanSeek)
+                sm.Seek(0, SeekOrigin.Begin);
+
+            textWriter = new StreamWriter(sm, textEncoding);
             ExportStart();
         }
 
@@ -1125,6 +1134,15 @@ namespace MySql.Data.MySqlClient
             Import_Start();
         }
 
+        public void ImportFromStream(Stream sm)
+        {
+            if (sm.CanSeek)
+                sm.Seek(0, SeekOrigin.Begin);
+
+            textReader = new StreamReader(sm);
+            Import_Start();
+        }
+
         void ImportFromTextReaderStream(TextReader tr, FileInfo fileInfo)
         {
             if (fileInfo != null)
@@ -1369,7 +1387,7 @@ namespace MySql.Data.MySqlClient
 
         void Import_AppendLineAndExecute(string line)
         {
-            _sbImport.AppendLine(line);
+            _sbImport.Append(line);
             //if (!line.EndsWith(_delimiter))
             //    return;
 
