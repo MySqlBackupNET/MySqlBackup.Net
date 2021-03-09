@@ -28,7 +28,7 @@ namespace MySql.Data.MySqlClient
             Error
         }
 
-        public const string Version = "2.3.3";
+        public const string Version = "2.3.4";
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
@@ -1197,7 +1197,7 @@ namespace MySql.Data.MySqlClient
 
                     if (ImportInfo.IgnoreSqlError)
                     {
-                        
+
                     }
                     else
                     {

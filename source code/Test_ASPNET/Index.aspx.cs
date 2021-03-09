@@ -7,7 +7,6 @@ using MySql.Data.MySqlClient;
 using System.IO;
 using System.Text;
 using System.IO.Compression;
-using MySql.Data.MySqlClient;
 
 namespace MySqlBackupASPNET
 {
@@ -15,7 +14,7 @@ namespace MySqlBackupASPNET
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            phBgVersion.Controls.Add(new LiteralControl(MySqlBackup.Version));
         }
 
         protected void btExport_Click(object sender, EventArgs e)

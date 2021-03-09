@@ -281,14 +281,15 @@ namespace Devart.Data.MySql
                 if (wrapStringWithSingleQuote)
                     sb.AppendFormat("'");
 
-                sb.AppendFormat(ts.Hours.ToString().PadLeft(2, '0'));
+                sb.AppendFormat(((int)ts.TotalHours).ToString().PadLeft(2, '0'));
                 sb.AppendFormat(":");
-                sb.AppendFormat(ts.Minutes.ToString().PadLeft(2, '0'));
+                sb.AppendFormat(ts.Duration().Minutes.ToString().PadLeft(2, '0'));
                 sb.AppendFormat(":");
-                sb.AppendFormat(ts.Seconds.ToString().PadLeft(2, '0'));
+                sb.AppendFormat(ts.Duration().Seconds.ToString().PadLeft(2, '0'));
 
                 if (wrapStringWithSingleQuote)
                     sb.AppendFormat("'");
+
             }
             else if (ob is System.DateTime)
             {

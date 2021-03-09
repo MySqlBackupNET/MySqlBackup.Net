@@ -45,10 +45,10 @@
         
         <div id="templatemo_menu" class="ddsmoothmenu">
             <ul>
-              	<li><a href="http://mysqlbackup.somee.com/" class="selected">Home</a></li>
-          		<li><a href="http://mysqlbackupnet.codeplex.com/releases">Download Source Code</a></li>
-                <li><a href="http://mysqlbackupnet.codeplex.com/documentation">Documentation</a></li>
-                <li><a href="http://mysqlbackupnet.codeplex.com/discussions">Discussion</a></li>
+              	<li><a href="https://mysqlbackup.net" class="selected">Home</a></li>
+          		<li><a href="https://github.com/MySqlBackupNET/MySqlBackup.Net/releases">Download</a></li>
+                <li><a href="https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki">Documentation</a></li>
+                <li><a href="https://github.com/MySqlBackupNET/MySqlBackup.Net/issues">Discussion</a></li>
             </ul>
             <br style="clear: left" />
         </div> <!-- end of templatemo_menu -->
@@ -63,7 +63,7 @@
                 <p><b>MySqlBackup.NET</b> is a C# open source MySQL database backup and restore tool. 
                     It is an alternative to MySqlDump.
                     It can be used in VB.NET projects too. 
-                    Official Project Site: <a href="http://mysqlbackupnet.codeplex.com">http://mysqlbackupnet.codeplex.com</a></p>
+                    Official Project Site: <a href="https://mysqlbackup.net">https://mysqlbackup.net</a></p>
                  <p>
                     Below is a simple demo for backing up and restoring a MySQL database:
                 </p>
@@ -73,7 +73,7 @@
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
                                 <td style="padding: 5px; border: 1px solid #5A6B7C; background-color: #465767;">
-                                    <span style="font-weight:bold; color: #F7F7F7;">Simple Test (ASP.NET 4.5, MySqlBackup.NET 2.0.7)</span>
+                                    <span style="font-weight:bold; color: #F7F7F7;">Simple Test (ASP.NET 4.5.2, MySqlBackup.NET v<asp:PlaceHolder ID="phBgVersion" runat="server"></asp:PlaceHolder>)</span>
                                 </td>
                             </tr>
                             <tr>

@@ -281,14 +281,15 @@ namespace MySql.Data.MySqlClient
                 if (wrapStringWithSingleQuote)
                     sb.AppendFormat("'");
 
-                sb.AppendFormat(ts.Hours.ToString().PadLeft(2, '0'));
+                sb.AppendFormat(((int)ts.TotalHours).ToString().PadLeft(2, '0'));
                 sb.AppendFormat(":");
-                sb.AppendFormat(ts.Minutes.ToString().PadLeft(2, '0'));
+                sb.AppendFormat(ts.Duration().Minutes.ToString().PadLeft(2, '0'));
                 sb.AppendFormat(":");
-                sb.AppendFormat(ts.Seconds.ToString().PadLeft(2, '0'));
+                sb.AppendFormat(ts.Duration().Seconds.ToString().PadLeft(2, '0'));
 
                 if (wrapStringWithSingleQuote)
                     sb.AppendFormat("'");
+
             }
             else if (ob is System.DateTime)
             {
@@ -329,7 +330,8 @@ namespace MySql.Data.MySqlClient
                         else if (col.MySqlDataType == "date")
                             sb.AppendFormat(dtime.ToString("yyyy-MM-dd", _dateFormatInfo));
                         else if (col.MySqlDataType == "time")
-                            sb.AppendFormat(dtime.ToString("HH:mm:ss", _dateFormatInfo));
+                            sb.AppendFormat("{0}:{1}:{2}", mdt.Hour, mdt.Minute, mdt.Second);
+                        //sb.AppendFormat(dtime.ToString("HH:mm:ss", _dateFormatInfo));
                         else
                             sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
 

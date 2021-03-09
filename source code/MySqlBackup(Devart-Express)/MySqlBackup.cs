@@ -28,7 +28,7 @@ namespace Devart.Data.MySql
             Error
         }
 
-        public const string Version = "2.3.3";
+        public const string Version = "2.3.4";
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
