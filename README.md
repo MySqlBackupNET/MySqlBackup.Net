@@ -6,6 +6,10 @@ A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET.
 
 Article at [CodeProject.com](http://www.codeproject.com/Articles/256466/MySqlBackup-NET)
 
+## Donation to This Project
+
+<img src="https://img.icons8.com/color/96/000000/stripe.png"/>
+
 ## How to Add This Library into Your Project
 Read [this wiki: How to Add This Library into Your Project](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/How-to-Add-This-Library-into-Your-Project)
 
