@@ -8,7 +8,8 @@ Article at [CodeProject.com](http://www.codeproject.com/Articles/256466/MySqlBac
 
 ## Donation to This Project
 
-<img src="https://img.icons8.com/color/96/000000/stripe.png"/>
+<a href="https://buy.stripe.com/dR6aIgawrbUW57GeUU" target="_blank">
+<img src="https://img.icons8.com/color/96/000000/stripe.png"/></a>
 
 ## How to Add This Library into Your Project
 Read [this wiki: How to Add This Library into Your Project](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/How-to-Add-This-Library-into-Your-Project)
