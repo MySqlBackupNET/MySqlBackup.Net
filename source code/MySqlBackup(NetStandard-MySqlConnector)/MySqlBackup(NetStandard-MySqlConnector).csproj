@@ -19,7 +19,7 @@
     <AssemblyVersion>2.3.5</AssemblyVersion>
     <FileVersion>2.3.5</FileVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <AssemblyName>MySqlBackup.net.MySqlConnector</AssemblyName>
+    <AssemblyName>MySqlBackupNet.MySqlConnector</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
