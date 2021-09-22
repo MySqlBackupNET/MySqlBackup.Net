@@ -18,6 +18,8 @@
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</RepositoryUrl>
     <AssemblyVersion>2.3.5</AssemblyVersion>
     <FileVersion>2.3.5</FileVersion>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <AssemblyName>MySqlBackup.net.MySqlConnector</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
