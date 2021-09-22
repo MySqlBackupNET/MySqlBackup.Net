@@ -132,7 +132,10 @@ You are recommended to apply the connection string option of charset=utf8. Examp
 ```
 server=localhost;user=root;pwd=mypwd;charset=utf8;
 ```
-
+or
+```
+server=localhost;user=root;pwd=mypwd;charset=utf8mb4;
+```
 ### Reminder 2
 
 (For MySql.Data connector only)
