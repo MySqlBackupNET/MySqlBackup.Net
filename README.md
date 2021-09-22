@@ -4,6 +4,8 @@ This project is moved from [https://mysqlbackupnet.codeplex.com/](https://mysqlb
 
 A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET.
 
+Runs on MySql.Data.DLL, MySqlConnector.DLL and Devart.Express.MySql.DLL
+
 Article at [CodeProject.com](http://www.codeproject.com/Articles/256466/MySqlBackup-NET)
 
 ## Donation to This Project
@@ -118,6 +120,13 @@ Option 2: Devart Express (dotConnect)
 * For license agreement, please read: [https://www.devart.com/dotconnect/mysql/licensing-faq.html](https://www.devart.com/dotconnect/mysql/licensing-faq.html)
 * Devart.Data.DLL
 * Devart.Data.MySql.DLL
+
+Option 3: MySqlConnector (MIT)
+* [MySqlConnector: High Performance MySQL Library for .NET](https://mysqlconnector.net/)<br />_A reference of this DLL must be added into your project in order for to compile or work with MySqlBackup.NET._
+* Project URL: https://github.com/mysql-net/MySqlConnector
+* Licensed under MIT
+* MySqlConnector.DLL
+
 ## Reminder
 
 ### Reminder 1
