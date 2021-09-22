@@ -9,7 +9,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     public class ExportInformations
     {
-        int _interval = 50;
+        int _interval = 100;
         string _delimiter = "|";
 
         List<string> _documentHeaders = null;
@@ -148,18 +148,6 @@ namespace MySql.Data.MySqlClient
         public bool RecordDumpTime = true;
 
         /// <summary>
-        /// Gets or Sets a value indicates whether the Exported Dump File should be encrypted. Enabling encryption will slow down the whole process.
-        /// </summary>
-        //[System.Obsolete("This implementation will slow down the whole process which is not recommended. Encrypt the content externally after the export process completed. For more information, please read documentation.")]
-        //public bool EnableEncryption = false;
-
-        /// <summary>
-        /// Sets the password used to encrypt the exported dump file.
-        /// </summary>
-        //[System.Obsolete("This implementation will slow down the whole process which is not recommended. Encrypt the content externally after the export process completed. For more information, please read documentation.")]
-        //public string EncryptionPassword = "";
-
-        /// <summary>
         /// Gets or Sets a value indicates whether the SQL statement of "CREATE DATABASE" should be added into dump file.
         /// </summary>
         public bool AddCreateDatabase = false;
@@ -268,6 +256,11 @@ namespace MySql.Data.MySqlClient
         /// Gets or Sets a value indicates the method of how the total rows value is being obtained. InformationSchema = Fast, but approximate value; SelectCount = Slow but accurate; Skip = Skip obtaining total rows.
         /// </summary>
         public GetTotalRowsMethod GetTotalRowsMode = GetTotalRowsMethod.InformationSchema;
+
+        /// <summary>
+        /// Gets or Sets a value indicates whether comments should be included in the dump content.
+        /// </summary>
+        public bool EnableComment = true;
 
         public ExportInformations()
         {

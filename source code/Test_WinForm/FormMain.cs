@@ -240,7 +240,7 @@ namespace MySqlBackupTestApp
                 }
                 if(textBox_Connection.Text.Length==0)
                 {
-                    textBox_Connection.Text = "server=127.0.0.1;user=root;pwd=1234;convertzerodatetime=true;charset=utf8;";
+                    textBox_Connection.Text = "server=127.0.0.1;user=root;pwd=1234;convertzerodatetime=true;";
                 }
             }
             catch (Exception ex)

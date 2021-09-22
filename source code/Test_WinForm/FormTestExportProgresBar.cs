@@ -30,6 +30,9 @@ namespace MySqlBackupTestApp
 
         bool cancel = false;
 
+        DateTime timeStart = DateTime.MinValue;
+        DateTime timeEnd = DateTime.MinValue;
+
         public FormTestExportProgresBar()
         {
             InitializeComponent();
@@ -100,6 +103,9 @@ namespace MySqlBackupTestApp
 
             mb.Command = cmd;
 
+            timeStart = DateTime.Now;
+            lbTotalTime.Text = "";
+
             bwExport.RunWorkerAsync();
         }
 
@@ -121,6 +127,10 @@ namespace MySqlBackupTestApp
         {
             CloseConnection();
             timer1.Stop();
+
+            timeEnd = DateTime.Now;
+            var ts = timeEnd - timeStart;
+            lbTotalTime.Text = $"{ts.Hours} h {ts.Minutes} m {ts.Seconds} s {ts.Milliseconds} ms";
 
             if (cancel)
             {

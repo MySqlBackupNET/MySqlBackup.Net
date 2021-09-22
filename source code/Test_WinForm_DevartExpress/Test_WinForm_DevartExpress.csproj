@@ -33,11 +33,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Devart.Data, Version=5.0.2628.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
-      <HintPath>..\packages\dotConnect.Express.for.MySQL.8.19.1836\lib\Devart.Data.dll</HintPath>
+    <Reference Include="Devart.Data, Version=5.0.2736.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
+      <HintPath>..\packages\dotConnect.Express.for.MySQL.8.19.1944\lib\Devart.Data.dll</HintPath>
     </Reference>
-    <Reference Include="Devart.Data.MySql, Version=8.19.1836.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
-      <HintPath>..\packages\dotConnect.Express.for.MySQL.8.19.1836\lib\Devart.Data.MySql.dll</HintPath>
+    <Reference Include="Devart.Data.MySql, Version=8.19.1944.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
+      <HintPath>..\packages\dotConnect.Express.for.MySQL.8.19.1944\lib\Devart.Data.MySql.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -52,16 +52,234 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
+    <Compile Include="FormAbout.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="FormAbout.Designer.cs">
+      <DependentUpon>FormAbout.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormCompareFile.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormCompareFile.Designer.cs">
+      <DependentUpon>FormCompareFile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormConnStringBuilder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormConnStringBuilder.Designer.cs">
+      <DependentUpon>FormConnStringBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormDatabaseInfo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormDatabaseInfo.Designer.cs">
+      <DependentUpon>FormDatabaseInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormDecryptOldDumpFile.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormDecryptOldDumpFile.Designer.cs">
+      <DependentUpon>FormDecryptOldDumpFile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormDumpFileViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormDumpFileViewer.Designer.cs">
+      <DependentUpon>FormDumpFileViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormMain.Designer.cs">
+      <DependentUpon>FormMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormQueryBrowser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormQueryBrowser.Designer.cs">
+      <DependentUpon>FormQueryBrowser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormQueryBrowser2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormQueryBrowser2.Designer.cs">
+      <DependentUpon>FormQueryBrowser2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormReference.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormReference.Designer.cs">
+      <DependentUpon>FormReference.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestBlob.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestBlob.Designer.cs">
+      <DependentUpon>FormTestBlob.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestCustomTablesExport.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestCustomTablesExport.Designer.cs">
+      <DependentUpon>FormTestCustomTablesExport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestEncryptDecrypt.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestEncryptDecrypt.Designer.cs">
+      <DependentUpon>FormTestEncryptDecrypt.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestExcludeTables.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestExcludeTables.Designer.cs">
+      <DependentUpon>FormTestExcludeTables.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestExImWithOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestExImWithOptions.Designer.cs">
+      <DependentUpon>FormTestExImWithOptions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestExportImportMemory.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestExportImportMemory.Designer.cs">
+      <DependentUpon>FormTestExportImportMemory.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestExportImportString.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestExportImportString.Designer.cs">
+      <DependentUpon>FormTestExportImportString.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestExportProgresBar.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestExportProgresBar.Designer.cs">
+      <DependentUpon>FormTestExportProgresBar.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestImportCaptureError.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestImportCaptureError.Designer.cs">
+      <DependentUpon>FormTestImportCaptureError.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestImportProgressReport.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestImportProgressReport.Designer.cs">
+      <DependentUpon>FormTestImportProgressReport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestModifyHeadersFooters.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestModifyHeadersFooters.Designer.cs">
+      <DependentUpon>FormTestModifyHeadersFooters.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestSimple.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestSimple.Designer.cs">
+      <DependentUpon>FormTestSimple.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestViewDependencies.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestViewDependencies.Designer.cs">
+      <DependentUpon>FormTestViewDependencies.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTestZip.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTestZip.Designer.cs">
+      <DependentUpon>FormTestZip.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormToolCreateSampleTable.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormToolCreateSampleTable.Designer.cs">
+      <DependentUpon>FormToolCreateSampleTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="HtmlExpress.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="ZipStorer.cs" />
+    <EmbeddedResource Include="FormAbout.resx">
+      <DependentUpon>FormAbout.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormCompareFile.resx">
+      <DependentUpon>FormCompareFile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormConnStringBuilder.resx">
+      <DependentUpon>FormConnStringBuilder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormDatabaseInfo.resx">
+      <DependentUpon>FormDatabaseInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormDecryptOldDumpFile.resx">
+      <DependentUpon>FormDecryptOldDumpFile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormDumpFileViewer.resx">
+      <DependentUpon>FormDumpFileViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormMain.resx">
+      <DependentUpon>FormMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormQueryBrowser.resx">
+      <DependentUpon>FormQueryBrowser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormQueryBrowser2.resx">
+      <DependentUpon>FormQueryBrowser2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormReference.resx">
+      <DependentUpon>FormReference.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestBlob.resx">
+      <DependentUpon>FormTestBlob.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestCustomTablesExport.resx">
+      <DependentUpon>FormTestCustomTablesExport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestEncryptDecrypt.resx">
+      <DependentUpon>FormTestEncryptDecrypt.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestExcludeTables.resx">
+      <DependentUpon>FormTestExcludeTables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestExImWithOptions.resx">
+      <DependentUpon>FormTestExImWithOptions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestExportImportMemory.resx">
+      <DependentUpon>FormTestExportImportMemory.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestExportImportString.resx">
+      <DependentUpon>FormTestExportImportString.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestExportProgresBar.resx">
+      <DependentUpon>FormTestExportProgresBar.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestImportCaptureError.resx">
+      <DependentUpon>FormTestImportCaptureError.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestImportProgressReport.resx">
+      <DependentUpon>FormTestImportProgressReport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestModifyHeadersFooters.resx">
+      <DependentUpon>FormTestModifyHeadersFooters.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestSimple.resx">
+      <DependentUpon>FormTestSimple.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestViewDependencies.resx">
+      <DependentUpon>FormTestViewDependencies.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTestZip.resx">
+      <DependentUpon>FormTestZip.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormToolCreateSampleTable.resx">
+      <DependentUpon>FormToolCreateSampleTable.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -91,6 +309,27 @@
       <Project>{39e2242b-54ea-4a5d-916f-7eb30625fad7}</Project>
       <Name>MySqlBackup%28Devart-Express%29</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\bullet_cross.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\disk.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\disk_edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\folder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\logo128.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\q2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="logo.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -22,22 +22,15 @@ namespace MySqlBackupTestApp
 
         bool cancel = false;
 
+        DateTime timeStart = DateTime.MinValue;
+        DateTime timeEnd = DateTime.MinValue;
+
         public FormTestImportProgressReport()
         {
             InitializeComponent();
 
-            DataTable dt = new DataTable();
-            dt.Columns.Add("id", typeof(RowsDataExportMode));
-            dt.Columns.Add("name");
-            foreach (RowsDataExportMode mode in Enum.GetValues(typeof(RowsDataExportMode)))
-            {
-                dt.Rows.Add(mode, mode.ToString());
-            }
-
-            comboBox_RowsExportMode.DataSource = dt;
-            comboBox_RowsExportMode.SelectedIndex = 0;
-
             mb = new MySqlBackup();
+            mb.ImportInfo.IntervalForProgressReport = (int)nmImInterval.Value;
             mb.ImportProgressChanged += mb_ImportProgressChanged;
 
             timer1 = new Timer();
@@ -82,6 +75,9 @@ namespace MySqlBackupTestApp
 
             mb.ImportInfo.IntervalForProgressReport = (int)nmImInterval.Value;
             mb.Command = cmd;
+
+            timeStart = DateTime.Now;
+            lbTotalTime.Text = "";
 
             bwImport.RunWorkerAsync();
         }
@@ -128,6 +124,10 @@ namespace MySqlBackupTestApp
             timer1.Stop();
 
             CloseConnection();
+
+            timeEnd = DateTime.Now;
+            var ts = timeEnd - timeStart;
+            lbTotalTime.Text = $"{ts.Hours} h {ts.Minutes} m {ts.Seconds} s {ts.Milliseconds} ms";
 
             if (cancel)
             {

@@ -6,15 +6,19 @@
     <RootNamespace>MySql.Data.MySqlClient</RootNamespace>
     <Product>MySqlBackup.NET</Product>
     <PackageId>MySqlBackup.NET</PackageId>
-    <Version>2.1</Version>
+    <Version>2.3.5</Version>
     <Authors>adriancs</Authors>
     <Copyright>Public Domain</Copyright>
     <PackageLicenseUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Company />
+    <Company>MySqlBackup.NET</Company>
     <Description>A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET.</Description>
+    <PackageIcon>logo128.png</PackageIcon>
+    <RepositoryType>git</RepositoryType>
+    <AssemblyVersion>2.3.5</AssemblyVersion>
+    <FileVersion>2.3.5</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +26,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MySql.Data" Version="8.0.23" />
+    <None Include="..\Test_WinForm\Resources\logo128.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="8.0.26" />
   </ItemGroup>
 
 </Project>

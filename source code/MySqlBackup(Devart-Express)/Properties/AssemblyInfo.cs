@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MySqlBackup.NET")]
+[assembly: AssemblyTitle("MySqlBackup.NET for Devart.Data.MySql")]
 [assembly: AssemblyDescription("A tool to backup MySQL database in C#")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("https://github.com/MySqlBackupNET/MySqlBackup.Net")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.3.4.0")]
-[assembly: AssemblyFileVersion("2.3.4.0")]
+[assembly: AssemblyVersion("2.3.5.0")]
+[assembly: AssemblyFileVersion("2.3.5.0")]

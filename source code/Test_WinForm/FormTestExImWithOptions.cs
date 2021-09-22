@@ -56,8 +56,6 @@ namespace MySqlBackupTestApp
                             mb.ExportInfo.ExportRows = cbExExportRows.Checked;
                             mb.ExportInfo.RecordDumpTime = cbExRecordDumpTime.Checked;
                             mb.ExportInfo.ResetAutoIncrement = cbExResetAutoIncrement.Checked;
-                            //mb.ExportInfo.EnableEncryption = cbExEnableEncryption.Checked;
-                            //mb.ExportInfo.EncryptionPassword = txtExPassword.Text;
                             mb.ExportInfo.MaxSqlLength = (int)nmExMaxSqlLength.Value;
                             mb.ExportInfo.ExportFunctions = cbExExportRoutines.Checked;
                             mb.ExportInfo.ExportProcedures = cbExExportRoutines.Checked;
@@ -67,6 +65,7 @@ namespace MySqlBackupTestApp
                             mb.ExportInfo.ExportRoutinesWithoutDefiner = cbExExportRoutinesWithoutDefiner.Checked;
                             mb.ExportInfo.RowsExportMode = (RowsDataExportMode)comboBox_RowsExportMode.SelectedValue;
                             mb.ExportInfo.WrapWithinTransaction = checkBox_WrapInTransaction.Checked;
+                            mb.ExportInfo.EnableComment = cbExportEnableComment.Checked;
                             if (dropTextEncoding.SelectedIndex < 1)
                                 mb.ExportInfo.TextEncoding = new UTF8Encoding(false);
                             else if (dropTextEncoding.SelectedIndex == 1)

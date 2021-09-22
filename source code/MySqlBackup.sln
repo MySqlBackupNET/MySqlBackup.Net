@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30011.22
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31612.314
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup(Devart-Express)", "MySqlBackup(Devart-Express)\MySqlBackup(Devart-Express).csproj", "{39E2242B-54EA-4A5D-916F-7EB30625FAD7}"
 EndProject
@@ -14,6 +14,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_WinForm", "Test_WinForm\Test_WinForm.csproj", "{0C44B679-BC54-4818-9E77-6BE2C14E680B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_WinForm_DevartExpress", "Test_WinForm_DevartExpress\Test_WinForm_DevartExpress.csproj", "{2D5FB34D-2552-444C-9AAE-2D01E6438551}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup(NetStandard-MySqlConnector)", "MySqlBackup(NetStandard-MySqlConnector)\MySqlBackup(NetStandard-MySqlConnector).csproj", "{6892477C-DE4A-46B8-AD5B-90DBA2C9ACE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_WinForm_MySqlConnector", "Test_WinForm_MySqlConnector\Test_WinForm_MySqlConnector.csproj", "{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +75,22 @@ Global
 		{2D5FB34D-2552-444C-9AAE-2D01E6438551}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2D5FB34D-2552-444C-9AAE-2D01E6438551}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
 		{2D5FB34D-2552-444C-9AAE-2D01E6438551}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
+		{6892477C-DE4A-46B8-AD5B-90DBA2C9ACE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6892477C-DE4A-46B8-AD5B-90DBA2C9ACE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6892477C-DE4A-46B8-AD5B-90DBA2C9ACE2}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
+		{6892477C-DE4A-46B8-AD5B-90DBA2C9ACE2}.NET20|Any CPU.Build.0 = Debug|Any CPU
+		{6892477C-DE4A-46B8-AD5B-90DBA2C9ACE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6892477C-DE4A-46B8-AD5B-90DBA2C9ACE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6892477C-DE4A-46B8-AD5B-90DBA2C9ACE2}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
+		{6892477C-DE4A-46B8-AD5B-90DBA2C9ACE2}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
+		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
+		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.NET20|Any CPU.Build.0 = Debug|Any CPU
+		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
+		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -330,7 +330,8 @@ namespace Devart.Data.MySql
             //            else if (col.MySqlDataType == "date")
             //                sb.AppendFormat(dtime.ToString("yyyy-MM-dd", _dateFormatInfo));
             //            else if (col.MySqlDataType == "time")
-            //                sb.AppendFormat(dtime.ToString("HH:mm:ss", _dateFormatInfo));
+            //                sb.AppendFormat("{0}:{1}:{2}", mdt.Hour, mdt.Minute, mdt.Second);
+            //            //sb.AppendFormat(dtime.ToString("HH:mm:ss", _dateFormatInfo));
             //            else
             //                sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
 
