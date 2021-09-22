@@ -24,16 +24,6 @@ https://github.com/MySqlBackupNET/MySqlBackup.Net/releases
 Install via NuGet: **PM> Install-Package MySqlBackup.NET**  
 [https://www.nuget.org/packages/MySqlBackup.NET/](https://www.nuget.org/packages/MySqlBackup.NET/)
 
-## Acknowledgement
-
-MySqlBackup.NET stands on top of 2 options of connector:
-
-Option 1: **MySql.Data.DLL**
-Developped by MySQL (Oracle), [https://dev.mysql.com/downloads/connector/net/](https://dev.mysql.com/downloads/connector/net/).
-
-Option 2: **Devart dotConnect Express**
-Developped by Devart, [https://www.devart.com/dotconnect/mysql/](https://www.devart.com/dotconnect/mysql/).
-
 ## Backup/Export a MySQL Database
 ```C#
 string constring = "server=localhost;user=root;pwd=qwerty;database=test;";
