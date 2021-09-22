@@ -4,6 +4,8 @@ This project is moved from [https://mysqlbackupnet.codeplex.com/](https://mysqlb
 
 A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET.
 
+Runs on MySql.Data.DLL, MySqlConnector.DLL and Devart.Express.MySql.DLL
+
 Article at [CodeProject.com](http://www.codeproject.com/Articles/256466/MySqlBackup-NET)
 
 ## Donation to This Project
@@ -21,16 +23,6 @@ https://github.com/MySqlBackupNET/MySqlBackup.Net/releases
 
 Install via NuGet: **PM> Install-Package MySqlBackup.NET**  
 [https://www.nuget.org/packages/MySqlBackup.NET/](https://www.nuget.org/packages/MySqlBackup.NET/)
-
-## Acknowledgement
-
-MySqlBackup.NET stands on top of 2 options of connector:
-
-Option 1: **MySql.Data.DLL**
-Developped by MySQL (Oracle), [https://dev.mysql.com/downloads/connector/net/](https://dev.mysql.com/downloads/connector/net/).
-
-Option 2: **Devart dotConnect Express**
-Developped by Devart, [https://www.devart.com/dotconnect/mysql/](https://www.devart.com/dotconnect/mysql/).
 
 ## Backup/Export a MySQL Database
 ```C#
@@ -109,15 +101,22 @@ On the other hand, MySqlDump.exe cannot be executed directly from the Web Server
 
 MySqlBackup.NET relies on the following component to work.
 
-Option 1: MySql.Data (Connector/NET)
+<b>Option 1: MySql.Data (Connector/NET)</b>
 * [MySQL dot net Connector/Net (MySql.Data.DLL)](http://www.mysql.com/downloads/connector/net/)<br />_A reference of this DLL must be added into your project in order for to compile or work with MySqlBackup.NET.<br />MySql.Data.DLL is developed by Oracle Corporation, licensed under GPL License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)._
 * MySql.Data.DLL
 
-Option 2: Devart Express (dotConnect)
+<b>Option 2: Devart Express (dotConnect)</b>
 * [Devart dotConnect for MySQL Express](https://www.devart.com/dotconnect/mysql/)<br />_A reference of this DLL must be added into your project in order for to compile or work with MySqlBackup.NET._
 * For license agreement, please read: [https://www.devart.com/dotconnect/mysql/licensing-faq.html](https://www.devart.com/dotconnect/mysql/licensing-faq.html)
 * Devart.Data.DLL
 * Devart.Data.MySql.DLL
+
+<b>Option 3: MySqlConnector (MIT)</b>
+* [MySqlConnector: High Performance MySQL Library for .NET](https://mysqlconnector.net/)<br />_A reference of this DLL must be added into your project in order for to compile or work with MySqlBackup.NET._
+* Project URL: https://github.com/mysql-net/MySqlConnector
+* Licensed under MIT
+* MySqlConnector.DLL
+
 ## Reminder
 
 ### Reminder 1
@@ -133,7 +132,10 @@ You are recommended to apply the connection string option of charset=utf8. Examp
 ```
 server=localhost;user=root;pwd=mypwd;charset=utf8;
 ```
-
+or
+```
+server=localhost;user=root;pwd=mypwd;charset=utf8mb4;
+```
 ### Reminder 2
 
 (For MySql.Data connector only)
