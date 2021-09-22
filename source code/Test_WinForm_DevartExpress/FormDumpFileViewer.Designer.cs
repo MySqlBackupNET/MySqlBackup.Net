@@ -58,7 +58,7 @@
             // tsOpen
             // 
             this.tsOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsOpen.Image = global::MySqlBackupTestApp.Properties.Resources.folder;
+            this.tsOpen.Image = global::TestApp_DevartExpressMySql.Properties.Resources.folder;
             this.tsOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsOpen.Name = "tsOpen";
             this.tsOpen.Size = new System.Drawing.Size(23, 22);
@@ -69,7 +69,7 @@
             // tsSave
             // 
             this.tsSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsSave.Image = global::MySqlBackupTestApp.Properties.Resources.disk;
+            this.tsSave.Image = global::TestApp_DevartExpressMySql.Properties.Resources.disk;
             this.tsSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsSave.Name = "tsSave";
             this.tsSave.Size = new System.Drawing.Size(23, 22);
@@ -80,7 +80,7 @@
             // tsSaveAs
             // 
             this.tsSaveAs.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsSaveAs.Image = global::MySqlBackupTestApp.Properties.Resources.disk_edit;
+            this.tsSaveAs.Image = global::TestApp_DevartExpressMySql.Properties.Resources.disk_edit;
             this.tsSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsSaveAs.Name = "tsSaveAs";
             this.tsSaveAs.Size = new System.Drawing.Size(23, 22);
@@ -91,7 +91,7 @@
             // tsClose
             // 
             this.tsClose.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsClose.Image = global::MySqlBackupTestApp.Properties.Resources.bullet_cross;
+            this.tsClose.Image = global::TestApp_DevartExpressMySql.Properties.Resources.bullet_cross;
             this.tsClose.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsClose.Name = "tsClose";
             this.tsClose.Size = new System.Drawing.Size(23, 22);

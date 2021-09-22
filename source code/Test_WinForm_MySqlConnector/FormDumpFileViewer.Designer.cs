@@ -51,14 +51,14 @@
             this.tsClose});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(331, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(617, 25);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
             // tsOpen
             // 
             this.tsOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsOpen.Image = global::MySqlBackupTestApp.Properties.Resources.folder;
+            this.tsOpen.Image = global::Test_WinForm_MySqlConnector.Properties.Resources.folder;
             this.tsOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsOpen.Name = "tsOpen";
             this.tsOpen.Size = new System.Drawing.Size(23, 22);
@@ -69,7 +69,7 @@
             // tsSave
             // 
             this.tsSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsSave.Image = global::MySqlBackupTestApp.Properties.Resources.disk;
+            this.tsSave.Image = global::Test_WinForm_MySqlConnector.Properties.Resources.disk;
             this.tsSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsSave.Name = "tsSave";
             this.tsSave.Size = new System.Drawing.Size(23, 22);
@@ -80,7 +80,7 @@
             // tsSaveAs
             // 
             this.tsSaveAs.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsSaveAs.Image = global::MySqlBackupTestApp.Properties.Resources.disk_edit;
+            this.tsSaveAs.Image = global::Test_WinForm_MySqlConnector.Properties.Resources.disk_edit;
             this.tsSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsSaveAs.Name = "tsSaveAs";
             this.tsSaveAs.Size = new System.Drawing.Size(23, 22);
@@ -91,7 +91,7 @@
             // tsClose
             // 
             this.tsClose.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsClose.Image = global::MySqlBackupTestApp.Properties.Resources.bullet_cross;
+            this.tsClose.Image = global::Test_WinForm_MySqlConnector.Properties.Resources.bullet_cross;
             this.tsClose.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsClose.Name = "tsClose";
             this.tsClose.Size = new System.Drawing.Size(23, 22);
@@ -104,9 +104,9 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsStatus,
             this.tsFile});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 280);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 350);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(331, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(617, 22);
             this.statusStrip1.TabIndex = 3;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -128,7 +128,7 @@
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox1.Size = new System.Drawing.Size(331, 255);
+            this.textBox1.Size = new System.Drawing.Size(617, 325);
             this.textBox1.TabIndex = 4;
             this.textBox1.WordWrap = false;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
@@ -147,7 +147,7 @@
             // FormDumpFileViewer
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(331, 302);
+            this.ClientSize = new System.Drawing.Size(617, 372);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.statusStrip1);

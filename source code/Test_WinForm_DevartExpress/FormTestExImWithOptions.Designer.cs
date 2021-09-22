@@ -228,7 +228,7 @@
             // 
             // btImErrorFile
             // 
-            this.btImErrorFile.Image = global::MySqlBackupTestApp.Properties.Resources.folder;
+            this.btImErrorFile.Image = global::TestApp_DevartExpressMySql.Properties.Resources.folder;
             this.btImErrorFile.Location = new System.Drawing.Point(393, 125);
             this.btImErrorFile.Name = "btImErrorFile";
             this.btImErrorFile.Size = new System.Drawing.Size(32, 23);

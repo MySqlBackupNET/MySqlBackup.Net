@@ -140,7 +140,7 @@
             // 
             // btInfo
             // 
-            this.btInfo.Image = global::MySqlBackupTestApp.Properties.Resources.q2;
+            this.btInfo.Image = global::TestApp_DevartExpressMySql.Properties.Resources.q2;
             this.btInfo.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btInfo.Location = new System.Drawing.Point(425, 9);
             this.btInfo.Name = "btInfo";

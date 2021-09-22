@@ -36,7 +36,7 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::MySqlBackupTestApp.Properties.Resources.logo128;
+            this.pictureBox1.Image = global::Test_WinForm_MySqlConnector.Properties.Resources.logo128;
             this.pictureBox1.Location = new System.Drawing.Point(12, 26);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pictureBox1.Name = "pictureBox1";
@@ -49,7 +49,7 @@
             this.lbVersion.AutoSize = true;
             this.lbVersion.Location = new System.Drawing.Point(180, 15);
             this.lbVersion.Name = "lbVersion";
-            this.lbVersion.Size = new System.Drawing.Size(61, 16);
+            this.lbVersion.Size = new System.Drawing.Size(60, 16);
             this.lbVersion.TabIndex = 2;
             this.lbVersion.Text = "lbVersion";
             // 
