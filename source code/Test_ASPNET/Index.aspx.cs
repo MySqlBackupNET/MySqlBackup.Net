@@ -14,7 +14,7 @@ namespace MySqlBackupASPNET
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            phBgVersion.Controls.Add(new LiteralControl(MySqlBackup.Version));
+            phVersion.Controls.Add(new LiteralControl(MySqlBackup.Version));
         }
 
         protected void btExport_Click(object sender, EventArgs e)

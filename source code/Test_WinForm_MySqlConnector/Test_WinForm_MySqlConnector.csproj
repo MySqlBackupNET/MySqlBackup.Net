@@ -324,5 +324,11 @@
   <ItemGroup>
     <Content Include="logo.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MySqlBackup%28MySqlConnector%29\MySqlBackup%28MySqlConnector%29.csproj">
+      <Project>{280a4426-14cc-4a20-85f7-2f8e863a9977}</Project>
+      <Name>MySqlBackup%28MySqlConnector%29</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
