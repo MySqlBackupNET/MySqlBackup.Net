@@ -2,25 +2,30 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;NET48;NET472;NET471;NET47;NET462;NET461;NET452</TargetFrameworks>
-    <RootNamespace>MySqlConnector</RootNamespace>
+	<RootNamespace>MySql.Data.Client</RootNamespace>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <Nullable>disable</Nullable>
-    <PackageId>MySqlBackup.NET.MySqlConnector</PackageId>
-    <Version>2.3.5</Version>
+    <PackageId>MySqlBackup.NET</PackageId>
+    <Version>2.3.5.2</Version>
     <Authors>adriancs</Authors>
     <Company>MySqlBackup.NET</Company>
-    <Product>MySqlBackup.NET for MySqlConnector</Product>
+    <Product>MySqlBackup.NET</Product>
     <Description>A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET.</Description>
     <Copyright>Public Domain</Copyright>
     <PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
     <PackageIcon>logo128.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</RepositoryUrl>
-    <AssemblyVersion>2.3.5</AssemblyVersion>
-    <FileVersion>2.3.5</FileVersion>
+    <AssemblyVersion>2.3.5.2</AssemblyVersion>
+    <FileVersion>2.3.5.2</FileVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <AssemblyName>MySqlBackupNet.MySqlConnector</AssemblyName>
+    <AssemblyName>MySqlBackup</AssemblyName>
+    <ApplicationIcon>logo.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="logo.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\Test_WinForm\Resources\logo128.png">
@@ -30,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MySqlConnector" Version="1.3.12" />
+    <PackageReference Include="MySql.Data" Version="8.0.26" />
   </ItemGroup>
 
 </Project>

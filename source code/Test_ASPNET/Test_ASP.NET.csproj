@@ -142,12 +142,6 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MySqlBackup%28NetFramework%29\MySqlBackup%28NetFramework%29.csproj">
-      <Project>{ee40a688-1473-45b5-a380-98bec985be4e}</Project>
-      <Name>MySqlBackup%28NetFramework%29</Name>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
