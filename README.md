@@ -21,9 +21,13 @@ Export all the databases one by one to separate SQL dump files. This a sub-proje
 ## Download
 https://github.com/MySqlBackupNET/MySqlBackup.Net/releases
 
-Install via NuGet: **PM> Install-Package MySqlBackup.NET**  
+Install via NuGet:
+
+**PM> Install-Package MySqlBackup.NET**  
 [https://www.nuget.org/packages/MySqlBackup.NET/](https://www.nuget.org/packages/MySqlBackup.NET/)
 
+**PM> Install-Package MySqlBackup.Net.DevartExpress**
+[https://www.nuget.org/packages/MySqlBackup.Net.DevartExpress/](https://www.nuget.org/packages/MySqlBackup.Net.DevartExpress/)
 ## Backup/Export a MySQL Database
 ```C#
 string constring = "server=localhost;user=root;pwd=qwerty;database=test;";
