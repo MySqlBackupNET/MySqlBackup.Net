@@ -26,10 +26,10 @@ Install via NuGet:
 **PM> Install-Package MySqlBackup.NET**  
 [https://www.nuget.org/packages/MySqlBackup.NET/](https://www.nuget.org/packages/MySqlBackup.NET/)
 
-**PM> Install-Package MySqlBackup.Net.DevartExpress**
+**PM> Install-Package MySqlBackup.Net.DevartExpress**<br />
 [https://www.nuget.org/packages/MySqlBackup.Net.DevartExpress/](https://www.nuget.org/packages/MySqlBackup.Net.DevartExpress/)
 
-**PM> Install-Package MySqlBackup.NET.MySqlConnector**
+**PM> Install-Package MySqlBackup.NET.MySqlConnector**<br />
 [https://www.nuget.org/packages/MySqlBackup.NET.MysqlConnector/](https://www.nuget.org/packages/MySqlBackup.NET.MysqlConnector/)
 
 ## Backup/Export a MySQL Database
