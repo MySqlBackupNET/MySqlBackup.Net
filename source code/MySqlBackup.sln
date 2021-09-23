@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31612.314
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup(Devart-Express)", "MySqlBackup(Devart-Express)\MySqlBackup(Devart-Express).csproj", "{39E2242B-54EA-4A5D-916F-7EB30625FAD7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySqlBackup(NetStandard)", "MySqlBackup(NetStandard)\MySqlBackup(NetStandard).csproj", "{6BC93019-AD86-4BD3-A74F-9E5116C7E42E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup(NetFramework)", "MySqlBackup(NetFramework)\MySqlBackup(NetFramework).csproj", "{EE40A688-1473-45B5-A380-98BEC985BE4E}"
@@ -15,9 +13,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_WinForm", "Test_WinFor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_WinForm_DevartExpress", "Test_WinForm_DevartExpress\Test_WinForm_DevartExpress.csproj", "{2D5FB34D-2552-444C-9AAE-2D01E6438551}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup(NetStandard-MySqlConnector)", "MySqlBackup(NetStandard-MySqlConnector)\MySqlBackup(NetStandard-MySqlConnector).csproj", "{6892477C-DE4A-46B8-AD5B-90DBA2C9ACE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySqlBackup(NetStandard-MySqlConnector)", "MySqlBackup(NetStandard-MySqlConnector)\MySqlBackup(NetStandard-MySqlConnector).csproj", "{6892477C-DE4A-46B8-AD5B-90DBA2C9ACE2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_WinForm_MySqlConnector", "Test_WinForm_MySqlConnector\Test_WinForm_MySqlConnector.csproj", "{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySqlBackup(Devart-Express)", "MySqlBackup(Devart-Express)\MySqlBackup(Devart-Express).csproj", "{7A5D4100-D41E-4887-876A-29406BBD3237}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,14 +27,6 @@ Global
 		ReleaseNET40_Only|Any CPU = ReleaseNET40_Only|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{39E2242B-54EA-4A5D-916F-7EB30625FAD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{39E2242B-54EA-4A5D-916F-7EB30625FAD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{39E2242B-54EA-4A5D-916F-7EB30625FAD7}.NET20|Any CPU.ActiveCfg = Release|Any CPU
-		{39E2242B-54EA-4A5D-916F-7EB30625FAD7}.NET20|Any CPU.Build.0 = Release|Any CPU
-		{39E2242B-54EA-4A5D-916F-7EB30625FAD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{39E2242B-54EA-4A5D-916F-7EB30625FAD7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{39E2242B-54EA-4A5D-916F-7EB30625FAD7}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
-		{39E2242B-54EA-4A5D-916F-7EB30625FAD7}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
 		{6BC93019-AD86-4BD3-A74F-9E5116C7E42E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6BC93019-AD86-4BD3-A74F-9E5116C7E42E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BC93019-AD86-4BD3-A74F-9E5116C7E42E}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
@@ -91,6 +83,14 @@ Global
 		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
 		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
+		{7A5D4100-D41E-4887-876A-29406BBD3237}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A5D4100-D41E-4887-876A-29406BBD3237}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A5D4100-D41E-4887-876A-29406BBD3237}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A5D4100-D41E-4887-876A-29406BBD3237}.NET20|Any CPU.Build.0 = Debug|Any CPU
+		{7A5D4100-D41E-4887-876A-29406BBD3237}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A5D4100-D41E-4887-876A-29406BBD3237}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A5D4100-D41E-4887-876A-29406BBD3237}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
+		{7A5D4100-D41E-4887-876A-29406BBD3237}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

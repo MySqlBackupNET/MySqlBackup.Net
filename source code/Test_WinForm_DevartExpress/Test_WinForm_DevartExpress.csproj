@@ -308,12 +308,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MySqlBackup%28Devart-Express%29\MySqlBackup%28Devart-Express%29.csproj">
-      <Project>{39e2242b-54ea-4a5d-916f-7eb30625fad7}</Project>
-      <Name>MySqlBackup%28Devart-Express%29</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\bullet_cross.png" />
   </ItemGroup>
   <ItemGroup>

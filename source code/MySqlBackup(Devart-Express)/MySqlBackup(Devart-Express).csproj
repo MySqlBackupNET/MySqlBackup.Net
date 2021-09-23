@@ -1,85 +1,111 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{39E2242B-54EA-4A5D-916F-7EB30625FAD7}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFrameworks>netstandard2.0;NET48;NET472;NET471;NET47;NET462;NET461;NET452</TargetFrameworks>
     <RootNamespace>Devart.Data.MySql</RootNamespace>
     <AssemblyName>MySqlBackupNet.DevartExpress</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <ApplicationIcon>logo.ico</ApplicationIcon>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageId>MySqlBackup.Net.DevartExpress</PackageId>
+    <Version>2.3.5</Version>
+    <Authors>adriancs</Authors>
+    <Company>MySqlBackup.NET</Company>
+    <Product>MySqlBackup.NET.DevartExpress</Product>
+    <Description>A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET. A special build for Devart Express (MySql) dotConnect.</Description>
+    <Copyright>MySqlBackup.NET</Copyright>
+    <PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
+    <PackageIcon>logo128.png</PackageIcon>
+    <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>mysqlbackup;devart</PackageTags>
+    <FileVersion>2.3.5</FileVersion>
+    <AssemblyVersion>2.3.5</AssemblyVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET48|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET48|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET472|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET472|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET471|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET471|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET47|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET47|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET462|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET462|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET461|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET461|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET452|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET452|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Devart.Data, Version=5.0.2736.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
-      <HintPath>..\packages\dotConnect.Express.for.MySQL.8.19.1944\lib\Devart.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="Devart.Data.MySql, Version=8.19.1944.0, Culture=neutral, PublicKeyToken=09af7300eec23701, processorArchitecture=MSIL">
-      <HintPath>..\packages\dotConnect.Express.for.MySQL.8.19.1944\lib\Devart.Data.MySql.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Content Include="logo.ico" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="EventArgs\ExportCompleteArgs.cs" />
-    <Compile Include="EventArgs\ExportProgressArgs.cs" />
-    <Compile Include="EventArgs\GetTotalRowsArgs.cs" />
-    <Compile Include="EventArgs\ImportCompleteArgs.cs" />
-    <Compile Include="EventArgs\ImportProgressArgs.cs" />
-    <Compile Include="InfoObjects\enumBlobDataExportMode.cs" />
-    <Compile Include="InfoObjects\enumGetTotalRowsMethod.cs" />
-    <Compile Include="InfoObjects\enumRowsDataExportMode.cs" />
-    <Compile Include="InfoObjects\ExportInformations.cs" />
-    <Compile Include="InfoObjects\ImportInformations.cs" />
-    <Compile Include="Methods\CryptoExpress.cs" />
-    <Compile Include="Methods\QueryExpress.cs" />
-    <Compile Include="MySqlBackup.cs" />
-    <Compile Include="MySqlObjects\MySqlColumn.cs" />
-    <Compile Include="MySqlObjects\MySqlColumnList.cs" />
-    <Compile Include="MySqlObjects\MySqlDatabase.cs" />
-    <Compile Include="MySqlObjects\MySqlEvent.cs" />
-    <Compile Include="MySqlObjects\MySqlEventList.cs" />
-    <Compile Include="MySqlObjects\MySqlFunction.cs" />
-    <Compile Include="MySqlObjects\MySqlFunctionList.cs" />
-    <Compile Include="MySqlObjects\MySqlProcedure.cs" />
-    <Compile Include="MySqlObjects\MySqlProcedureList.cs" />
-    <Compile Include="MySqlObjects\MySqlServer.cs" />
-    <Compile Include="MySqlObjects\MySqlTable.cs" />
-    <Compile Include="MySqlObjects\MySqlTableList.cs" />
-    <Compile Include="MySqlObjects\MySqlTrigger.cs" />
-    <Compile Include="MySqlObjects\MySqlTriggerList.cs" />
-    <Compile Include="MySqlObjects\MySqlView.cs" />
-    <Compile Include="MySqlObjects\MySqlViewList.cs" />
-    <Compile Include="MySqlScript\MySqlScript.cs" />
-    <Compile Include="MySqlScript\MySqlTokenizer.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="..\Test_WinForm\Resources\logo128.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
+    <PackageReference Include="dotConnect.Express.for.MySQL" Version="8.19.1944" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <ItemGroup>
+    <None Update="logo128.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
 </Project>
