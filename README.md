@@ -33,12 +33,7 @@ Install via NuGet:
 ## Backup/Export a MySQL Database
 ```C#
 string constring = "server=localhost;user=root;pwd=qwerty;database=test;";
-
-// Important Additional Connection Options
-constring += "charset=utf8;convertzerodatetime=true;";
-
 string file = "C:\\backup.sql";
-
 using (MySqlConnection conn = new MySqlConnection(constring))
 {
     using (MySqlCommand cmd = new MySqlCommand())
@@ -58,12 +53,7 @@ using (MySqlConnection conn = new MySqlConnection(constring))
 
 ```C#
 string constring = "server=localhost;user=root;pwd=qwerty;database=test;";
-
-// Important Additional Connection Options
-constring += "charset=utf8;convertzerodatetime=true;";
-
 string file = "C:\\backup.sql";
-
 using (MySqlConnection conn = new MySqlConnection(constring))
 {
     using (MySqlCommand cmd = new MySqlCommand())
@@ -91,7 +81,7 @@ The most common way to backup a MySQL Database is by using MySqlDump and MySQL W
 
 MySQL Workbench is good for developers, but when comes to the client or end-user, the recommended way is to get every parameter preset and all they need to know is press the big button "Backup" and everything is done. Using MySQL Workbench as a backup tool is not a suitable solution for the client or end-user.
 
-On the other hand, MySqlDump.exe cannot be executed directly from the Web Server. As most providers forbid that, MySqlBackup will be helpful in building a web-based (ASP.NET) backup tool.
+On the other hand, MySqlDump.exe cannot be executed directly from the Web Server. As some providers forbid that, MySqlBackup will be helpful in building a web-based (ASP.NET) backup tool.
 
 ## Features
 
@@ -108,17 +98,17 @@ On the other hand, MySqlDump.exe cannot be executed directly from the Web Server
 MySqlBackup.NET relies on the following component to work.
 
 <b>Option 1: MySql.Data (Connector/NET)</b>
-* [MySQL dot net Connector/Net (MySql.Data.DLL)](http://www.mysql.com/downloads/connector/net/)<br />_A reference of this DLL must be added into your project in order for to compile or work with MySqlBackup.NET.<br />MySql.Data.DLL is developed by Oracle Corporation, licensed under GPL License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)._
-* MySql.Data.DLL
+* [MySQL dot net Connector/Net (MySql.Data.DLL)](http://www.mysql.com/downloads/connector/net/)
+* MySql.Data.DLL is developed by Oracle Corporation, licensed under GPL License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html).
 
 <b>Option 2: Devart Express (dotConnect)</b>
-* [Devart dotConnect for MySQL Express](https://www.devart.com/dotconnect/mysql/)<br />_A reference of this DLL must be added into your project in order for to compile or work with MySqlBackup.NET._
+* [Devart dotConnect for MySQL Express](https://www.devart.com/dotconnect/mysql/)
 * For license agreement, please read: [https://www.devart.com/dotconnect/mysql/licensing-faq.html](https://www.devart.com/dotconnect/mysql/licensing-faq.html)
 * Devart.Data.DLL
 * Devart.Data.MySql.DLL
 
 <b>Option 3: MySqlConnector (MIT)</b>
-* [MySqlConnector: High Performance MySQL Library for .NET](https://mysqlconnector.net/)<br />_A reference of this DLL must be added into your project in order for to compile or work with MySqlBackup.NET._
+* [MySqlConnector: High Performance MySQL Library for .NET](https://mysqlconnector.net/)
 * Project URL: https://github.com/mysql-net/MySqlConnector
 * Licensed under MIT
 * MySqlConnector.DLL
@@ -150,8 +140,6 @@ DateTime conversion between MySQL and .NET Framework. In MySQL, there are variou
 ```
 server=localhost;user=root;pwd=mypwd;charset=utf8;convertzerodatetime=true;
 ```
-
-
 
 ## License
 
