@@ -144,6 +144,32 @@ server=localhost;user=root;pwd=mypwd;charset=utf8;convertzerodatetime=true;
 ## Performance Benchmark (MySqlDump vs MySqlBackup)
 [Wiki Page: Performance Benchmark (MySqlDump vs MySqlBackup)](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/Performance-Benchmark-(MySqlDump-vs-MySqlBackup))
 
+Summary Benchmark Report:
+```
+Process     Tools              Time
+-------     ---------          ------
+Backup 1    MySqlDump         2m 36s
+Backup 2    MySqlDump         2m 33s
+Backup 3    MySqlDump         2m 35s
+
+File size: 
+4.66 GB (5,008,487,275 bytes)
+
+Backup 4    MySqlBackup.NET   7m 48s
+Backup 5    MySqlBackup.NET   7m 46s
+Backup 6    MySqlBackup.NET   7m 50s
+
+File size:
+4.59 GB (4,931,743,894 bytes)
+
+Restore 1   MySql.exe         8m 42s
+Restore 2   MySql.exe         8m 23s
+Restore 3   MySql.exe         8m 57s
+
+Restore 4   MySqlBackup.NET   9m 44s
+Restore 5   MySqlBackup.NET   9m 39s
+Restore 6   MySqlBackup.NET   9m 39s
+```
 ## License
 
 MySqlBackup.Net is licensed under the [The Unlicense](https://github.com/MySqlBackupNET/MySqlBackup.Net/blob/master/LICENSE).
