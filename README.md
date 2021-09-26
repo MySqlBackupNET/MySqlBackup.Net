@@ -146,6 +146,8 @@ server=localhost;user=root;pwd=mypwd;charset=utf8;convertzerodatetime=true;
 
 Summary Benchmark Report:
 ```
+Database Size: 3.5GB (15 million rows)
+
 Process     Tools              Time
 -------     ---------          ------
 Backup 1    MySqlDump         2m 36s
