@@ -142,7 +142,7 @@ server=localhost;user=root;pwd=mypwd;charset=utf8;convertzerodatetime=true;
 ```
 
 ## Performance Benchmark (MySqlDump vs MySqlBackup)
-[Wiki Page: Performance Benchmark (MySqlDump vs MySqlBackup)](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/Performance-Benchmark-(MySqlDump-vs-MySqlBackup))
+[Full Report - Wiki Page: Performance Benchmark (MySqlDump vs MySqlBackup)](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/Performance-Benchmark-(MySqlDump-vs-MySqlBackup))
 
 Summary Benchmark Report:
 ```
