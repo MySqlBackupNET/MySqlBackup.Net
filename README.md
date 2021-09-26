@@ -3,9 +3,6 @@
 A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET.
 
 Runs on MySql.Data.DLL, MySqlConnector.DLL and Devart.Express.MySql.DLL
-
-Article at [CodeProject.com](http://www.codeproject.com/Articles/256466/MySqlBackup-NET)
-
 ## Donation to This Project
 
 [Stripe Donate](https://buy.stripe.com/dR6aIgawrbUW57GeUU)
