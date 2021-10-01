@@ -138,8 +138,8 @@ DateTime conversion between MySQL and .NET Framework. In MySQL, there are variou
 server=localhost;user=root;pwd=mypwd;charset=utf8;convertzerodatetime=true;
 ```
 
-## Performance Benchmark (MySqlDump vs MySqlBackup)
-[Full Report - Wiki Page: Performance Benchmark (MySqlDump vs MySqlBackup)](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/Performance-Benchmark-(MySqlDump-vs-MySqlBackup))
+## Performance Benchmark (MySqlDump vs MySqlBackup.NET)
+[Full Report - Wiki Page: Performance Benchmark (MySqlDump vs MySqlBackup.NET)](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/Performance-Benchmark-(MySqlDump-vs-MySqlBackup))
 
 Summary Benchmark Report:
 ```
