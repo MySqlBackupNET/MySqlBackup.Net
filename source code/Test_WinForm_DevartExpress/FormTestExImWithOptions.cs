@@ -80,6 +80,8 @@ namespace MySqlBackupTestApp
 
                             mb.ExportInfo.BlobExportModeForBinaryStringAllow = cbAllowBinaryChar.Checked;
 
+                            mb.ExportInfo.InsertLineBreakBetweenInserts = cbExport_InsertLineBreaksBetweenInsert.Checked;
+
                             mb.ExportToFile(Program.TargetFile);
                         }
                         conn.Close();

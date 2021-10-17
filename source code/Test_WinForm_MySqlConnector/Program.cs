@@ -6,8 +6,8 @@ namespace MySqlBackupTestApp
 {
     static class Program
     {
-        public static string Version = "V1.9";
-        public static string DateVersion = "September 22, 2021";
+        public static string Version = "V2.3.6";
+        public static string DateVersion = "October 17, 2021";
 
         private static string _connectionString = "";
 
