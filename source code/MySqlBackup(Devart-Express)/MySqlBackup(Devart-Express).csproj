@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;NET48;NET472;NET471;NET47;NET462;NET461;NET452</TargetFrameworks>
+    <TargetFrameworks>NET48;NET472;NET461;NET452;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;net5.0</TargetFrameworks>
     <RootNamespace>Devart.Data.MySql</RootNamespace>
     <AssemblyName>MySqlBackupNet.DevartExpress</AssemblyName>
     <ApplicationIcon>logo.ico</ApplicationIcon>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>MySqlBackup.Net.DevartExpress</PackageId>
-    <Version>2.3.5</Version>
+    <Version>2.3.6</Version>
     <Authors>adriancs</Authors>
     <Company>MySqlBackup.NET</Company>
     <Product>MySqlBackup.NET.DevartExpress</Product>
@@ -17,9 +17,10 @@
     <PackageIcon>logo128.png</PackageIcon>
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>mysqlbackup;devart</PackageTags>
-    <FileVersion>2.3.5</FileVersion>
-    <AssemblyVersion>2.3.5</AssemblyVersion>
+    <PackageTags>mysqlbackup;devart;mysql</PackageTags>
+    <FileVersion>2.3.6</FileVersion>
+    <AssemblyVersion>2.3.6</AssemblyVersion>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
@@ -95,10 +96,14 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+    <None Include="bin\Release\README.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="dotConnect.Express.for.MySQL" Version="8.19.1944" />
+    <PackageReference Include="dotConnect.Express.for.MySQL" Version="8.19.1985" />
   </ItemGroup>
 
   <ItemGroup>

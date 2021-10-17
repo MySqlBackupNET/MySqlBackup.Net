@@ -28,7 +28,7 @@ namespace MySql.Data.MySqlClient
             Error
         }
 
-        public const string Version = "2.3.5";
+        public const string Version = "2.3.6";
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
@@ -615,12 +615,18 @@ namespace MySql.Data.MySqlClient
 
                 if (sb.Length == 0)
                 {
-                    sb.AppendLine(insertStatementHeader);
+                    if (ExportInfo.InsertLineBreakBetweenInserts)
+                        sb.AppendLine(insertStatementHeader);
+                    else
+                        sb.Append(insertStatementHeader);
                     sb.Append(sqlDataRow);
                 }
                 else if ((long)sb.Length + (long)sqlDataRow.Length < ExportInfo.MaxSqlLength)
                 {
-                    sb.AppendLine(",");
+                    if (ExportInfo.InsertLineBreakBetweenInserts)
+                        sb.AppendLine(",");
+                    else
+                        sb.Append(",");
                     sb.Append(sqlDataRow);
                 }
                 else

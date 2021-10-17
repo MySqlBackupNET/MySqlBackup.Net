@@ -80,7 +80,7 @@ namespace MySqlConnector
                 }
             }
 
-            if (_extra.ToLower().Contains("generated"))
+            if (_extra.ToUpper() == "VIRTUAL GENERATED" || _extra.ToUpper()== "STORED GENERATED")
             {
                 _isGeneratedColumn = true;
             }

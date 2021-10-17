@@ -262,6 +262,11 @@ namespace MySqlConnector
         /// </summary>
         public bool EnableComment = true;
 
+        /// <summary>
+        /// Gets or Sets a value indicates whether line breaks should be added in between multiple INSERTs.
+        /// </summary>
+        public bool InsertLineBreakBetweenInserts = false;
+
         public ExportInformations()
         {
 

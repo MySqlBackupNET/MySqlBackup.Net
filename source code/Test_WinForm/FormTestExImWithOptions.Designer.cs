@@ -55,6 +55,9 @@
             this.dropBlobExportMode = new System.Windows.Forms.ComboBox();
             this.cbAllowBinaryChar = new System.Windows.Forms.CheckBox();
             this.cbExportEnableComment = new System.Windows.Forms.CheckBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.lbTimeUsed = new System.Windows.Forms.Label();
+            this.cbExport_InsertLineBreaksBetweenInsert = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.nmExMaxSqlLength)).BeginInit();
             this.SuspendLayout();
             // 
@@ -352,12 +355,42 @@
             this.cbExportEnableComment.Text = "Enable Comment";
             this.cbExportEnableComment.UseVisualStyleBackColor = true;
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(404, 214);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(71, 15);
+            this.label5.TabIndex = 40;
+            this.label5.Text = "Time Used:";
+            // 
+            // lbTimeUsed
+            // 
+            this.lbTimeUsed.AutoSize = true;
+            this.lbTimeUsed.Location = new System.Drawing.Point(404, 235);
+            this.lbTimeUsed.Name = "lbTimeUsed";
+            this.lbTimeUsed.Size = new System.Drawing.Size(0, 15);
+            this.lbTimeUsed.TabIndex = 41;
+            // 
+            // cbExport_InsertLineBreaksBetweenInsert
+            // 
+            this.cbExport_InsertLineBreaksBetweenInsert.AutoSize = true;
+            this.cbExport_InsertLineBreaksBetweenInsert.Location = new System.Drawing.Point(15, 454);
+            this.cbExport_InsertLineBreaksBetweenInsert.Name = "cbExport_InsertLineBreaksBetweenInsert";
+            this.cbExport_InsertLineBreaksBetweenInsert.Size = new System.Drawing.Size(230, 19);
+            this.cbExport_InsertLineBreaksBetweenInsert.TabIndex = 42;
+            this.cbExport_InsertLineBreaksBetweenInsert.Text = "Insert Line Breaks Between INSERTs";
+            this.cbExport_InsertLineBreaksBetweenInsert.UseVisualStyleBackColor = true;
+            // 
             // FormExImWithOptions
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.AutoScroll = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(694, 509);
+            this.Controls.Add(this.cbExport_InsertLineBreaksBetweenInsert);
+            this.Controls.Add(this.lbTimeUsed);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.cbExportEnableComment);
             this.Controls.Add(this.cbAllowBinaryChar);
             this.Controls.Add(this.dropBlobExportMode);
@@ -423,5 +456,8 @@
         private System.Windows.Forms.ComboBox dropBlobExportMode;
         private System.Windows.Forms.CheckBox cbAllowBinaryChar;
         private System.Windows.Forms.CheckBox cbExportEnableComment;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label lbTimeUsed;
+        private System.Windows.Forms.CheckBox cbExport_InsertLineBreaksBetweenInsert;
     }
 }

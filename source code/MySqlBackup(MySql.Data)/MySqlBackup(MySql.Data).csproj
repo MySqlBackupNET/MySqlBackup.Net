@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;NET48;NET472;NET471;NET47;NET462;NET461;NET452</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;NET48;NET472;NET461;NET452</TargetFrameworks>
 	<RootNamespace>MySql.Data.Client</RootNamespace>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <Nullable>disable</Nullable>
     <PackageId>MySqlBackup.NET</PackageId>
-    <Version>2.3.5.2</Version>
+    <Version>2.3.6</Version>
     <Authors>adriancs</Authors>
     <Company>MySqlBackup.NET</Company>
     <Product>MySqlBackup.NET</Product>
@@ -16,11 +16,12 @@
     <PackageIcon>logo128.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</RepositoryUrl>
-    <AssemblyVersion>2.3.5.2</AssemblyVersion>
-    <FileVersion>2.3.5.2</FileVersion>
+    <AssemblyVersion>2.3.6</AssemblyVersion>
+    <FileVersion>2.3.6</FileVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyName>MySqlBackup</AssemblyName>
     <ApplicationIcon>logo.ico</ApplicationIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +30,10 @@
 
   <ItemGroup>
     <None Include="..\Test_WinForm\Resources\logo128.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="bin\Release\README.md">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
