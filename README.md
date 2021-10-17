@@ -1,16 +1,11 @@
-This project is moved from [https://mysqlbackupnet.codeplex.com/](https://mysqlbackupnet.codeplex.com/).
-
 # MySqlBackup.Net
 
 A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET.
 
 Runs on MySql.Data.DLL, MySqlConnector.DLL and Devart.Express.MySql.DLL
-
-Article at [CodeProject.com](http://www.codeproject.com/Articles/256466/MySqlBackup-NET)
-
 ## Donation to This Project
 
-[Stripe Donate](https://buy.stripe.com/dR6aIgawrbUW57GeUU)
+Stripe: USD [5](https://buy.stripe.com/dR6aIgawrbUW57GeUU) | [10](https://buy.stripe.com/4gweYw7kfgbc8jS3ce) | [25](https://buy.stripe.com/bIYcQogUP7EGfMk149) | [50](https://buy.stripe.com/7sIbMk33Z5wyeIg28c) | [100](https://buy.stripe.com/9AQ2bKfQLf78eIg9AD)
 
 ## How to Add This Library into Your Project
 Read [this wiki: How to Add This Library into Your Project](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/How-to-Add-This-Library-into-Your-Project)
@@ -26,17 +21,16 @@ Install via NuGet:
 **PM> Install-Package MySqlBackup.NET**  
 [https://www.nuget.org/packages/MySqlBackup.NET/](https://www.nuget.org/packages/MySqlBackup.NET/)
 
-**PM> Install-Package MySqlBackup.Net.DevartExpress**
+**PM> Install-Package MySqlBackup.Net.DevartExpress**<br />
 [https://www.nuget.org/packages/MySqlBackup.Net.DevartExpress/](https://www.nuget.org/packages/MySqlBackup.Net.DevartExpress/)
+
+**PM> Install-Package MySqlBackup.NET.MySqlConnector**<br />
+[https://www.nuget.org/packages/MySqlBackup.NET.MysqlConnector/](https://www.nuget.org/packages/MySqlBackup.NET.MysqlConnector/)
+
 ## Backup/Export a MySQL Database
 ```C#
 string constring = "server=localhost;user=root;pwd=qwerty;database=test;";
-
-// Important Additional Connection Options
-constring += "charset=utf8;convertzerodatetime=true;";
-
 string file = "C:\\backup.sql";
-
 using (MySqlConnection conn = new MySqlConnection(constring))
 {
     using (MySqlCommand cmd = new MySqlCommand())
@@ -56,12 +50,7 @@ using (MySqlConnection conn = new MySqlConnection(constring))
 
 ```C#
 string constring = "server=localhost;user=root;pwd=qwerty;database=test;";
-
-// Important Additional Connection Options
-constring += "charset=utf8;convertzerodatetime=true;";
-
 string file = "C:\\backup.sql";
-
 using (MySqlConnection conn = new MySqlConnection(constring))
 {
     using (MySqlCommand cmd = new MySqlCommand())
@@ -89,7 +78,7 @@ The most common way to backup a MySQL Database is by using MySqlDump and MySQL W
 
 MySQL Workbench is good for developers, but when comes to the client or end-user, the recommended way is to get every parameter preset and all they need to know is press the big button "Backup" and everything is done. Using MySQL Workbench as a backup tool is not a suitable solution for the client or end-user.
 
-On the other hand, MySqlDump.exe cannot be executed directly from the Web Server. As most providers forbid that, MySqlBackup will be helpful in building a web-based (ASP.NET) backup tool.
+On the other hand, MySqlDump.exe cannot be executed directly from the Web Server. As some providers forbid that, MySqlBackup will be helpful in building a web-based (ASP.NET) backup tool.
 
 ## Features
 
@@ -106,17 +95,17 @@ On the other hand, MySqlDump.exe cannot be executed directly from the Web Server
 MySqlBackup.NET relies on the following component to work.
 
 <b>Option 1: MySql.Data (Connector/NET)</b>
-* [MySQL dot net Connector/Net (MySql.Data.DLL)](http://www.mysql.com/downloads/connector/net/)<br />_A reference of this DLL must be added into your project in order for to compile or work with MySqlBackup.NET.<br />MySql.Data.DLL is developed by Oracle Corporation, licensed under GPL License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)._
-* MySql.Data.DLL
+* [MySQL dot net Connector/Net (MySql.Data.DLL)](http://www.mysql.com/downloads/connector/net/)
+* MySql.Data.DLL is developed by Oracle Corporation, licensed under GPL License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html).
 
 <b>Option 2: Devart Express (dotConnect)</b>
-* [Devart dotConnect for MySQL Express](https://www.devart.com/dotconnect/mysql/)<br />_A reference of this DLL must be added into your project in order for to compile or work with MySqlBackup.NET._
+* [Devart dotConnect for MySQL Express](https://www.devart.com/dotconnect/mysql/)
 * For license agreement, please read: [https://www.devart.com/dotconnect/mysql/licensing-faq.html](https://www.devart.com/dotconnect/mysql/licensing-faq.html)
 * Devart.Data.DLL
 * Devart.Data.MySql.DLL
 
 <b>Option 3: MySqlConnector (MIT)</b>
-* [MySqlConnector: High Performance MySQL Library for .NET](https://mysqlconnector.net/)<br />_A reference of this DLL must be added into your project in order for to compile or work with MySqlBackup.NET._
+* [MySqlConnector: High Performance MySQL Library for .NET](https://mysqlconnector.net/)
 * Project URL: https://github.com/mysql-net/MySqlConnector
 * Licensed under MIT
 * MySqlConnector.DLL
@@ -149,8 +138,37 @@ DateTime conversion between MySQL and .NET Framework. In MySQL, there are variou
 server=localhost;user=root;pwd=mypwd;charset=utf8;convertzerodatetime=true;
 ```
 
+## Performance Benchmark (MySqlDump vs MySqlBackup.NET)
+[Full Report - Wiki Page: Performance Benchmark (MySqlDump vs MySqlBackup.NET)](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/Performance-Benchmark-(MySqlDump-vs-MySqlBackup.NET)))
 
+Summary Benchmark Report:
+```
+Database Size: 3.5GB (15 million rows)
 
+Process     Tools              Time
+-------     ---------          ------
+Backup 1    MySqlDump         2m 36s
+Backup 2    MySqlDump         2m 33s
+Backup 3    MySqlDump         2m 35s
+
+File size: 
+4.66 GB (5,008,487,275 bytes)
+
+Backup 4    MySqlBackup.NET   7m 48s
+Backup 5    MySqlBackup.NET   7m 46s
+Backup 6    MySqlBackup.NET   7m 50s
+
+File size:
+4.59 GB (4,931,743,894 bytes)
+
+Restore 1   MySql.exe         8m 42s
+Restore 2   MySql.exe         8m 23s
+Restore 3   MySql.exe         8m 57s
+
+Restore 4   MySqlBackup.NET   9m 44s
+Restore 5   MySqlBackup.NET   9m 39s
+Restore 6   MySqlBackup.NET   9m 39s
+```
 ## License
 
 MySqlBackup.Net is licensed under the [The Unlicense](https://github.com/MySqlBackupNET/MySqlBackup.Net/blob/master/LICENSE).
