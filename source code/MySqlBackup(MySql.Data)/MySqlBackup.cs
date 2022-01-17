@@ -28,7 +28,7 @@ namespace MySql.Data.MySqlClient
             Error
         }
 
-        public const string Version = "2.3.6";
+        public const string Version = "2.3.6.2";
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
@@ -1395,7 +1395,30 @@ namespace MySql.Data.MySqlClient
                 ReportProgress();
                 if (ImportCompleted != null)
                 {
-                    ImportCompleteArgs arg = new ImportCompleteArgs();
+                    ImportCompleteArgs.CompleteType completedType;
+                    switch(processCompletionType)
+                    {
+                        case ProcessEndType.Complete:
+                            completedType = ImportCompleteArgs.CompleteType.Completed;
+                            break;
+                        case ProcessEndType.Error:
+                            completedType = ImportCompleteArgs.CompleteType.Error;
+                            break;
+                        case ProcessEndType.Cancelled:
+                            completedType = ImportCompleteArgs.CompleteType.Cancelled;
+                            break;
+                        default:
+                            completedType = ImportCompleteArgs.CompleteType.UnknownStatus;
+                            break;
+                    }
+
+                    ImportCompleteArgs arg = new ImportCompleteArgs()
+                    {
+                        LastError = _lastError,
+                        CompletedType = completedType,
+                        TimeStart = timeStart,
+                        TimeEnd = timeEnd,
+                    };
                     ImportCompleted(this, arg);
                 }
             }

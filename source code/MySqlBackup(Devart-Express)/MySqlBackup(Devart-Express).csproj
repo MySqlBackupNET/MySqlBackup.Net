@@ -7,7 +7,6 @@
     <ApplicationIcon>logo.ico</ApplicationIcon>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>MySqlBackup.Net.DevartExpress</PackageId>
-    <Version>2.3.6</Version>
     <Authors>adriancs</Authors>
     <Company>MySqlBackup.NET</Company>
     <Product>MySqlBackup.NET.DevartExpress</Product>
@@ -18,8 +17,9 @@
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>mysqlbackup;devart;mysql</PackageTags>
-    <FileVersion>2.3.6</FileVersion>
-    <AssemblyVersion>2.3.6</AssemblyVersion>
+    <Version>2.3.6.2</Version>
+    <AssemblyVersion>2.3.6.2</AssemblyVersion>
+    <FileVersion>2.3.6.2</FileVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 

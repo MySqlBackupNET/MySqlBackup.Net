@@ -27,7 +27,7 @@ namespace Devart.Data.MySql
             Error
         }
 
-        public const string Version = "2.3.6";
+        public const string Version = "2.3.6.2";
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
@@ -614,12 +614,18 @@ namespace Devart.Data.MySql
 
                 if (sb.Length == 0)
                 {
-                    sb.AppendLine(insertStatementHeader);
+                    if (ExportInfo.InsertLineBreakBetweenInserts)
+                        sb.AppendLine(insertStatementHeader);
+                    else
+                        sb.Append(insertStatementHeader);
                     sb.Append(sqlDataRow);
                 }
                 else if ((long)sb.Length + (long)sqlDataRow.Length < ExportInfo.MaxSqlLength)
                 {
-                    sb.AppendLine(",");
+                    if (ExportInfo.InsertLineBreakBetweenInserts)
+                        sb.AppendLine(",");
+                    else
+                        sb.Append(",");
                     sb.Append(sqlDataRow);
                 }
                 else
@@ -1388,7 +1394,30 @@ namespace Devart.Data.MySql
                 ReportProgress();
                 if (ImportCompleted != null)
                 {
-                    ImportCompleteArgs arg = new ImportCompleteArgs();
+                    ImportCompleteArgs.CompleteType completedType;
+                    switch(processCompletionType)
+                    {
+                        case ProcessEndType.Complete:
+                            completedType = ImportCompleteArgs.CompleteType.Completed;
+                            break;
+                        case ProcessEndType.Error:
+                            completedType = ImportCompleteArgs.CompleteType.Error;
+                            break;
+                        case ProcessEndType.Cancelled:
+                            completedType = ImportCompleteArgs.CompleteType.Cancelled;
+                            break;
+                        default:
+                            completedType = ImportCompleteArgs.CompleteType.UnknownStatus;
+                            break;
+                    }
+
+                    ImportCompleteArgs arg = new ImportCompleteArgs()
+                    {
+                        LastError = _lastError,
+                        CompletedType = completedType,
+                        TimeStart = timeStart,
+                        TimeEnd = timeEnd,
+                    };
                     ImportCompleted(this, arg);
                 }
             }

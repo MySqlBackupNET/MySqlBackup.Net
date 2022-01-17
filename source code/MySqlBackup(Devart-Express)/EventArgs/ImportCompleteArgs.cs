@@ -21,6 +21,7 @@ namespace Devart.Data.MySql
         /// </summary>
         public enum CompleteType
         {
+            UnknownStatus,
             Completed,
             Cancelled,
             Error
@@ -44,15 +45,6 @@ namespace Devart.Data.MySql
         /// <summary>
         /// Total time used in current import process.
         /// </summary>
-        public TimeSpan TimeUsed
-        {
-            get
-            {
-                TimeSpan ts = new TimeSpan();
-                ts = TimeEnd - TimeStart;
-                return ts;
-            }
-        }
-
+        public TimeSpan TimeUsed => TimeEnd - TimeStart;
     }
 }
