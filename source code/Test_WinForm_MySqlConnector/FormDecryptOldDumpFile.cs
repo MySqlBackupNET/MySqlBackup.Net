@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
+using System.Windows.Forms;
 
 namespace MySqlBackupTestApp
 {
@@ -69,7 +65,7 @@ namespace MySqlBackupTestApp
                     File.Delete(newFile);
                 }
 
-                string line = "";
+                string line = string.Empty;
 
                 using (TextWriter textWriter = new StreamWriter(newFile, false, utf8WithoutBOM))
                 {
@@ -80,7 +76,7 @@ namespace MySqlBackupTestApp
                             break;
                         line = DecryptWithSalt(line, encryptionKey, saltSize);
                         if (line.StartsWith("-- ||||"))
-                            line = "";
+                            line = string.Empty;
                         
                         textWriter.WriteLine(line);
                     }

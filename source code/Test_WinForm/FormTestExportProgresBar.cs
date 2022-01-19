@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
-using System.IO;
-using MySql.Data.MySqlClient;
 
 namespace MySqlBackupTestApp
 {
@@ -18,7 +14,7 @@ namespace MySqlBackupTestApp
         Timer timer1;
         BackgroundWorker bwExport;
 
-        string _currentTableName = "";
+        string _currentTableName = string.Empty;
         int _totalRowsInCurrentTable = 0;
         int _totalRowsInAllTables = 0;
         int _currentRowIndexInCurrentTable = 0;
@@ -74,8 +70,8 @@ namespace MySqlBackupTestApp
             if (!Program.TargetDirectoryIsValid())
                 return;
 
-            txtProgress.Text = "";
-            _currentTableName = "";
+            txtProgress.Text = string.Empty;
+            _currentTableName = string.Empty;
             _totalRowsInCurrentTable = 0;
             _totalRowsInAllTables = 0;
             _currentRowIndexInCurrentTable = 0;
@@ -104,7 +100,7 @@ namespace MySqlBackupTestApp
             mb.Command = cmd;
 
             timeStart = DateTime.Now;
-            lbTotalTime.Text = "";
+            lbTotalTime.Text = string.Empty;
 
             bwExport.RunWorkerAsync();
         }

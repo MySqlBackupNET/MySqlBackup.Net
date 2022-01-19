@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
     public class ExportProgressArgs : EventArgs
     {
-        string _currentTableName = "";
+        string _currentTableName = string.Empty;
         long _totalRowsInCurrentTable = 0;
         long _totalRowsInAllTables = 0;
         long _currentRowIndexInCurrentTable = 0;

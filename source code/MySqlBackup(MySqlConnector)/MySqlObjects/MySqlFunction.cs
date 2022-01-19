@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MySqlConnector
+﻿namespace MySqlConnector
 {
     public class MySqlFunction
     {
         string _name;
-        string _createFunctionSQL = "";
-        string _createFunctionSqlWithoutDefiner = "";
+        string _createFunctionSQL = string.Empty;
+        string _createFunctionSqlWithoutDefiner = string.Empty;
 
         public string Name { get { return _name; } }
         public string CreateFunctionSQL { get { return _createFunctionSQL; } }

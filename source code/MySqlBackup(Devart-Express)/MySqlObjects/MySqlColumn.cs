@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Globalization;
 
 namespace Devart.Data.MySql
 {
@@ -13,16 +10,16 @@ namespace Devart.Data.MySql
             Sql
         }
 
-        string _name = "";
+        string _name = string.Empty;
         Type _dataType = typeof(string);
-        string _mySqlDataType = "";
-        string _collation = "";
+        string _mySqlDataType = string.Empty;
+        string _collation = string.Empty;
         bool _allowNull = true;
-        string _key = "";
-        string _defaultValue = "";
-        string _extra = "";
-        string _privileges = "";
-        string _comment = "";
+        string _key = string.Empty;
+        string _defaultValue = string.Empty;
+        string _extra = string.Empty;
+        string _privileges = string.Empty;
+        string _comment = string.Empty;
         bool _isPrimaryKey = false;
         int _timeFractionLength = 0;
         bool _isGeneratedColumn = false;
@@ -65,7 +62,7 @@ namespace Devart.Data.MySql
             {
                 if (_mySqlDataType.Length > 8)
                 {
-                    string _fractionLength = "";
+                    string _fractionLength = string.Empty;
                     foreach (var __dL in _mySqlDataType)
                     {
                         if (Char.IsNumber(__dL))

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
-using MySql.Data.MySqlClient;
 
 namespace MySqlBackupTestApp
 {
@@ -77,7 +73,7 @@ namespace MySqlBackupTestApp
             mb.Command = cmd;
 
             timeStart = DateTime.Now;
-            lbTotalTime.Text = "";
+            lbTotalTime.Text = string.Empty;
 
             bwImport.RunWorkerAsync();
         }

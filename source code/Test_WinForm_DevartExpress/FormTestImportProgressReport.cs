@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Devart.Data.MySql;
+using System;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
-using Devart.Data.MySql;
 
 namespace MySqlBackupTestApp
 {
@@ -77,7 +73,7 @@ namespace MySqlBackupTestApp
             mb.Command = cmd;
 
             timeStart = DateTime.Now;
-            lbTotalTime.Text = "";
+            lbTotalTime.Text = string.Empty;
 
             bwImport.RunWorkerAsync();
         }

@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using System.Data;
 
 namespace MySqlConnector
 {
-    public class MySqlColumnList : IDisposable
+    public class MySqlColumnList : IDisposable, IEnumerable<MySqlColumn>
     {
         string _tableName;
-        List<MySqlColumn> _lst = new List<MySqlColumn>();
-        string _sqlShowFullColumns = "";
+        string _sqlShowFullColumns = string.Empty;
+        Dictionary<string, MySqlColumn> _lst = new Dictionary<string, MySqlColumn>();
 
         public string SqlShowFullColumns { get { return _sqlShowFullColumns; } }
 
@@ -31,25 +31,21 @@ namespace MySqlConnector
                 if (isNullStr == "yes")
                     isNull = true;
 
-                _lst.Add(new MySqlColumn(
-                    dtDataType.Columns[i].ColumnName, 
-                    dtDataType.Columns[i].DataType,
-                    dtColInfo.Rows[i]["Type"] + "", 
-                    dtColInfo.Rows[i]["Collation"] + "",
-                    isNull, 
-                    dtColInfo.Rows[i]["Key"] + "",
-                    dtColInfo.Rows[i]["Default"] + "", 
-                    dtColInfo.Rows[i]["Extra"] + "",
-                    dtColInfo.Rows[i]["Privileges"] + "", 
-                    dtColInfo.Rows[i]["Comment"] + ""));
-            }
-        }
-
-        public MySqlColumn this[int columnIndex]
-        {
-            get
-            {
-                return _lst[columnIndex];
+                var name = dtDataType.Columns[i].ColumnName;
+                _lst.Add(
+                    name, 
+                    new MySqlColumn(
+                        name, 
+                        dtDataType.Columns[i].DataType,
+                        dtColInfo.Rows[i]["Type"] + "", 
+                        dtColInfo.Rows[i]["Collation"] + "",
+                        isNull, 
+                        dtColInfo.Rows[i]["Key"] + "",
+                        dtColInfo.Rows[i]["Default"] + "", 
+                        dtColInfo.Rows[i]["Extra"] + "",
+                        dtColInfo.Rows[i]["Privileges"] + "", 
+                        dtColInfo.Rows[i]["Comment"] + "")
+                    );
             }
         }
 
@@ -57,13 +53,9 @@ namespace MySqlConnector
         {
             get
             {
-                for (int i = 0; i < _lst.Count; i++)
-                {
-                    if (_lst[i].Name == columnName)
-                    {
-                        return _lst[i];
-                    }
-                }
+                if (_lst.ContainsKey(columnName))
+                    return _lst[columnName];
+
                 throw new Exception("Column \"" + columnName + "\" is not existed in table \"" + _tableName + "\".");
             }
         }
@@ -78,24 +70,22 @@ namespace MySqlConnector
 
         public bool Contains(string columnName)
         {
-            if (this[columnName] == null)
-                return false;
-            return true;
+            return _lst.ContainsKey(columnName);
         }
 
         public void Dispose()
         {
-            for (int i = 0; i < _lst.Count; i++)
+            foreach (var key in _lst.Keys)
             {
-                _lst[i] = null;
+                _lst[key] = null;
             }
             _lst = null;
         }
 
-        public IEnumerator<MySqlColumn> GetEnumerator()
-        {
-            return _lst.GetEnumerator();
-        }
+        public IEnumerator<MySqlColumn> GetEnumerator() =>
+            _lst.Values.GetEnumerator();
 
+        IEnumerator IEnumerable.GetEnumerator() =>
+           _lst.Values.GetEnumerator();
     }
 }

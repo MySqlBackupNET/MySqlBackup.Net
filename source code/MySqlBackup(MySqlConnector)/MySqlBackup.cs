@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Timers;
 using System.Collections.Generic;
-using System.Text;
-using System.ComponentModel;
 using System.IO;
-using System.IO.Compression;
-using System.Globalization;
-using System.Security.Cryptography;
-using System.Reflection;
+using System.Linq;
+using System.Text;
+using System.Timers;
 
 namespace MySqlConnector
 {
@@ -27,7 +23,8 @@ namespace MySqlConnector
             Error
         }
 
-        public const string Version = "2.3.6.2";
+        public static string Version =>
+            typeof(MySqlBackup).Assembly.GetName().Version.ToString();
 
         MySqlDatabase _database = new MySqlDatabase();
         MySqlServer _server = new MySqlServer();
@@ -55,9 +52,9 @@ namespace MySqlConnector
         ProcessEndType processCompletionType;
         bool stopProcess = false;
         Exception _lastError = null;
-        string _lastErrorSql = "";
+        string _lastErrorSql = string.Empty;
 
-        string _currentTableName = "";
+        string _currentTableName = string.Empty;
         long _totalRowsInCurrentTable = 0;
         long _totalRowsInAllTables = 0;
         long _currentRowIndexInCurrentTable = 0;
@@ -70,7 +67,7 @@ namespace MySqlConnector
         long _totalBytes = 0L;
         StringBuilder _sbImport = null;
         MySqlScript _mySqlScript = null;
-        string _delimiter = "";
+        string _delimiter = string.Empty;
 
         enum NextImportAction
         {
@@ -253,8 +250,10 @@ namespace MySqlConnector
                 StopAllProcess();
                 throw;
             }
-
-            ReportEndProcess();
+            finally
+            {
+                ReportEndProcess();
+            }
         }
 
         void Export_InitializeVariables()
@@ -291,14 +290,10 @@ namespace MySqlConnector
 
             _database.GetDatabaseInfo(Command, ExportInfo.GetTotalRowsMode);
             _server.GetServerInfo(Command);
-            _currentTableName = "";
+            _currentTableName = string.Empty;
             _totalRowsInCurrentTable = 0L;
-            _totalRowsInAllTables = 0L;
-            var dicTables = Export_GetTablesToBeExported();
-            foreach (var kv in dicTables)
-            {
-                _totalRowsInAllTables = _totalRowsInAllTables + _database.Tables[kv.Key].TotalRows;
-            }
+            _totalRowsInAllTables = Export_GetTablesToBeExported()
+                .Sum(pair => _database.Tables[pair.Key].TotalRows);
             _currentRowIndexInCurrentTable = 0;
             _currentRowIndexInAllTable = 0;
             _totalTables = 0;
@@ -307,12 +302,12 @@ namespace MySqlConnector
 
         void Export_BasicInfo()
         {
-            Export_WriteComment(string.Format("MySqlBackup.NET {0}", MySqlBackup.Version));
+            Export_WriteComment(string.Format("MySqlBackup.NET {0}", Version));
 
             if (ExportInfo.RecordDumpTime)
                 Export_WriteComment(string.Format("Dump Time: {0}", timeStart.ToString("yyyy-MM-dd HH:mm:ss")));
             else
-                Export_WriteComment("");
+                Export_WriteComment(string.Empty);
 
             Export_WriteComment("--------------------------------------");
             Export_WriteComment(string.Format("Server version {0}", _server.Version));
@@ -356,7 +351,7 @@ namespace MySqlConnector
 
         void Export_TableRows()
         {
-            Dictionary<string, string> dicTables = Export_GetTablesToBeExported();
+            Dictionary<string, string> dicTables = Export_GetTablesToBeExportedReArranged();
 
             _totalTables = dicTables.Count;
 
@@ -410,9 +405,9 @@ namespace MySqlConnector
             if (stopProcess)
                 return;
 
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
             Export_WriteComment(string.Format("Definition of {0}", tableName));
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
 
             textWriter.WriteLine();
 
@@ -429,31 +424,9 @@ namespace MySqlConnector
             textWriter.Flush();
         }
 
-        Dictionary<string, string> Export_GetTablesToBeExported()
+        Dictionary<string, string> Export_GetTablesToBeExportedReArranged()
         {
-            var dic = new Dictionary<string, string>();
-
-            if (ExportInfo.TablesToBeExportedDic == null || ExportInfo.TablesToBeExportedDic.Count == 0)
-            {
-                foreach (MySqlTable table in _database.Tables)
-                {
-                    dic[table.Name] = string.Format("SELECT * FROM `{0}`;", table.Name);
-                }
-            }
-            else
-            {
-                foreach (KeyValuePair<string, string> kv in ExportInfo.TablesToBeExportedDic)
-                {
-                    foreach (var kv2 in _database.Tables)
-                    {
-                        if (kv2.Name == kv.Key)
-                        {
-                            dic[kv.Key] = kv.Value;
-                            continue;
-                        }
-                    }
-                }
-            }
+            var dic = Export_GetTablesToBeExported();
 
             Dictionary<string, string> dic2 = new Dictionary<string, string>();
             foreach (var kv in dic)
@@ -462,18 +435,30 @@ namespace MySqlConnector
             }
 
             var lst = Export_ReArrangeDependencies(dic2, "foreign key", "`");
-
-            dic2.Clear();
-
-            foreach (var tbname in lst)
-                dic2.Add(tbname, dic[tbname]);
-
+            dic2 = lst.ToDictionary(k => k, k => dic[k]);
             return dic2;
+        }
+
+        private Dictionary<string, string> Export_GetTablesToBeExported()
+        {
+            if (ExportInfo.TablesToBeExportedDic is null ||
+                ExportInfo.TablesToBeExportedDic.Count == 0)
+            {
+                return _database.Tables
+                    .ToDictionary(
+                        table => table.Name,
+                        table => string.Format("SELECT * FROM `{0}`;", table.Name));
+            }
+
+            return ExportInfo.TablesToBeExportedDic
+                .Where(table => _database.Tables.Contains(table.Key))
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
         }
 
         List<string> Export_ReArrangeDependencies(Dictionary<string, string> dic1, string splitKeyword, string keyNameWrapper)
         {
             List<string> lst = new List<string>();
+            HashSet<string> index = new HashSet<string>();
 
             bool requireLoop = true;
 
@@ -483,16 +468,16 @@ namespace MySqlConnector
 
                 foreach (var kv in dic1)
                 {
-                    if (lst.Contains(kv.Key))
+                    if (index.Contains(kv.Key))
                         continue;
 
                     bool allReferencedAdded = true;
 
                     string createSql = kv.Value.ToLower();
-                    string referenceInfo = "";
+                    string referenceInfo = string.Empty;
 
                     bool referenceTaken = false;
-                    if (splitKeyword != null && splitKeyword != "")
+                    if (!string.IsNullOrEmpty(splitKeyword))
                     {
                         if (createSql.Contains(string.Format(" {0} ", splitKeyword)))
                         {
@@ -510,7 +495,7 @@ namespace MySqlConnector
                         if (kv.Key == kv2.Key)
                             continue;
 
-                        if (lst.Contains(kv2.Key))
+                        if (index.Contains(kv2.Key))
                             continue;
 
                         string _thisTBname = string.Format("{0}{1}{0}", keyNameWrapper, kv2.Key.ToLower());
@@ -524,9 +509,10 @@ namespace MySqlConnector
 
                     if (allReferencedAdded)
                     {
-                        if (!lst.Contains(kv.Key))
+                        if (!index.Contains(kv.Key))
                         {
                             lst.Add(kv.Key);
+                            index.Add(kv.Key);
                             requireLoop = true;
                             break;
                         }
@@ -536,9 +522,10 @@ namespace MySqlConnector
 
             foreach (var kv in dic1)
             {
-                if (!lst.Contains(kv.Key))
+                if (!index.Contains(kv.Key))
                 {
                     lst.Add(kv.Key);
+                    index.Add(kv.Key);
                 }
             }
 
@@ -547,9 +534,9 @@ namespace MySqlConnector
 
         void Export_Rows(string tableName, string selectSQL)
         {
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
             Export_WriteComment(string.Format("Dumping data for table {0}", tableName));
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
             textWriter.WriteLine();
             Export_WriteLine(string.Format("/*!40000 ALTER TABLE `{0}` DISABLE KEYS */;", tableName));
 
@@ -882,9 +869,9 @@ namespace MySqlConnector
             if (!ExportInfo.ExportProcedures || _database.Procedures.Count == 0)
                 return;
 
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
             Export_WriteComment("Dumping procedures");
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
             textWriter.WriteLine();
 
             foreach (MySqlProcedure procedure in _database.Procedures)
@@ -915,9 +902,9 @@ namespace MySqlConnector
             if (!ExportInfo.ExportFunctions || _database.Functions.Count == 0)
                 return;
 
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
             Export_WriteComment("Dumping functions");
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
             textWriter.WriteLine();
 
             foreach (MySqlFunction function in _database.Functions)
@@ -958,9 +945,9 @@ namespace MySqlConnector
 
             var lst = Export_ReArrangeDependencies(dicView_Create, null, "`");
 
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
             Export_WriteComment("Dumping views");
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
             textWriter.WriteLine();
 
             foreach (var viewname in lst)
@@ -994,9 +981,9 @@ namespace MySqlConnector
             if (!ExportInfo.ExportEvents || _database.Events.Count == 0)
                 return;
 
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
             Export_WriteComment("Dumping events");
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
             textWriter.WriteLine();
 
             foreach (MySqlEvent e in _database.Events)
@@ -1025,12 +1012,13 @@ namespace MySqlConnector
 
         void Export_Triggers()
         {
-            if (!ExportInfo.ExportTriggers || _database.Triggers.Count == 0)
+            if (!ExportInfo.ExportTriggers ||
+                _database.Triggers.Count == 0)
                 return;
 
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
             Export_WriteComment("Dumping triggers");
-            Export_WriteComment("");
+            Export_WriteComment(string.Empty);
             textWriter.WriteLine();
 
             foreach (MySqlTrigger trigger in _database.Triggers)
@@ -1038,17 +1026,19 @@ namespace MySqlConnector
                 if (stopProcess)
                     return;
 
-                if (trigger.CreateTriggerSQL.Trim().Length == 0 ||
-                    trigger.CreateTriggerSQLWithoutDefiner.Trim().Length == 0)
+                var createTriggerSQL = trigger.CreateTriggerSQL.Trim();
+                var createTriggerSQLWithoutDefiner = trigger.CreateTriggerSQLWithoutDefiner.Trim();
+                if (createTriggerSQL.Length == 0 ||
+                    createTriggerSQLWithoutDefiner.Length == 0)
                     continue;
 
                 Export_WriteLine(string.Format("DROP TRIGGER /*!50030 IF EXISTS */ `{0}`;", trigger.Name));
                 Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
 
                 if (ExportInfo.ExportRoutinesWithoutDefiner)
-                    Export_WriteLine(trigger.CreateTriggerSQLWithoutDefiner + " " + ExportInfo.ScriptsDelimiter);
+                    Export_WriteLine(createTriggerSQLWithoutDefiner + " " + ExportInfo.ScriptsDelimiter);
                 else
-                    Export_WriteLine(trigger.CreateTriggerSQL + " " + ExportInfo.ScriptsDelimiter);
+                    Export_WriteLine(createTriggerSQL + " " + ExportInfo.ScriptsDelimiter);
 
                 Export_WriteLine("DELIMITER ;");
                 textWriter.WriteLine();
@@ -1164,56 +1154,57 @@ namespace MySqlConnector
         {
             Import_InitializeVariables();
 
-            string line = "";
-
-            while (line != null)
+            try
             {
-                if (stopProcess)
-                {
-                    processCompletionType = ProcessEndType.Cancelled;
-                    break;
-                }
+                string line = string.Empty;
 
-                try
+                while (line != null)
                 {
-                    line = Import_GetLine();
-
-                    if (line == null)
+                    if (stopProcess)
+                    {
+                        processCompletionType = ProcessEndType.Cancelled;
                         break;
-
-                    if (line.Length == 0)
-                        continue;
-
-                    Import_ProcessLine(line);
-                }
-                catch (Exception ex)
-                {
-                    line = "";
-                    _lastError = ex;
-                    _lastErrorSql = _sbImport.ToString();
-
-                    if (!string.IsNullOrEmpty(ImportInfo.ErrorLogFile))
-                    {
-                        File.AppendAllText(ImportInfo.ErrorLogFile, ex.Message + Environment.NewLine + Environment.NewLine + _lastErrorSql + Environment.NewLine + Environment.NewLine);
                     }
 
-                    _sbImport = new StringBuilder();
-
-                    GC.Collect();
-
-                    if (ImportInfo.IgnoreSqlError)
+                    try
                     {
+                        line = Import_GetLine();
 
+                        if (line == null)
+                            break;
+
+                        if (line.Length == 0)
+                            continue;
+
+                        Import_ProcessLine(line);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        StopAllProcess();
-                        throw;
+                        line = string.Empty;
+                        _lastError = ex;
+                        _lastErrorSql = _sbImport.ToString();
+
+                        if (!string.IsNullOrEmpty(ImportInfo.ErrorLogFile))
+                        {
+                            File.AppendAllText(ImportInfo.ErrorLogFile, ex.Message + Environment.NewLine + Environment.NewLine + _lastErrorSql + Environment.NewLine + Environment.NewLine);
+                        }
+
+                        _sbImport = new StringBuilder();
+
+                        GC.Collect();
+
+                        if (!ImportInfo.IgnoreSqlError)
+                        {
+                            StopAllProcess();
+                            throw;
+                        }
                     }
                 }
             }
-
-            ReportEndProcess();
+            finally
+            {
+                ReportEndProcess();
+            }
         }
 
         void Import_InitializeVariables()
@@ -1245,7 +1236,7 @@ namespace MySqlConnector
             currentProcess = ProcessType.Import;
             processCompletionType = ProcessEndType.Complete;
             _delimiter = ";";
-            _lastErrorSql = "";
+            _lastErrorSql = string.Empty;
 
             if (ImportProgressChanged != null)
                 timerReport.Start();
@@ -1395,7 +1386,7 @@ namespace MySqlConnector
                 if (ImportCompleted != null)
                 {
                     ImportCompleteArgs.CompleteType completedType;
-                    switch(processCompletionType)
+                    switch (processCompletionType)
                     {
                         case ProcessEndType.Complete:
                             completedType = ImportCompleteArgs.CompleteType.Completed;

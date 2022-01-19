@@ -9,13 +9,13 @@ namespace MySql.Data.MySqlClient
         string _versionNumber;
         string _edition;
         decimal _majorVersionNumber = 0;
-        string _characterSetServer = "";
-        string _characterSetSystem = "";
-        string _characterSetConnection = "";
-        string _characterSetDatabase = "";
-        string _currentUser = "";
-        string _currentUserClientHost = "";
-        string _currentClientHost = "";
+        string _characterSetServer = string.Empty;
+        string _characterSetSystem = string.Empty;
+        string _characterSetConnection = string.Empty;
+        string _characterSetDatabase = string.Empty;
+        string _currentUser = string.Empty;
+        string _currentUserClientHost = string.Empty;
+        string _currentClientHost = string.Empty;
 
         public string Version { get { return string.Format("{0} {1}", _versionNumber, _edition); } }
         public string VersionNumber { get { return _versionNumber; } }
@@ -54,7 +54,7 @@ namespace MySql.Data.MySqlClient
         void GetMajorVersionNumber()
         {
             string[] vsa = _versionNumber.Split('.');
-            string v = "";
+            string v = string.Empty;
             if (vsa.Length > 1)
                 v = vsa[0] + "." + vsa[1];
             else

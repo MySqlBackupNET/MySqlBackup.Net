@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Data;
 using System.Globalization;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
@@ -68,9 +67,8 @@ namespace MySql.Data.MySqlClient
 
         public static long ExecuteScalarLong(MySqlCommand cmd, string sql)
         {
-            long l = 0;
             cmd.CommandText = sql;
-            long.TryParse(cmd.ExecuteScalar() + "", out l);
+            long.TryParse(cmd.ExecuteScalar() + "", out var l);
             return l;
         }
 

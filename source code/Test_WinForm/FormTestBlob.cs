@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using MySql.Data.MySqlClient;
 using System.IO;
+using System.Windows.Forms;
 
 namespace MySqlBackupTestApp
 {
@@ -17,7 +11,7 @@ namespace MySqlBackupTestApp
         public FormTestBlob()
         {
             InitializeComponent();
-            lbResult.Text = "";
+            lbResult.Text = string.Empty;
             dropBlobExportMode.SelectedIndex = 1;
         }
 
@@ -55,7 +49,7 @@ namespace MySqlBackupTestApp
                 OpenFileDialog of = new OpenFileDialog();
                 if (of.ShowDialog() != DialogResult.OK)
                 {
-                    lbResult.Text = "";
+                    lbResult.Text = string.Empty;
                     return;
                 }
 
@@ -64,9 +58,9 @@ namespace MySqlBackupTestApp
                 string hash1 = BitConverter.ToString(System.Security.Cryptography.SHA1Managed.Create().ComputeHash(ba1)).Replace("-", string.Empty).ToLower();
 
                 lbHash1.Text = hash1;
-                lbHash2.Text = "";
-                lbResult.Text = "";
-                lbDumpSize.Text = "";
+                lbHash2.Text = string.Empty;
+                lbResult.Text = string.Empty;
+                lbDumpSize.Text = string.Empty;
 
                 this.Refresh();
 
@@ -95,7 +89,7 @@ namespace MySqlBackupTestApp
                 }
 
                 // Step 3: Export the database
-                string sqlDump = "";
+                string sqlDump = string.Empty;
                 using (MySqlConnection conn = new MySqlConnection(Program.ConnectionString))
                 {
                     using (MySqlCommand cmd = new MySqlCommand())

@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Data;
 using System.Globalization;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace Devart.Data.MySql
 {

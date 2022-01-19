@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MySqlConnector
+﻿namespace MySqlConnector
 {
     public class ImportInformations
     {
         int _interval = 100;
-        //string _targetDatabase = "";
-        //string _databaseDefaultCharSet = "";
+        //string _targetDatabase = string.Empty;
+        //string _databaseDefaultCharSet = string.Empty;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Imported Dump File is encrypted.
@@ -20,7 +16,7 @@ namespace MySqlConnector
         /// Sets the password used to decrypt the exported dump file.
         /// </summary>
         //[System.Obsolete("This implementation will slow down the whole process which is not recommended. Encrypt the content externally after the export process completed. For more information, please read documentation.")]
-        //public string EncryptionPassword = "";
+        //public string EncryptionPassword = string.Empty;
 
         /// <summary>
         /// Gets or Sets a value indicates the interval of time (in miliseconds) to raise the event of ExportProgressChanged.
@@ -45,7 +41,7 @@ namespace MySqlConnector
         /// <summary>
         /// Gets or Sets the file path used to log error messages.
         /// </summary>
-        public string ErrorLogFile = "";
+        public string ErrorLogFile = string.Empty;
 
         public ImportInformations()
         { }

@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Data;
 using System.Collections;
+using System.Collections.Generic;
+using System.Data;
 
 namespace Devart.Data.MySql
 {
     public class MySqlViewList : IDisposable, IEnumerable<MySqlView>
     {
-        List<MySqlView> _lst = new List<MySqlView>();
-        string _sqlShowViewList = "";
+        string _sqlShowViewList = string.Empty;
+        Dictionary<string, MySqlView> _lst = new Dictionary<string, MySqlView>();
 
         bool _allowAccess = true;
         public bool AllowAccess { get { return _allowAccess; } }
@@ -29,7 +28,8 @@ namespace Devart.Data.MySql
 
                 foreach (DataRow dr in dt.Rows)
                 {
-                    _lst.Add(new MySqlView(cmd, dr[0] + ""));
+                    var nome = dr[0].ToString();
+                    _lst.Add(nome, new MySqlView(cmd, nome));
                 }
             }
             catch (MySqlException myEx)
@@ -43,23 +43,13 @@ namespace Devart.Data.MySql
             }
         }
 
-        public MySqlView this[int viewIndex]
-        {
-            get
-            {
-                return _lst[viewIndex];
-            }
-        }
-
         public MySqlView this[string viewName]
         {
             get
             {
-                for (int i = 0; i < _lst.Count; i++)
-                {
-                    if (_lst[i].Name == viewName)
-                        return _lst[i];
-                }
+                if (_lst.ContainsKey(viewName))
+                    return _lst[viewName];
+
                 throw new Exception("View \"" + viewName + "\" is not existed.");
             }
         }
@@ -74,28 +64,22 @@ namespace Devart.Data.MySql
 
         public bool Contains(string viewName)
         {
-            if (this[viewName] == null)
-                return false;
-            return true;
+            return _lst.ContainsKey(viewName);
         }
 
-        public IEnumerator<MySqlView> GetEnumerator()
-        {
-            return _lst.GetEnumerator();
-        }
+        public IEnumerator<MySqlView> GetEnumerator() =>
+            _lst.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+           _lst.Values.GetEnumerator();
 
         public void Dispose()
         {
-            for (int i = 0; i < _lst.Count; i++)
+            foreach (var key in _lst.Keys)
             {
-                _lst[i] = null;
+                _lst[key] = null;
             }
             _lst = null;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<MySqlView>)_lst).GetEnumerator();
         }
     }
 }

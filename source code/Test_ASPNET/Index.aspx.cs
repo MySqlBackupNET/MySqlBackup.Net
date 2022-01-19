@@ -1,12 +1,9 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using MySql.Data.MySqlClient;
 using System.IO;
-using System.Text;
 using System.IO.Compression;
+using System.Web.UI;
 
 namespace MySqlBackupASPNET
 {
@@ -21,7 +18,7 @@ namespace MySqlBackupASPNET
         {
             try
             {
-                string output = "";
+                string output = string.Empty;
 
                 using (MySqlConnection conn = new MySqlConnection(txtConnString.Text))
                 {

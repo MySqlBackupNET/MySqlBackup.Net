@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using System.Data;
 
 namespace MySqlConnector
 {
-    public class MySqlFunctionList : IDisposable
+    public class MySqlFunctionList : IDisposable, IEnumerable<MySqlFunction>
     {
-        List<MySqlFunction> _lst = new List<MySqlFunction>();
-        string _sqlShowFunctions = "";
+        string _sqlShowFunctions = string.Empty;
+        Dictionary<string, MySqlFunction> _lst = new Dictionary<string, MySqlFunction>();
 
         bool _allowAccess = true;
         public bool AllowAccess { get { return _allowAccess; } }
@@ -28,7 +28,8 @@ namespace MySqlConnector
 
                 foreach (DataRow dr in dt.Rows)
                 {
-                    _lst.Add(new MySqlFunction(cmd, dr["Name"] + "", dr["Definer"] + ""));
+                    var name = dr["Name"].ToString();
+                    _lst.Add(name, new MySqlFunction(cmd, name, dr["Definer"].ToString()));
                 }
             }
             catch (MySqlException myEx)
@@ -42,25 +43,13 @@ namespace MySqlConnector
             }
         }
 
-        public MySqlFunction this[int functionIndex]
-        {
-            get
-            {
-                return _lst[functionIndex];
-            }
-        }
-
         public MySqlFunction this[string functionName]
         {
             get
             {
-                for (int i = 0; i < _lst.Count; i++)
-                {
-                    if (_lst[i].Name == functionName)
-                    {
-                        return _lst[i];
-                    }
-                }
+                if (_lst.ContainsKey(functionName))
+                    return _lst[functionName];
+
                 throw new Exception("Function \"" + functionName + "\" is not existed.");
             }
         }
@@ -75,21 +64,20 @@ namespace MySqlConnector
 
         public bool Contains(string functionName)
         {
-            if (this[functionName] == null)
-                return false;
-            return true;
+            return _lst.ContainsKey(functionName);
         }
 
-        public IEnumerator<MySqlFunction> GetEnumerator()
-        {
-            return _lst.GetEnumerator();
-        }
+        public IEnumerator<MySqlFunction> GetEnumerator() =>
+            _lst.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+           _lst.Values.GetEnumerator();
 
         public void Dispose()
         {
-            for (int i = 0; i < _lst.Count; i++)
+            foreach (var key in _lst.Keys)
             {
-                _lst[i] = null;
+                _lst[key] = null;
             }
             _lst = null;
         }

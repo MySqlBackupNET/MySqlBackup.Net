@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using MySqlConnector;
+using System;
 using System.IO;
-using MySqlConnector;
+using System.Text;
+using System.Windows.Forms;
 
 namespace MySqlBackupTestApp
 {
@@ -39,8 +33,8 @@ namespace MySqlBackupTestApp
 
         void RunTest(string sql)
         {
-            txtError.Text = "";
-            txtLastErrorSqlSyntax.Text = "";
+            txtError.Text = string.Empty;
+            txtLastErrorSqlSyntax.Text = string.Empty;
             this.Refresh();
 
             try
@@ -158,7 +152,7 @@ ENGINE = InnoDB;
 
         private void btClearLogFilePath_Click(object sender, EventArgs e)
         {
-            txtLogFilePath.Text = "";
+            txtLogFilePath.Text = string.Empty;
         }
 
         private void btViewDump_Click(object sender, EventArgs e)

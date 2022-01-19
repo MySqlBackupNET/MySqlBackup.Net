@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using System.Data;
 
 namespace MySqlConnector
 {
-    public class MySqlProcedureList : IDisposable
+    public class MySqlProcedureList : IDisposable, IEnumerable<MySqlProcedure>
     {
-        List<MySqlProcedure> _lst = new List<MySqlProcedure>();
-        string _sqlShowProcedures = "";
+        string _sqlShowProcedures = string.Empty;
+        Dictionary<string, MySqlProcedure> _lst = new Dictionary<string, MySqlProcedure>();
 
         bool _allowAccess = true;
         public bool AllowAccess { get { return _allowAccess; } }
@@ -28,7 +28,8 @@ namespace MySqlConnector
 
                 foreach (DataRow dr in dt.Rows)
                 {
-                    _lst.Add(new MySqlProcedure(cmd, dr["Name"] + "", dr["Definer"] + ""));
+                    var name = dr["Name"].ToString();
+                    _lst.Add(name, new MySqlProcedure(cmd, name, dr["Definer"].ToString()));
                 }
             }
             catch (MySqlException myEx)
@@ -42,25 +43,13 @@ namespace MySqlConnector
             }
         }
 
-        public MySqlProcedure this[int indexProcedure]
-        {
-            get
-            {
-                return _lst[indexProcedure];
-            }
-        }
-
         public MySqlProcedure this[string procedureName]
         {
             get
             {
-                for (int i = 0; i < _lst.Count; i++)
-                {
-                    if (_lst[i].Name == procedureName)
-                    {
-                        return _lst[i];
-                    }
-                }
+                if (_lst.ContainsKey(procedureName))
+                    return _lst[procedureName];
+
                 throw new Exception("Store procedure \"" + procedureName + "\" is not existed.");
             }
         }
@@ -75,22 +64,20 @@ namespace MySqlConnector
 
         public bool Contains(string procedureName)
         {
-            if (this[procedureName] == null)
-                return false;
-            else
-                return true;
+            return _lst.ContainsKey(procedureName);
         }
 
-        public IEnumerator<MySqlProcedure> GetEnumerator()
-        {
-            return _lst.GetEnumerator();
-        }
+        public IEnumerator<MySqlProcedure> GetEnumerator() =>
+            _lst.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+           _lst.Values.GetEnumerator();
 
         public void Dispose()
         {
-            for (int i = 0; i < _lst.Count; i++)
+            foreach (var key in _lst.Keys)
             {
-                _lst[i] = null;
+                _lst[key] = null;
             }
             _lst = null;
         }

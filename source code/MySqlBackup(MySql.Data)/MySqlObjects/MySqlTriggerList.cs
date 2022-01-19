@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using System.Data;
 
 namespace MySql.Data.MySqlClient
 {
-    public class MySqlTriggerList : IDisposable
+    public class MySqlTriggerList : IDisposable, IEnumerable<MySqlTrigger>
     {
-        List<MySqlTrigger> _lst = new List<MySqlTrigger>();
-        string _sqlShowTriggers = "";
+        string _sqlShowTriggers = string.Empty;
+        Dictionary<string, MySqlTrigger> _lst = new Dictionary<string, MySqlTrigger>();
 
         bool _allowAccess = true;
         public bool AllowAccess { get { return _allowAccess; } }
@@ -27,7 +27,8 @@ namespace MySql.Data.MySqlClient
 
                 foreach (DataRow dr in dt.Rows)
                 {
-                    _lst.Add(new MySqlTrigger(cmd, dr["Trigger"] + "", dr["Definer"] + ""));
+                    var name = dr["Trigger"].ToString();
+                    _lst.Add(name, new MySqlTrigger(cmd, name, dr["Definer"].ToString()));
                 }
             }
             catch (MySqlException myEx)
@@ -41,25 +42,13 @@ namespace MySql.Data.MySqlClient
             }
         }
 
-        public MySqlTrigger this[int triggerIndex]
-        {
-            get
-            {
-                return _lst[triggerIndex];
-            }
-        }
-
         public MySqlTrigger this[string triggerName]
         {
             get
             {
-                for (int i = 0; i < _lst.Count; i++)
-                {
-                    if (_lst[i].Name == triggerName)
-                    {
-                        return _lst[i];
-                    }
-                }
+                if (_lst.ContainsKey(triggerName))
+                    return _lst[triggerName];
+
                 throw new Exception("Trigger \"" + triggerName + "\" is not existed.");
             }
         }
@@ -74,21 +63,20 @@ namespace MySql.Data.MySqlClient
 
         public bool Contains(string triggerName)
         {
-            if (this[triggerName] == null)
-                return false;
-            return true;
+            return _lst.ContainsKey(triggerName);
         }
 
-        public IEnumerator<MySqlTrigger> GetEnumerator()
-        {
-            return _lst.GetEnumerator();
-        }
+        public IEnumerator<MySqlTrigger> GetEnumerator() =>
+            _lst.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+           _lst.Values.GetEnumerator();
 
         public void Dispose()
         {
-            for (int i = 0; i < _lst.Count; i++)
+            foreach (var key in _lst.Keys)
             {
-                _lst[i] = null;
+                _lst[key] = null;
             }
             _lst = null;
         }

@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MySqlConnector;
+using System;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
-using MySqlConnector;
-using System.Security.Cryptography;
 
 namespace MySqlBackupTestApp
 {
     public partial class FormToolCreateSampleTable : Form
     {
-        string tableName = "";
+        string tableName = string.Empty;
         long totalRows = 0L;
         long currentRow = 0L;
         bool stop = false;

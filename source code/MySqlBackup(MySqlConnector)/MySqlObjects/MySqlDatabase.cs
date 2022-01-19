@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Collections;
 using System.Data;
+using System.Linq;
+using System.Timers;
 
 namespace MySqlConnector
 {
     public class MySqlDatabase : IDisposable
     {
-        string _name = "";
-        string _createDatabaseSql = "";
-        string _dropDatabaseSql = "";
-        string _defaultCharSet = "";
+        string _name = string.Empty;
+        string _createDatabaseSql = string.Empty;
+        string _dropDatabaseSql = string.Empty;
+        string _defaultCharSet = string.Empty;
 
         MySqlTableList _listTable = new MySqlTableList();
         MySqlProcedureList _listProcedure = new MySqlProcedureList();
@@ -39,14 +38,7 @@ namespace MySqlConnector
         {
             get
             {
-                long t = 0;
-
-                for (int i = 0; i < _listTable.Count; i++)
-                {
-                    t = t + _listTable[i].TotalRows;
-                }
-
-                return t;
+                return _listTable.ToList().Sum(x => x.TotalRows);
             }
         }
 
@@ -73,33 +65,42 @@ namespace MySqlConnector
 
         public void GetTotalRows(MySqlCommand cmd, GetTotalRowsMethod enumGetTotalRowsMode)
         {
+            int i = 0;
+            var timer = new Timer
+            {
+                Interval = 10000
+            };
+            timer.Elapsed += (sender, e) =>
+            {
+                GetTotalRowsProgressChanged?.Invoke(this, new GetTotalRowsArgs(_listTable.Count, i));
+            };
+
             if (enumGetTotalRowsMode == GetTotalRowsMethod.InformationSchema)
             {
                 DataTable dtTotalRows = QueryExpress.GetTable(cmd, string.Format("SELECT TABLE_NAME, TABLE_ROWS FROM `information_schema`.`tables` WHERE `table_schema` = '{0}';", _name));
-
-                int _tableCountTotalRow = 0;
-
+                timer.Start();
                 foreach (DataRow dr in dtTotalRows.Rows)
                 {
-                    string _tbname = dr["TABLE_NAME"] + "";
-                    long _totalRowsThisTable = 0L;
-                    long.TryParse(dr["TABLE_ROWS"] + "", out _totalRowsThisTable);
+                    i++;
+                    var _tbname = dr["TABLE_NAME"] + "";
+                    long.TryParse(dr["TABLE_ROWS"] + "", out var _totalRowsThisTable);
 
                     if (_listTable.Contains(_tbname))
-                        _listTable[_tbname].SetTotalRows(_totalRowsThisTable);
+                        _listTable[_tbname].SetTotalRows((long)(_totalRowsThisTable * 1.1)); // Adiciona 10% de erro
                 }
+                timer.Stop();
+                GetTotalRowsProgressChanged?.Invoke(this, new GetTotalRowsArgs(_listTable.Count, _listTable.Count));
             }
             else if (enumGetTotalRowsMode == GetTotalRowsMethod.SelectCount)
             {
-                for (int i = 0; i < _listTable.Count; i++)
+                timer.Start();
+                foreach (var table in _listTable)
                 {
-                    _listTable[i].GetTotalRowsByCounting(cmd);
-
-                    if (GetTotalRowsProgressChanged != null)
-                    {
-                        GetTotalRowsProgressChanged(this, new GetTotalRowsArgs(_listTable.Count, i + 1));
-                    }
+                    i++;
+                    table.GetTotalRowsByCounting(cmd);
                 }
+                timer.Stop();
+                GetTotalRowsProgressChanged?.Invoke(this, new GetTotalRowsArgs(_listTable.Count, _listTable.Count));
             }
         }
 
