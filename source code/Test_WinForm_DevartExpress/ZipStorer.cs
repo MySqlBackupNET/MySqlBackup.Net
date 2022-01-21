@@ -74,7 +74,7 @@ namespace System.IO.Compression
         // Stream object of storage file
         private Stream ZipFileStream;
         // General comment
-        private string Comment = "";
+        private string Comment = string.Empty;
         // Central dir image
         private byte[] CentralDirImage = null;
         // Existing files in zip

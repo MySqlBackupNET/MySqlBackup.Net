@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Devart.Data.MySql;
+using System;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Devart.Data.MySql;
 
 namespace MySqlBackupTestApp
 {
@@ -130,7 +128,7 @@ namespace MySqlBackupTestApp
         {
             WriteHead2("Global Privileges");
 
-            string curUser = "";
+            string curUser = string.Empty;
             if (myServer.CurrentUser != "root")
                 curUser = myServer.CurrentUser;
             else

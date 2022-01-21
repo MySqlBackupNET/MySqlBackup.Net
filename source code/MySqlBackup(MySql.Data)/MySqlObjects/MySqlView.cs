@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MySql.Data.MySqlClient
+﻿namespace MySql.Data.MySqlClient
 {
     public class MySqlView
     {
-        string _name = "";
-        string _createViewSQL = "";
-        string _createViewSQLWithoutDefiner = "";
+        string _name = string.Empty;
+        string _createViewSQL = string.Empty;
+        string _createViewSQLWithoutDefiner = string.Empty;
 
         public string Name { get { return _name; } }
         public string CreateViewSQL { get { return _createViewSQL; } }

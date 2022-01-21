@@ -38,7 +38,7 @@ namespace MySql.Data.MySqlClient
             _completionType = endType;
             _timeStart = timeStart;
             _timeEnd = timeEnd;
-            _timeUsed = timeStart - timeEnd;
+            _timeUsed = timeEnd - timeStart;
             _exception = exception;
         }
     }

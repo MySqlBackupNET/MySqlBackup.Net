@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace MySqlBackupTestApp
@@ -9,7 +8,7 @@ namespace MySqlBackupTestApp
         public static string Version = "V2.3.6";
         public static string DateVersion = "October 17, 2021";
 
-        private static string _connectionString = "";
+        private static string _connectionString = string.Empty;
 
         public static string ConnectionString
         {
@@ -25,8 +24,8 @@ namespace MySqlBackupTestApp
                 _connectionString = value;
             }
         }
-        public static string DefaultFolder = "";
-        public static string TargetFile = "";
+        public static string DefaultFolder = string.Empty;
+        public static string TargetFile = string.Empty;
 
         /// <summary>
         /// The main entry point for the application.

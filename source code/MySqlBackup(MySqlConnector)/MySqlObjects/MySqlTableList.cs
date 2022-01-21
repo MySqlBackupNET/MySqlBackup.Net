@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Data;
 using System.Collections;
+using System.Collections.Generic;
+using System.Data;
 
 namespace MySqlConnector
 {
     public class MySqlTableList : IDisposable, IEnumerable<MySqlTable>
     {
-        List<MySqlTable> _lst = new List<MySqlTable>();
-        string _sqlShowFullTables = "";
+        string _sqlShowFullTables = string.Empty;
+        Dictionary<string, MySqlTable> _lst = new Dictionary<string, MySqlTable>();
 
         public string SqlShowFullTables { get { return _sqlShowFullTables; } }
 
@@ -23,15 +22,8 @@ namespace MySqlConnector
 
             foreach (DataRow dr in dtTableList.Rows)
             {
-                _lst.Add(new MySqlTable(cmd, dr[0] + ""));
-            }
-        }
-
-        public MySqlTable this[int tableIndex]
-        {
-            get 
-            {
-                return _lst[tableIndex];
+                var table = new MySqlTable(cmd, dr[0] + "");
+                _lst.Add(table.Name, table);
             }
         }
 
@@ -39,11 +31,9 @@ namespace MySqlConnector
         {
             get
             {
-                for (int i = 0; i < _lst.Count; i++)
-                {
-                    if (_lst[i].Name == tableName)
-                        return _lst[i];
-                }
+                if (_lst.ContainsKey(tableName))
+                    return _lst[tableName];
+
                 throw new Exception("Table \"" + tableName + "\" is not existed.");
             }
         }
@@ -56,40 +46,25 @@ namespace MySqlConnector
             }
         }
 
-        public IEnumerator<MySqlTable> GetEnumerator()
-        {
-            return _lst.GetEnumerator();
-        }
+        public IEnumerator<MySqlTable> GetEnumerator() =>
+            _lst.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+            _lst.Values.GetEnumerator();
 
         public void Dispose()
         {
-            for (int i = 0; i < _lst.Count; i++)
+            foreach(var key in _lst.Keys)
             {
-                _lst[i].Dispose();
-                _lst[i] = null;
+                _lst[key].Dispose();
+                _lst[key] = null;
             }
             _lst = null;
         }
 
-        public List<MySqlTable> GetList()
-        {
-            return _lst;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<MySqlTable>)_lst).GetEnumerator();
-        }
-
         public bool Contains(string name)
         {
-            foreach(var t in _lst)
-            {
-                if (t.Name == name)
-                    return true;
-            }
-
-            return false;
+            return _lst.ContainsKey(name);
         }
     }
 }

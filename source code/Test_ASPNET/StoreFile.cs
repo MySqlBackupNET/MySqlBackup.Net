@@ -32,7 +32,7 @@ namespace MySqlBackupASPNET
 
         public static string GetSqlText()
         {
-            string text = "";
+            string text = string.Empty;
             byte[] ba = GetZipFile();
             MemoryStream ms1 = new MemoryStream(ba);
             ZipStorer zip = ZipStorer.Open(ms1, FileAccess.Read);

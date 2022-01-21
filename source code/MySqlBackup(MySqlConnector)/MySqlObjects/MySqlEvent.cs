@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MySqlConnector
+﻿namespace MySqlConnector
 {
     public class MySqlEvent
     {
         string _name;
-        string _createEventSql = "";
-        string _createEventSqlWithoutDefiner = "";
+        string _createEventSql = string.Empty;
+        string _createEventSqlWithoutDefiner = string.Empty;
 
         public string Name { get { return _name; } }
         public string CreateEventSql { get { return _createEventSql; } }

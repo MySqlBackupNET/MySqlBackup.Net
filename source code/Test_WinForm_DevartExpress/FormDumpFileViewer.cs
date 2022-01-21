@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
@@ -13,8 +9,8 @@ namespace MySqlBackupTestApp
         public FormDumpFileViewer()
         {
             InitializeComponent();
-            textBox1.Text = "";
-            tsFile.Text = "";
+            textBox1.Text = string.Empty;
+            tsFile.Text = string.Empty;
             tsStatus.Text = "(No file loaded)";
         }
 
@@ -27,15 +23,15 @@ namespace MySqlBackupTestApp
         {
             if (file == "")
             {
-                textBox1.Text = "";
-                tsFile.Text = "";
+                textBox1.Text = string.Empty;
+                tsFile.Text = string.Empty;
                 tsStatus.Text = "(No file loaded)";
                 return;
             }
 
             if (!System.IO.File.Exists(file))
             {
-                tsFile.Text = "";
+                tsFile.Text = string.Empty;
                 tsStatus.Text = "(File not exists)";
                 MessageBox.Show("File not exists:\r\n" + file, "Open", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
@@ -99,9 +95,9 @@ namespace MySqlBackupTestApp
 
         private void tsClose_Click(object sender, EventArgs e)
         {
-            textBox1.Text = "";
+            textBox1.Text = string.Empty;
             tsStatus.Text = "(No file loaded)";
-            tsFile.Text = "";
+            tsFile.Text = string.Empty;
         }
 
         private void textBox1_KeyDown(object sender, KeyEventArgs e)

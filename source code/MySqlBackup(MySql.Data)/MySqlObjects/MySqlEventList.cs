@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using System.Data;
 
 namespace MySql.Data.MySqlClient
 {
-    public class MySqlEventList : IDisposable
+    public class MySqlEventList : IDisposable, IEnumerable<MySqlEvent>
     {
-        List<MySqlEvent> _lst = new List<MySqlEvent>();
-        string _sqlShowEvents = "";
+        string _sqlShowEvents = string.Empty;
+        Dictionary<string, MySqlEvent> _lst = new Dictionary<string, MySqlEvent>();
 
         bool _allowAccess = true;
         public bool AllowAccess { get { return _allowAccess; } }
@@ -28,7 +28,8 @@ namespace MySql.Data.MySqlClient
 
                 foreach (DataRow dr in dt.Rows)
                 {
-                    _lst.Add(new MySqlEvent(cmd, dr["Name"] + "", dr["Definer"] + ""));
+                    var eventName = dr["Name"].ToString();
+                    _lst.Add(eventName, new MySqlEvent(cmd, eventName, dr["Definer"].ToString()));
                 }
             }
             catch (MySqlException myEx)
@@ -42,23 +43,13 @@ namespace MySql.Data.MySqlClient
             }
         }
 
-        public MySqlEvent this[int eventIndex]
-        {
-            get
-            {
-                return _lst[eventIndex];
-            }
-        }
-
         public MySqlEvent this[string eventName]
         {
             get
             {
-                for (int i = 0; i < _lst.Count; i++)
-                {
-                    if (_lst[i].Name == eventName)
-                        return _lst[i];
-                }
+                if (_lst.ContainsKey(eventName))
+                    return _lst[eventName];
+
                 throw new Exception("Event \"" + eventName + "\" is not existed.");
             }
         }
@@ -73,21 +64,20 @@ namespace MySql.Data.MySqlClient
 
         public bool Contains(string eventName)
         {
-            if (this[eventName] == null)
-                return false;
-            return true;
+            return _lst.ContainsKey(eventName);
         }
 
-        public IEnumerator<MySqlEvent> GetEnumerator()
-        {
-            return _lst.GetEnumerator();
-        }
+        public IEnumerator<MySqlEvent> GetEnumerator() =>
+            _lst.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+           _lst.Values.GetEnumerator();
 
         public void Dispose()
         {
-            for (int i = 0; i < _lst.Count; i++)
+            foreach (var key in _lst.Keys)
             {
-                _lst[i] = null;
+                _lst[key] = null;
             }
             _lst = null;
         }

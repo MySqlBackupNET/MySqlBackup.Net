@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MySql.Data.MySqlClient
+﻿namespace MySql.Data.MySqlClient
 {
     public class MySqlTrigger
     {
-        string _name = "";
-        string _createTriggerSQL = "";
-        string _createTriggerSQLWithoutDefiner = "";
+        string _name = string.Empty;
+        string _createTriggerSQL = string.Empty;
+        string _createTriggerSQLWithoutDefiner = string.Empty;
 
         public string Name { get { return _name; } }
         public string CreateTriggerSQL { get { return _createTriggerSQL; } }

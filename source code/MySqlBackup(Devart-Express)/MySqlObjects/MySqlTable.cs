@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
-using System.IO;
 
 namespace Devart.Data.MySql
 {
     public class MySqlTable : IDisposable
     {
-        string _name = "";
+        string _name = string.Empty;
         MySqlColumnList _lst = null;
         long _totalRows = 0;
-        string _createTableSql = "";
-        string _createTableSqlWithoutAutoIncrement = "";
-        string _insertStatementHeader = "";
-        string _insertStatementHeaderWithoutColumns = "";
+        string _createTableSql = string.Empty;
+        string _createTableSqlWithoutAutoIncrement = string.Empty;
+        string _insertStatementHeader = string.Empty;
+        string _insertStatementHeaderWithoutColumns = string.Empty;
 
         public string Name { get { return _name; } }
         public long TotalRows { get { return _totalRows; } }
@@ -41,14 +39,16 @@ namespace Devart.Data.MySql
             sb.Append("INSERT INTO `");
             sb.Append(_name);
             sb.Append("` (");
-            for (int i = 0; i < _lst.Count; i++)
+            var i = 0;
+            foreach (var column in _lst)
             {
                 if (i > 0)
-                    sb.Append(",");
+                    sb.Append(',');
 
-                sb.Append("`");
-                sb.Append(_lst[i].Name);
-                sb.Append("`");
+                sb.Append('`');
+                sb.Append(column.Name);
+                sb.Append('`');
+                i++;
             }
             sb.Append(") VALUES");
 
@@ -57,7 +57,7 @@ namespace Devart.Data.MySql
 
         public void GetTotalRowsByCounting(MySqlCommand cmd)
         {
-            string sql = string.Format("SELECT COUNT(*) FROM `{0}`;", _name);
+            string sql = string.Format("SELECT COUNT(1) FROM `{0}`;", _name);
             _totalRows = QueryExpress.ExecuteScalarLong(cmd, sql);
         }
 
@@ -76,7 +76,7 @@ namespace Devart.Data.MySql
 
                 int b = i + a.Length;
 
-                string d = "";
+                string d = string.Empty;
 
                 int count = 0;
 

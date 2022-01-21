@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 namespace MySqlBackupTestApp
@@ -12,10 +8,10 @@ namespace MySqlBackupTestApp
     {
         bool file1Opened = false;
         bool file2Opened = false;
-        string hash1 = "";
-        string hash2 = "";
-        string file1 = "";
-        string file2 = "";
+        string hash1 = string.Empty;
+        string hash2 = string.Empty;
+        string file1 = string.Empty;
+        string file2 = string.Empty;
 
         public FormCompareFile()
         {
@@ -76,7 +72,7 @@ namespace MySqlBackupTestApp
             }
             else
             {
-                lbResult.Text = "";
+                lbResult.Text = string.Empty;
             }
         }
 

@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MySqlConnector
 {
     public class GetTotalRowsArgs : EventArgs
     {
-        int _totalTables = 0;
-        int _curTable = 0;
-
         public GetTotalRowsArgs(int totalTables, int curTable)
         {
-            _totalTables = totalTables;
-            _curTable = curTable;
+            TotalTables = totalTables;
+            CurrTable = curTable;
         }
+
+        public int TotalTables { get; private set; }
+        public int CurrTable { get; private set; }
     }
 }

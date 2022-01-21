@@ -93,7 +93,7 @@
             dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.White;
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.Black;
             this.colnSelect.DefaultCellStyle = dataGridViewCellStyle1;
-            this.colnSelect.HeaderText = "";
+            this.colnSelect.HeaderText = string.Empty;
             this.colnSelect.Name = "colnSelect";
             this.colnSelect.ReadOnly = true;
             this.colnSelect.Width = 25;
