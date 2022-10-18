@@ -91,6 +91,9 @@ namespace MySql.Data.MySqlClient
                 case '\\': // Backslash
                     sb.AppendFormat("\\\\");
                     break;
+                case '\0': // Null
+                    sb.AppendFormat("\\0");
+                    break;
                 case '\r': // Carriage return
                     sb.AppendFormat("\\r");
                     break;
