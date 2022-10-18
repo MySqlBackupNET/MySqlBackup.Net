@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;NET48;NET472;NET461;NET452</TargetFrameworks>
+    <TargetFrameworks>net48;net481;netstandard2.0;netstandard2.1;net6.0;</TargetFrameworks>
 	<RootNamespace>MySql.Data.Client</RootNamespace>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <Nullable>disable</Nullable>
@@ -12,16 +12,14 @@
     <Description>A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET.</Description>
     <Copyright>Public Domain</Copyright>
     <PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
-    <PackageIcon>logo128.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</RepositoryUrl>
-    <Version>2.3.6.2</Version>
-    <AssemblyVersion>2.3.6.2</AssemblyVersion>
-    <FileVersion>2.3.6.2</FileVersion>
+    <Version>2.3.7</Version>
+    <AssemblyVersion>2.3.7</AssemblyVersion>
+    <FileVersion>2.3.7</FileVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyName>MySqlBackup</AssemblyName>
     <ApplicationIcon>logo.ico</ApplicationIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,18 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\Test_WinForm\Resources\logo128.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-    <None Include="bin\Release\README.md">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MySql.Data" Version="8.0.26" />
+    <PackageReference Include="MySql.Data" Version="8.0.31" />
   </ItemGroup>
 
 </Project>

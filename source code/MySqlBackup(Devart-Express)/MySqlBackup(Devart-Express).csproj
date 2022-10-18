@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>NET48;NET472;NET461;NET452;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;net5.0</TargetFrameworks>
+    <TargetFrameworks>net46;net47;net48;net481</TargetFrameworks>
     <RootNamespace>Devart.Data.MySql</RootNamespace>
     <AssemblyName>MySqlBackupNet.DevartExpress</AssemblyName>
     <ApplicationIcon>logo.ico</ApplicationIcon>
@@ -13,14 +13,12 @@
     <Description>A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET. A special build for Devart Express (MySql) dotConnect.</Description>
     <Copyright>MySqlBackup.NET</Copyright>
     <PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
-    <PackageIcon>logo128.png</PackageIcon>
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>mysqlbackup;devart;mysql</PackageTags>
-    <Version>2.3.6.2</Version>
-    <AssemblyVersion>2.3.6.2</AssemblyVersion>
-    <FileVersion>2.3.6.2</FileVersion>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Version>2.3.7</Version>
+    <AssemblyVersion>2.3.7</AssemblyVersion>
+    <FileVersion>2.3.7</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
@@ -92,25 +90,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\Test_WinForm\Resources\logo128.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-    <None Include="bin\Release\README.md">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="dotConnect.Express.for.MySQL" Version="8.19.1985" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="logo128.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+    <PackageReference Include="dotConnect.Express.for.MySQL" Version="9.0.0" />
   </ItemGroup>
 
 </Project>

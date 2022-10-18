@@ -156,7 +156,7 @@ namespace MySqlConnector
             // therefore safely allow the use of user variables.  no one should be using
             // this connection while we are using it so we can temporarily tell it
             // to allow the use of user variables
-            bool allowUserVars = true;
+            //bool allowUserVars = true;
 
             try
             {

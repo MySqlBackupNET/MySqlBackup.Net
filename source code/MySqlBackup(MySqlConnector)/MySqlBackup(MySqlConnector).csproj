@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>NET48;NET472;NET461;NET452;netcoreapp2.1;netcoreapp3.1;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net471;net48;net481;netstandard2.0;netstandard2.1;netcoreapp3.1;net6.0;</TargetFrameworks>
     <RootNamespace>MySqlConnector</RootNamespace>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <Nullable>disable</Nullable>
@@ -12,17 +12,15 @@
     <Description>A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET. This library runs with MySqlConnector (MIT)</Description>
     <Copyright>Public Domain</Copyright>
     <PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
-    <PackageIcon>logo128.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</RepositoryUrl>
-    <Version>2.3.6.2</Version>
-    <AssemblyVersion>2.3.6.2</AssemblyVersion>
-    <FileVersion>2.3.6.2</FileVersion>
+    <Version>2.3.7</Version>
+    <AssemblyVersion>2.3.7</AssemblyVersion>
+    <FileVersion>2.3.7</FileVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyName>MySqlBackupNet.MySqlConnector</AssemblyName>
     <ApplicationIcon>logo.ico</ApplicationIcon>
     <PackageTags>mysqlbackup;mysqlconnector</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,18 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\Test_WinForm\Resources\logo128.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-    <None Include="bin\Release\README.md">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MySqlConnector" Version="1.3.13" />
+    <PackageReference Include="MySqlConnector" Version="2.1.13" />
   </ItemGroup>
 
 </Project>

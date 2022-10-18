@@ -43,7 +43,7 @@ namespace MySqlBackupTestApp
                 {
                     file = f.FileName;
                     byte[] ba = System.IO.File.ReadAllBytes(f.FileName);
-                    hash = System.Security.Cryptography.CryptoExpress.Sha256Hash(ba);
+                    hash = CryptoExpress.Sha256Hash(ba);
                     return true;
                 }
                 return false;

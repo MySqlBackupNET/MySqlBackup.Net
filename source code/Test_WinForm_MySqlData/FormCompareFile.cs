@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 
 namespace MySqlBackupTestApp
@@ -43,7 +44,8 @@ namespace MySqlBackupTestApp
                 {
                     file = f.FileName;
                     byte[] ba = System.IO.File.ReadAllBytes(f.FileName);
-                    hash = System.Security.Cryptography.CryptoExpress.Sha256Hash(ba);
+                    hash = System.CryptoExpress.Sha256Hash(ba);
+                    
                     return true;
                 }
                 return false;

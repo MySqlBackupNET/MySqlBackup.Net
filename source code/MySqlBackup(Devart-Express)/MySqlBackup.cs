@@ -1385,30 +1385,21 @@ namespace Devart.Data.MySql
                 ReportProgress();
                 if (ImportCompleted != null)
                 {
-                    ImportCompleteArgs.CompleteType completedType;
+                    MySqlBackup.ProcessEndType completedType = ProcessEndType.UnknownStatus;
                     switch (processCompletionType)
                     {
                         case ProcessEndType.Complete:
-                            completedType = ImportCompleteArgs.CompleteType.Completed;
+                            completedType = MySqlBackup.ProcessEndType.Complete;
                             break;
                         case ProcessEndType.Error:
-                            completedType = ImportCompleteArgs.CompleteType.Error;
+                            completedType = MySqlBackup.ProcessEndType.Error;
                             break;
                         case ProcessEndType.Cancelled:
-                            completedType = ImportCompleteArgs.CompleteType.Cancelled;
-                            break;
-                        default:
-                            completedType = ImportCompleteArgs.CompleteType.UnknownStatus;
+                            completedType = MySqlBackup.ProcessEndType.Cancelled;
                             break;
                     }
 
-                    ImportCompleteArgs arg = new ImportCompleteArgs()
-                    {
-                        LastError = _lastError,
-                        CompletedType = completedType,
-                        TimeStart = timeStart,
-                        TimeEnd = timeEnd,
-                    };
+                    ImportCompleteArgs arg = new ImportCompleteArgs(completedType, timeStart, timeEnd, _lastError);
                     ImportCompleted(this, arg);
                 }
             }

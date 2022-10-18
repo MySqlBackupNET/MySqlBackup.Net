@@ -1,12 +1,13 @@
-﻿using System;
+﻿using MySqlConnector;
+using System;
 using System.Windows.Forms;
 
 namespace MySqlBackupTestApp
 {
     static class Program
     {
-        public static string Version = "V2.3.6";
-        public static string DateVersion = "October 17, 2021";
+        public static string Version = MySqlBackup.Version;
+        public static string DateVersion = "October 18, 2022";
 
         private static string _connectionString = string.Empty;
 

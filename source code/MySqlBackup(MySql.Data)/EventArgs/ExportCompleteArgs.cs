@@ -6,11 +6,11 @@ namespace MySql.Data.MySqlClient
 {
     public class ExportCompleteArgs
     {
-        DateTime _timeStart, _timeEnd;
-        TimeSpan _timeUsed = new TimeSpan();
+        MySqlBackup.ProcessEndType _completionType;
+        DateTime _timeStart;
+        DateTime _timeEnd;
+        TimeSpan _timeUsed;
         Exception _exception;
-
-        MySqlBackup.ProcessEndType _completionType = MySqlBackup.ProcessEndType.UnknownStatus;
 
         /// <summary>
         /// The Starting time of export process.
@@ -25,14 +25,14 @@ namespace MySql.Data.MySqlClient
         /// <summary>
         /// Total time used in current export process.
         /// </summary>
-        public TimeSpan TimeUsed { get { return _timeUsed;}}
+        public TimeSpan TimeUsed { get { return _timeUsed; } }
 
         public MySqlBackup.ProcessEndType CompletionType { get { return _completionType; } }
 
         public Exception LastError { get { return _exception; } }
 
-        public bool HasError { get { if (LastError != null) return true; return false; } }
-        
+        public bool HasError { get { if (_exception != null) return true; return false; } }
+
         public ExportCompleteArgs(DateTime timeStart, DateTime timeEnd, MySqlBackup.ProcessEndType endType, Exception exception)
         {
             _completionType = endType;

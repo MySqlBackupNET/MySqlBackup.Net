@@ -92,7 +92,7 @@
                         <b>MySqlBackup.NET</b> is a C# open source MySQL database backup and restore tool. 
                     It is an alternative to MySqlDump.
                     It can be used in VB.NET projects too. 
-                    Official Project Site: <a href="https://github.com/MySqlBackupNET/MySqlBackup.Net">https://github.com/MySqlBackupNET/MySqlBackup.Net</a>
+                    Official Project Site: <a href="https://MySqlBackup.Net">https://MySqlBackup.Net</a>
                     </p>
                     <p>
                         Below is a simple demo for backing up and restoring a MySQL database:
@@ -112,7 +112,7 @@
                                     <td style="padding: 5px; border: 1px solid #465767;">
                                         <b>MySQL Connection String</b>:<br />
                                         <asp:TextBox ID="txtConnString" runat="server" Font-Names="Courier New" Width="90%"></asp:TextBox><br />
-                                        <i>Example: server=www.mywebsite.com;user=root;password=qwerty;database=test;allowzerodatetime=true;connectiontimeout=60;</i>
+                                        <i>Example: server=www.mywebsite.com;user=root;password=qwerty;database=test;allowzerodatetime=true;sslmode=none;</i>
                                         <br />
                                         <br />
                                         <table>
@@ -142,19 +142,12 @@
                     <strong>Notes</strong>:<br />
                     <ul class="tmo_list">
                         <li>All activities, inputs and outputs are not logged, saved and unable to be traced.</li>
-                        <li>Data transmission of this website is not 
-                            protected by secure connection (https).
-                            <br />
-                            Data sent and received in human readable clear text form without encryption.
-                            <br />
-                            You are advised not to use the service hosted here on your real and confidential website&#39;s database.
-                        </li>
                         <li>Below are some of the online <strong>FREE MySQL Hosting</strong>, you may use it for testing here.
                             <ul class="tmo_list">
                                 <li><a href="http://www.freesqldatabase.com/">FreeSQLDatabase (http://www.freesqldatabase.com/)</a></li>
                                 <li><a href="http://www.db4free.net/">db4free (http://www.db4free.net/)</a></li>
                                 <li><a href="http://www.freemysqlhosting.net/">Free MySQL Hosting (http://www.freemysqlhosting.net/)</a></li>
-                                <li><a href="http://www.freemysql.net/">FreeMySQL.NET (http://www.freemysql.net/)</a></li>
+                                <li><a href="https://remotemysql.com/">Free Remote MySQL (https://remotemysql.com/)</a></li>
                             </ul>
                         </li>
                         <li>The services hosted here are for testing purposes and for mini size of MySQL database only.

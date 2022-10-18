@@ -1,7 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.ComponentModel;
-using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 

@@ -67,8 +67,9 @@ namespace MySql.Data.MySqlClient
 
         public static long ExecuteScalarLong(MySqlCommand cmd, string sql)
         {
+            long l = 0;
             cmd.CommandText = sql;
-            long.TryParse(cmd.ExecuteScalar() + "", out var l);
+            long.TryParse(cmd.ExecuteScalar() + "", out l);
             return l;
         }
 
@@ -89,37 +90,37 @@ namespace MySql.Data.MySqlClient
             switch (c)
             {
                 case '\\': // Backslash
-                    sb.AppendFormat("\\\\");
+                    sb.Append("\\\\");
                     break;
                 case '\0': // Null
-                    sb.AppendFormat("\\0");
+                    sb.Append("\\0");
                     break;
                 case '\r': // Carriage return
-                    sb.AppendFormat("\\r");
+                    sb.Append("\\r");
                     break;
                 case '\n': // New Line
-                    sb.AppendFormat("\\n");
+                    sb.Append("\\n");
                     break;
-                //case '\a': // Vertical tab
-                //    builder.AppendFormat("\\a");
-                //    break;
+                case '\a': // Vertical tab
+                    sb.Append("\\a");
+                    break;
                 case '\b': // Backspace
-                    sb.AppendFormat("\\b");
+                    sb.Append("\\b");
                     break;
-                //case '\f': // Formfeed
-                //    builder.AppendFormat("\\f");
-                //    break;
-                //case '\t': // Horizontal tab
-                //    sb.AppendFormat("\\t");
-                //    break;
-                //case '\v': // Vertical tab
-                //    builder.AppendFormat("\\v");
-                //    break;
+                case '\f': // Formfeed
+                    sb.Append("\\f");
+                    break;
+                case '\t': // Horizontal tab
+                    sb.Append("\\t");
+                    break;
+                case '\v': // Vertical tab
+                    sb.Append("\\v");
+                    break;
                 case '\"': // Double quotation mark
-                    sb.AppendFormat("\\\"");
+                    sb.Append("\\\"");
                     break;
                 case '\'': // Single quotation mark
-                    sb.AppendFormat("''");
+                    sb.Append("''");
                     break;
                 default:
                     sb.Append(c);

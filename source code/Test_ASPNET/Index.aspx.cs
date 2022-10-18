@@ -1,9 +1,9 @@
-﻿using MySql.Data.MySqlClient;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Web.UI;
+using MySqlConnector;
 
 namespace MySqlBackupASPNET
 {

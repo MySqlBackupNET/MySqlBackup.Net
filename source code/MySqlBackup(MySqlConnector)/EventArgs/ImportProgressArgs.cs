@@ -8,6 +8,7 @@ namespace MySqlConnector
     {
         long _curBytes = 0L;
         long _totalBytes = 0L;
+        double _percentComplete = 0d;
 
         /// <summary>
         /// Number of processed bytes in current import process.
@@ -22,12 +23,21 @@ namespace MySqlConnector
         /// <summary>
         /// Percentage of completeness.
         /// </summary>
-        public int PercentageCompleted { get { return (int)(CurrentBytes *100L / TotalBytes); } }
+        public double PercentageCompleted { get { return _percentComplete; } }
 
         public ImportProgressArgs(long currentBytes, long totalBytes)
         {
             _curBytes = currentBytes;
             _totalBytes = totalBytes;
+
+            if (currentBytes == 0L || totalBytes == 0L)
+            {
+                _percentComplete = 0d;
+            }
+            else
+            {
+                _percentComplete = (double)currentBytes / (double)totalBytes * 100d;
+            }
         }
     }
 }

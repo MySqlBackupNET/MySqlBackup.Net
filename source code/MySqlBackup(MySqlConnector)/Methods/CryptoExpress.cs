@@ -29,44 +29,44 @@ namespace System.Security.Cryptography
             return new string(c);
         }
 
-        public static string RandomString(int size)
-        {
-            byte[] randBuffer = new byte[size + (10)];
-            RandomNumberGenerator.Create().GetBytes(randBuffer);
-            return System.Convert.ToBase64String(randBuffer).Replace("/", string.Empty).Replace("+", string.Empty).Replace("=", string.Empty).Remove(size);
-        }
+        //public static string RandomString(int size)
+        //{
+        //    byte[] randBuffer = new byte[size + (10)];
+        //    RandomNumberGenerator.Create().GetBytes(randBuffer);
+        //    return System.Convert.ToBase64String(randBuffer).Replace("/", string.Empty).Replace("+", string.Empty).Replace("=", string.Empty).Remove(size);
+        //}
 
-        public static string Sha128Hash(string input)
-        {
-            SHA1CryptoServiceProvider sha = new SHA1CryptoServiceProvider();
-            byte[] ba = Encoding.UTF8.GetBytes(input);
-            byte[] ba2 = sha.ComputeHash(ba);
-            sha = null;
-            return BitConverter.ToString(ba2).Replace("-", string.Empty).ToLower();
-        }
+        //public static string Sha128Hash(string input)
+        //{
+        //    SHA1CryptoServiceProvider sha = new SHA1CryptoServiceProvider();
+        //    byte[] ba = Encoding.UTF8.GetBytes(input);
+        //    byte[] ba2 = sha.ComputeHash(ba);
+        //    sha = null;
+        //    return BitConverter.ToString(ba2).Replace("-", string.Empty).ToLower();
+        //}
 
-        public static string Sha256Hash(string input)
-        {
-            byte[] ba = Encoding.UTF8.GetBytes(input);
-            return Sha256Hash(ba);
-        }   
+        //public static string Sha256Hash(string input)
+        //{
+        //    byte[] ba = Encoding.UTF8.GetBytes(input);
+        //    return Sha256Hash(ba);
+        //}   
 
-        public static string Sha256Hash(byte[] ba)
-        { 
-            SHA256Managed sha2 = new SHA256Managed();
-            byte[] ba2 = sha2.ComputeHash(ba);
-            sha2 = null;
-            return BitConverter.ToString(ba2).Replace("-", string.Empty).ToLower();
-        }
+        //public static string Sha256Hash(byte[] ba)
+        //{ 
+        //    SHA256Managed sha2 = new SHA256Managed();
+        //    byte[] ba2 = sha2.ComputeHash(ba);
+        //    sha2 = null;
+        //    return BitConverter.ToString(ba2).Replace("-", string.Empty).ToLower();
+        //}
 
-        public static string Sha512Hash(string input)
-        {
-            byte[] ba = Encoding.UTF8.GetBytes(input);
-            SHA512Managed sha5 = new SHA512Managed();
-            byte[] ba2 = sha5.ComputeHash(ba);
-            sha5 = null;
-            return BitConverter.ToString(ba2).Replace("-", string.Empty).ToLower();
-        }
+        //public static string Sha512Hash(string input)
+        //{
+        //    byte[] ba = Encoding.UTF8.GetBytes(input);
+        //    SHA512Managed sha5 = new SHA512Managed();
+        //    byte[] ba2 = sha5.ComputeHash(ba);
+        //    sha5 = null;
+        //    return BitConverter.ToString(ba2).Replace("-", string.Empty).ToLower();
+        //}
 
         //public static string AES_Encrypt(string input, string password)
         //{
