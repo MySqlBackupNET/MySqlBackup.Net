@@ -51,7 +51,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>logo.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BouncyCastle.Crypto, Version=1.9.0.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
@@ -369,7 +370,6 @@
     <None Include="Resources\disk_edit.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="logo.ico" />
     <None Include="Resources\logo128.png" />
     <None Include="Resources\q2.png" />
   </ItemGroup>
@@ -398,6 +398,9 @@
       <Project>{90412615-9eda-43e4-a704-ee08f5b62c5d}</Project>
       <Name>MySqlBackup%28MySql.Data%29</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="logo.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

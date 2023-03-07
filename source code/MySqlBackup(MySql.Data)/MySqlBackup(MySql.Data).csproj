@@ -14,20 +14,16 @@
     <PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</RepositoryUrl>
-    <Version>2.3.7</Version>
-    <AssemblyVersion>2.3.7</AssemblyVersion>
-    <FileVersion>2.3.7</FileVersion>
+    <Version>2.3.8</Version>
+    <AssemblyVersion>2.3.8</AssemblyVersion>
+    <FileVersion>2.3.8</FileVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyName>MySqlBackup</AssemblyName>
-    <ApplicationIcon>logo.ico</ApplicationIcon>
+    <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="logo.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MySql.Data" Version="8.0.31" />
+    <PackageReference Include="MySql.Data" Version="8.0.32" />
   </ItemGroup>
 
 </Project>

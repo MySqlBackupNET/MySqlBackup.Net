@@ -6,7 +6,7 @@
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <Nullable>disable</Nullable>
     <PackageId>MySqlBackup.NET.MySqlConnector</PackageId>
-    <Authors>Jean.R,adriancs</Authors>
+    <Authors>adriancs,Jean.R</Authors>
     <Company>MySqlBackup.NET</Company>
     <Product>MySqlBackup.NET for MySqlConnector</Product>
     <Description>A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET. This library runs with MySqlConnector (MIT)</Description>
@@ -14,21 +14,18 @@
     <PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</RepositoryUrl>
-    <Version>2.3.7</Version>
-    <AssemblyVersion>2.3.7</AssemblyVersion>
-    <FileVersion>2.3.7</FileVersion>
+    <Version>2.3.8</Version>
+    <AssemblyVersion>2.3.8</AssemblyVersion>
+    <FileVersion>2.3.8</FileVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyName>MySqlBackupNet.MySqlConnector</AssemblyName>
-    <ApplicationIcon>logo.ico</ApplicationIcon>
     <PackageTags>mysqlbackup;mysqlconnector</PackageTags>
+    <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+    <Title>MySqlBackup.NET for MySqlConnector</Title>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="logo.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MySqlConnector" Version="2.1.13" />
+    <PackageReference Include="MySqlConnector" Version="2.2.5" />
   </ItemGroup>
 
 </Project>
