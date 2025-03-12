@@ -6,7 +6,7 @@ namespace MySqlBackupTestApp
     static class Program
     {
         public static string Version = Devart.Data.MySql.MySqlBackup.Version;
-        public static string DateVersion = "October 18, 2022";
+        public static string DateVersion = "March 12, 2025";
 
         private static string _connectionString = string.Empty;
 

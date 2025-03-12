@@ -1,4 +1,4 @@
-﻿namespace MySqlConnector.InfoObjects
+﻿namespace Devart.Data.MySql.InfoObjects
 {
     public class ColumnWithValue
     {

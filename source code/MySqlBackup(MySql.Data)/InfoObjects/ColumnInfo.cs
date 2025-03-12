@@ -1,4 +1,4 @@
-﻿namespace MySqlConnector.InfoObjects
+﻿namespace MySql.Data.MySqlClient.InfoObjects
 {
     public class ColumnWithValue
     {

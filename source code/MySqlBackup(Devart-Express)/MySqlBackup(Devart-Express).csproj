@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net46;net47;net48;net481</TargetFrameworks>
+    <TargetFrameworks>net40;net45;net46;net47;net48;net481</TargetFrameworks>
     <RootNamespace>Devart.Data.MySql</RootNamespace>
     <AssemblyName>MySqlBackupNet.DevartExpress</AssemblyName>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -15,10 +15,11 @@
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>mysqlbackup;devart;mysql</PackageTags>
-    <Version>2.3.8</Version>
-    <AssemblyVersion>2.3.8</AssemblyVersion>
-    <FileVersion>2.3.8</FileVersion>
+    <Version>2.3.9</Version>
+    <AssemblyVersion>2.3.9</AssemblyVersion>
+    <FileVersion>2.3.9</FileVersion>
     <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+    <Title>MySqlBackup.Net for dotConnect.Express.for.MySQL (Devart)</Title>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
@@ -86,7 +87,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="dotConnect.Express.for.MySQL" Version="9.1.134" />
+    <PackageReference Include="dotConnect.Express.for.MySQL" Version="9.4.193" />
   </ItemGroup>
 
 </Project>

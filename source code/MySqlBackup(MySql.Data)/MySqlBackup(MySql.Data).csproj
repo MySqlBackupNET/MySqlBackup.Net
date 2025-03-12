@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48;net481;netstandard2.0;netstandard2.1;net6.0;</TargetFrameworks>
+	<TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0;</TargetFrameworks>
 	<RootNamespace>MySql.Data.Client</RootNamespace>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <Nullable>disable</Nullable>
@@ -14,16 +14,17 @@
     <PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</RepositoryUrl>
-    <Version>2.3.8</Version>
-    <AssemblyVersion>2.3.8</AssemblyVersion>
-    <FileVersion>2.3.8</FileVersion>
+    <Version>2.3.9</Version>
+    <AssemblyVersion>2.3.9</AssemblyVersion>
+    <FileVersion>2.3.9</FileVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyName>MySqlBackup</AssemblyName>
     <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+    <Title>MySqlBackup.NET for mysql.data (oracle)</Title>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MySql.Data" Version="8.0.32" />
+    <PackageReference Include="MySql.Data" Version="9.2.0" />
   </ItemGroup>
 
 </Project>

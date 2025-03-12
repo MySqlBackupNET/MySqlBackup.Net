@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Timers;
+using MySql.Data.MySqlClient.InfoObjects;
 
 namespace MySql.Data.MySqlClient
 {
@@ -804,8 +805,15 @@ namespace MySql.Data.MySqlClient
                 object ob = rdr[i];
                 var col = table.Columns[columnName];
 
+                var adjustedValue = ExportInfo.AdjustColumnValue(new InfoObjects.ColumnWithValue
+                {
+                    TableName = table.Name,
+                    Value = ob,
+                    ColumnName = columnName,
+                    MySqlDataType = col.MySqlDataType
+                });
                 //sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
-                sb.Append(QueryExpress.ConvertToSqlFormat(ob, true, true, col, ExportInfo.BlobExportMode));
+                sb.Append(QueryExpress.ConvertToSqlFormat(adjustedValue, true, true, col, ExportInfo.BlobExportMode));
             }
 
             sb.AppendFormat(")");
@@ -832,8 +840,16 @@ namespace MySql.Data.MySqlClient
                     sb.Append("`");
                     sb.Append(colName);
                     sb.Append("`=");
+
+                    var adjustedValue = ExportInfo.AdjustColumnValue(new InfoObjects.ColumnWithValue
+                    {
+                        TableName = table.Name,
+                        Value = rdr[i],
+                        ColumnName = colName,
+                        MySqlDataType = col.MySqlDataType
+                    });
                     //sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
-                    sb.Append(QueryExpress.ConvertToSqlFormat(rdr[i], true, true, col, ExportInfo.BlobExportMode));
+                    sb.Append(QueryExpress.ConvertToSqlFormat(adjustedValue, true, true, col, ExportInfo.BlobExportMode));
                 }
             }
         }
@@ -858,8 +874,16 @@ namespace MySql.Data.MySqlClient
                     sb.Append("`");
                     sb.Append(colName);
                     sb.Append("`=");
+
+                    var adjustedValue = ExportInfo.AdjustColumnValue(new InfoObjects.ColumnWithValue
+                    {
+                        TableName = table.Name,
+                        Value = rdr[i],
+                        ColumnName = colName,
+                        MySqlDataType = col.MySqlDataType
+                    });
                     //sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
-                    sb.Append(QueryExpress.ConvertToSqlFormat(rdr[i], true, true, col, ExportInfo.BlobExportMode));
+                    sb.Append(QueryExpress.ConvertToSqlFormat(adjustedValue, true, true, col, ExportInfo.BlobExportMode));
                 }
             }
         }

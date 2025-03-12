@@ -2,7 +2,7 @@
 {
     public class MySqlFunction
     {
-        string _name = string.Empty;
+        string _name;
         string _createFunctionSQL = string.Empty;
         string _createFunctionSqlWithoutDefiner = string.Empty;
 

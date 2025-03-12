@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient.InfoObjects;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -266,6 +267,11 @@ namespace MySql.Data.MySqlClient
         /// Gets or Sets a value indicates whether line breaks should be added in between multiple INSERTs.
         /// </summary>
         public bool InsertLineBreakBetweenInserts = false;
+
+        /// <summary>
+        /// Returns the row's default column value. Set this value if you wish to change the row's column value before exporting.
+        /// </summary>
+        public Func<ColumnWithValue, object> AdjustColumnValue = (ColumnWithValue columnInfo) => columnInfo.Value;
 
         public ExportInformations()
         {

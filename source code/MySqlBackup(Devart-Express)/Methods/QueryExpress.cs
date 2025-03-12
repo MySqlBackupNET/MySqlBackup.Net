@@ -310,64 +310,54 @@ namespace Devart.Data.MySql
                 if (wrapStringWithSingleQuote)
                     sb.AppendFormat("'");
             }
-            //else if (ob is MySql.Data.Types.MySqlDateTime)
+            //else if (ob is MySqlDateTime mdt)
             //{
-            //    MySql.Data.Types.MySqlDateTime mdt = (MySql.Data.Types.MySqlDateTime)ob;
-
-            //    if (mdt.IsNull)
+            //    if (mdt.IsValidDateTime)
             //    {
-            //        sb.AppendFormat("NULL");
+            //        DateTime dtime = mdt.GetDateTime();
+
+            //        if (wrapStringWithSingleQuote)
+            //            sb.AppendFormat("'");
+
+            //        if (col.MySqlDataType == "datetime")
+            //            sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
+            //        else if (col.MySqlDataType == "date")
+            //            sb.AppendFormat(dtime.ToString("yyyy-MM-dd", _dateFormatInfo));
+            //        else if (col.MySqlDataType == "time")
+            //            sb.AppendFormat("{0}:{1}:{2}", mdt.Hour, mdt.Minute, mdt.Second);
+            //        else
+            //            sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
+
+            //        if (col.TimeFractionLength > 0)
+            //        {
+            //            sb.Append(".");
+            //            sb.Append(((MySqlDateTime)ob).Microsecond.ToString().PadLeft(col.TimeFractionLength, '0'));
+            //        }
+
+            //        if (wrapStringWithSingleQuote)
+            //            sb.AppendFormat("'");
             //    }
             //    else
             //    {
-            //        if (mdt.IsValidDateTime)
-            //        {
-            //            DateTime dtime = mdt.Value;
+            //        if (wrapStringWithSingleQuote)
+            //            sb.AppendFormat("'");
 
-            //            if (wrapStringWithSingleQuote)
-            //                sb.AppendFormat("'");
-
-            //            if (col.MySqlDataType == "datetime")
-            //                sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
-            //            else if (col.MySqlDataType == "date")
-            //                sb.AppendFormat(dtime.ToString("yyyy-MM-dd", _dateFormatInfo));
-            //            else if (col.MySqlDataType == "time")
-            //                sb.AppendFormat("{0}:{1}:{2}", mdt.Hour, mdt.Minute, mdt.Second);
-            //            //sb.AppendFormat(dtime.ToString("HH:mm:ss", _dateFormatInfo));
-            //            else
-            //                sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
-
-            //            if (col.TimeFractionLength > 0)
-            //            {
-            //                sb.Append(".");
-            //                sb.Append(((MySql.Data.Types.MySqlDateTime)ob).Microsecond.ToString().PadLeft(col.TimeFractionLength, '0'));
-            //            }
-
-            //            if (wrapStringWithSingleQuote)
-            //                sb.AppendFormat("'");
-            //        }
+            //        if (col.MySqlDataType == "datetime")
+            //            sb.AppendFormat("0000-00-00 00:00:00");
+            //        else if (col.MySqlDataType == "date")
+            //            sb.AppendFormat("0000-00-00");
+            //        else if (col.MySqlDataType == "time")
+            //            sb.AppendFormat("00:00:00");
             //        else
+            //            sb.AppendFormat("0000-00-00 00:00:00");
+
+            //        if (col.TimeFractionLength > 0)
             //        {
-            //            if (wrapStringWithSingleQuote)
-            //                sb.AppendFormat("'");
-
-            //            if (col.MySqlDataType == "datetime")
-            //                sb.AppendFormat("0000-00-00 00:00:00");
-            //            else if (col.MySqlDataType == "date")
-            //                sb.AppendFormat("0000-00-00");
-            //            else if (col.MySqlDataType == "time")
-            //                sb.AppendFormat("00:00:00");
-            //            else
-            //                sb.AppendFormat("0000-00-00 00:00:00");
-
-            //            if (col.TimeFractionLength > 0)
-            //            {
-            //                sb.Append(".".PadRight(col.TimeFractionLength, '0'));
-            //            }
-
-            //            if (wrapStringWithSingleQuote)
-            //                sb.AppendFormat("'");
+            //            sb.Append(".".PadRight(col.TimeFractionLength, '0'));
             //        }
+
+            //        if (wrapStringWithSingleQuote)
+            //            sb.AppendFormat("'");
             //    }
             //}
             else if (ob is System.Guid)
