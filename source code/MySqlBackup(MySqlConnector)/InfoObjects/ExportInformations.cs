@@ -19,7 +19,8 @@ namespace MySqlConnector
         Dictionary<string, string> _customTable = new Dictionary<string, string>();
 
         List<string> _lstExcludeTables = null;
-        
+        List<string> _lstExcludeRowsForTables = null;
+
         /// <summary>
         /// Gets or Sets the tables (black list) that will be excluded for export. The rows of the these tables will not be exported too.
         /// </summary>
@@ -34,6 +35,23 @@ namespace MySqlConnector
             set
             {
                 _lstExcludeTables = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or Sets the tables (black list) that will be excluded for row export.
+        /// </summary>
+        public List<string> ExcludeRowsForTables
+        {
+            get
+            {
+                if (_lstExcludeRowsForTables == null)
+                    _lstExcludeRowsForTables = new List<string>();
+                return _lstExcludeRowsForTables;
+            }
+            set
+            {
+                _lstExcludeRowsForTables = value;
             }
         }
 
