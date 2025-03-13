@@ -4,6 +4,9 @@ A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET.
 
 Runs on MySql.Data.DLL, MySqlConnector.DLL and Devart.Express.MySql.DLL
 
+Latest Release/Version: March 13, 2025 (v2.3.9)<br />
+Change Log: https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/Change-Log
+
 ## How to Add This Library into Your Project
 Read [this wiki: How to Add This Library into Your Project](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/How-to-Add-This-Library-into-Your-Project)
 
