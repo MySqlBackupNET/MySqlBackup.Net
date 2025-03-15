@@ -381,7 +381,8 @@ namespace MySqlConnector
                     if (ExportInfo.ExportTableStructure)
                         Export_TableStructure(tableName);
 
-                    if (ExportInfo.ExportRows)
+                    var excludeRows = Export_ThisRowForTableIsExcluded(tableName);
+                    if (ExportInfo.ExportRows && !excludeRows)
                         Export_Rows(tableName, selectSQL);
                 }
             }
@@ -392,6 +393,19 @@ namespace MySqlConnector
             string tableNameLower = tableName.ToLower();
 
             foreach (string blacklistedTable in ExportInfo.ExcludeTables)
+            {
+                if (blacklistedTable.ToLower() == tableNameLower)
+                    return true;
+            }
+
+            return false;
+        }
+
+        bool Export_ThisRowForTableIsExcluded(string tableName)
+        {
+            var tableNameLower = tableName.ToLower();
+
+            foreach (var blacklistedTable in ExportInfo.ExcludeRowsForTables)
             {
                 if (blacklistedTable.ToLower() == tableNameLower)
                     return true;
