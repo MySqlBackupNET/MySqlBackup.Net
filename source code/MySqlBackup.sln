@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySqlBackup(MySqlConnector)
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_WinForm_MySqlData", "Test_WinForm_MySqlData\Test_WinForm_MySqlData.csproj", "{0C44B679-BC54-4818-9E77-6BE2C14E680B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backup-All-Databases", "Backup-All-Databases\Backup-All-Databases.csproj", "{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,14 @@ Global
 		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
 		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
+		{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
+		{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}.NET20|Any CPU.Build.0 = Debug|Any CPU
+		{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
+		{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
