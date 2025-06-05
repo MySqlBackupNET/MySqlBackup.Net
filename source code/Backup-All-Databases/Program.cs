@@ -29,7 +29,7 @@ namespace Backup_All_Databases
             {
                 foreach (string arg in args)
                 {
-                    if (arg.ToUpper() == "\\SILENT")
+                    if (arg.ToUpper() == "/SILENT")
                     {
                         try
                         {
