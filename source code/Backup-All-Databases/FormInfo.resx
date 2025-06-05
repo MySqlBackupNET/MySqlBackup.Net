@@ -134,6 +134,10 @@ Notes:
    current user that used to save the config data.
 3. If this program is used with Task Scheduler (which is highly recommended),
    use the same "user" as you've login now.
+4. If you are manually creating the Task Scheduler, add the argument/switch of 
+   "/SILENT" to automatically run the task in background.
+5. A log file is generated in each backup folder.
+6. A backup folder is created with the timestamp as the folder name.
 
 Thank you and happy coding.</value>
   </data>

@@ -40,18 +40,19 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox1.Size = new System.Drawing.Size(605, 358);
+            this.textBox1.Size = new System.Drawing.Size(609, 398);
             this.textBox1.TabIndex = 0;
             this.textBox1.Text = resources.GetString("textBox1.Text");
             // 
             // FormInfo
             // 
-            this.ClientSize = new System.Drawing.Size(605, 358);
+            this.ClientSize = new System.Drawing.Size(609, 398);
             this.Controls.Add(this.textBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FormInfo";
+            this.ShowInTaskbar = false;
             this.Text = "Info";
             this.Load += new System.EventHandler(this.FormInfo_Load);
             this.ResumeLayout(false);

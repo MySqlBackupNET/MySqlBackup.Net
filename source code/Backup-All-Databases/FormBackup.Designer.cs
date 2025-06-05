@@ -105,6 +105,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FormBackup";
+            this.ShowInTaskbar = false;
             this.Text = "Backup";
             this.Load += new System.EventHandler(this.FormBackup_Load);
             this.ResumeLayout(false);
