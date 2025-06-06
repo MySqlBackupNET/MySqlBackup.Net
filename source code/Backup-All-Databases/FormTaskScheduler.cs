@@ -152,7 +152,7 @@ namespace Backup_All_Databases
                 Label label = new Label() { Left = 20, Top = 20, Text = "Windows Current Username:", AutoSize = true };
                 TextBox textBoxUsername = new TextBox() { Left = 20, Top = 40, Width = 240 };
                 textBoxUsername.Text = GetUsername();
-                Label labelpwd = new Label() { Left = 20, Top = 80, Text = "User Login Password:", AutoSize = true };
+                Label labelpwd = new Label() { Left = 20, Top = 80, Text = "Windows User Login Password:", AutoSize = true };
                 TextBox textBoxPwd = new TextBox() { Left = 20, Top = 100, Width = 240, UseSystemPasswordChar = true };
                 Button ok = new Button() { Text = "OK", Left = 20, Top = 140, Width = 100, Height = 30, DialogResult = DialogResult.OK };
                 Button cancel = new Button() { Text = "Cancel", Left = 130, Top = 140, Width = 100, Height = 30, DialogResult = DialogResult.Cancel };

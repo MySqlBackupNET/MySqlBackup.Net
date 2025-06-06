@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Security.Principal; // For NTFS permissions
 using System.Security.AccessControl; // For NTFS permissions
+using System.Drawing.Text;
 //using MySqlConnector;
 //using System.Data;
 //using System.Diagnostics;
@@ -18,9 +19,11 @@ namespace Backup_All_Databases
 {
     internal static class Program
     {
-        public static string ConfigFilePath => Path.Combine(Application.StartupPath, "config.dat");
-        public static string KeyFilePath => Path.Combine(Application.StartupPath, "kdac.bin");
-        public static string saltFilePath => Path.Combine(Application.StartupPath, "salt.bin");
+        internal static PrivateFontCollection myFontCollection = new PrivateFontCollection();
+
+        internal static string ConfigFilePath => Path.Combine(Application.StartupPath, "config.dat");
+        internal static string KeyFilePath => Path.Combine(Application.StartupPath, "kdac.bin");
+        internal static string saltFilePath => Path.Combine(Application.StartupPath, "salt.bin");
 
         [STAThread]
         static void Main(string[] args)
@@ -50,6 +53,9 @@ namespace Backup_All_Databases
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            myFontCollection.AddFontFile(Path.Combine(Application.StartupPath, "CascadiaCode.ttf"));
+
             Application.Run(new Form1());
         }
 
