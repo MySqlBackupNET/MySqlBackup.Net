@@ -79,20 +79,25 @@ namespace Backup_All_Databases
 
             try
             {
+                // Prompt for admin credentials to allow task to run whether user is logged on or not
+                (string adminUser, string adminPassword) = PromptForUsername();
+
+                if (string.IsNullOrEmpty(adminUser))
+                {
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(adminPassword))
+                {
+                    MessageBox.Show("Admin username and password are required to run the task whether logged on or not.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 // Load the config to get the backup time
                 Config config = Program.ReadConfigFile(false);
                 if (config == null)
                 {
                     MessageBox.Show("No configuration found. Please save settings first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Prompt for admin credentials to allow task to run whether user is logged on or not
-                (string adminUser, string adminPassword) = PromptForUsername();
-
-                if (string.IsNullOrEmpty(adminUser) || string.IsNullOrEmpty(adminPassword))
-                {
-                    MessageBox.Show("Admin username and password are required to run the task whether logged on or not.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
@@ -171,6 +176,8 @@ namespace Backup_All_Databases
                     password = textBoxPwd.Text.Trim();
                 }
             }
+            if (username == "")
+                return (null, null);
             return (username, password);
         }
 
