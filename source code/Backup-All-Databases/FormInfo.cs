@@ -18,6 +18,7 @@ namespace Backup_All_Databases
         private void FormInfo_Load(object sender, EventArgs e)
         {
             textBox1.Select(0, 0);
+            textBox1.AppendText(Environment.NewLine + Environment.NewLine + "Current loaded font: " + this.Font.Name);
         }
     }
 }

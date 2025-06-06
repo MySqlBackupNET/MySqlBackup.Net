@@ -130,14 +130,12 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox1.Controls.Add(this.btIncludeClear);
             this.groupBox1.Controls.Add(this.btIncludeSelectAll);
             this.groupBox1.Controls.Add(this.checkedListIncludeDatabases);
             this.groupBox1.Location = new System.Drawing.Point(12, 206);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(400, 483);
+            this.groupBox1.Size = new System.Drawing.Size(400, 449);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Include Databases";
@@ -166,26 +164,23 @@
             // 
             // checkedListIncludeDatabases
             // 
-            this.checkedListIncludeDatabases.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.checkedListIncludeDatabases.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.checkedListIncludeDatabases.FormattingEnabled = true;
             this.checkedListIncludeDatabases.Location = new System.Drawing.Point(6, 52);
             this.checkedListIncludeDatabases.Name = "checkedListIncludeDatabases";
-            this.checkedListIncludeDatabases.Size = new System.Drawing.Size(388, 420);
+            this.checkedListIncludeDatabases.Size = new System.Drawing.Size(388, 388);
             this.checkedListIncludeDatabases.TabIndex = 0;
             this.checkedListIncludeDatabases.SelectedIndexChanged += new System.EventHandler(this.checkedListIncludeDatabases_SelectedIndexChanged);
             // 
             // groupBox2
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox2.Controls.Add(this.btExcludeClear);
             this.groupBox2.Controls.Add(this.btExcludeSelectAll);
             this.groupBox2.Controls.Add(this.checkedListExcludeDatabases);
             this.groupBox2.Location = new System.Drawing.Point(419, 206);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(400, 483);
+            this.groupBox2.Size = new System.Drawing.Size(400, 449);
             this.groupBox2.TabIndex = 6;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Exclude Databases";
@@ -214,13 +209,12 @@
             // 
             // checkedListExcludeDatabases
             // 
-            this.checkedListExcludeDatabases.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.checkedListExcludeDatabases.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.checkedListExcludeDatabases.FormattingEnabled = true;
             this.checkedListExcludeDatabases.Location = new System.Drawing.Point(6, 52);
             this.checkedListExcludeDatabases.Name = "checkedListExcludeDatabases";
-            this.checkedListExcludeDatabases.Size = new System.Drawing.Size(388, 420);
+            this.checkedListExcludeDatabases.Size = new System.Drawing.Size(388, 388);
             this.checkedListExcludeDatabases.TabIndex = 1;
             this.checkedListExcludeDatabases.SelectedIndexChanged += new System.EventHandler(this.checkedListExcludeDatabases_SelectedIndexChanged);
             // 
@@ -410,7 +404,7 @@
             // Form1
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(844, 701);
+            this.ClientSize = new System.Drawing.Size(844, 661);
             this.Controls.Add(this.btInfo);
             this.Controls.Add(this.btDeleteConfig);
             this.Controls.Add(this.lbNextBackup);

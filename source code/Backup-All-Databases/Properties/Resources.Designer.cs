@@ -59,15 +59,5 @@ namespace Backup_All_Databases.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] CascadiaCode {
-            get {
-                object obj = ResourceManager.GetObject("CascadiaCode", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
     }
 }

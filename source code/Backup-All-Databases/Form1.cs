@@ -205,13 +205,18 @@ namespace Backup_All_Databases
         {
             try
             {
+                string timenow = "";
                 using (MySqlConnection conn = new MySqlConnection(txtConnString.Text))
                 {
                     conn.Open();
+                    MySqlCommand cmd = new MySqlCommand();
+                    cmd.Connection = conn;
+                    cmd.CommandText = "select now();";
+                    timenow = cmd.ExecuteScalar() + "";
                     conn.Close();
                 }
 
-                MessageBox.Show("Connection success!", "Good", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Connection success!\r\n\r\n" + timenow, "Good", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
