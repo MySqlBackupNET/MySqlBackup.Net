@@ -69,6 +69,11 @@ namespace MySqlConnector
         MySqlScript _mySqlScript = null;
         string _delimiter = string.Empty;
 
+        // for used of AdjustedColumnValue
+        bool _hasAdjustedValueRule = false;
+        bool _currentTableHasAdjustedValueRule = false;
+        Dictionary<string, Func<object, object>> _currentTableColumnValueAdjustment = null;
+
         enum NextImportAction
         {
             Ignore,
@@ -290,6 +295,7 @@ namespace MySqlConnector
 
             _database.GetDatabaseInfo(Command, ExportInfo.GetTotalRowsMode);
             _server.GetServerInfo(Command);
+            _hasAdjustedValueRule = ExportInfo.TableColumnValueAdjustments != null;
             _currentTableName = string.Empty;
             _totalRowsInCurrentTable = 0L;
             _totalRowsInAllTables = Export_GetTablesToBeExported()
@@ -571,6 +577,20 @@ namespace MySqlConnector
         {
             _currentRowIndexInCurrentTable = 0L;
 
+            if (_hasAdjustedValueRule)
+            {
+                if (ExportInfo.TableColumnValueAdjustments.ContainsKey(tableName))
+                {
+                    _currentTableHasAdjustedValueRule = true;
+                    _currentTableColumnValueAdjustment = ExportInfo.TableColumnValueAdjustments[tableName];
+                }
+                else
+                {
+                    _currentTableHasAdjustedValueRule = false;
+                    _currentTableColumnValueAdjustment = null;
+                }
+            }
+
             if (ExportInfo.RowsExportMode == RowsDataExportMode.Insert ||
                 ExportInfo.RowsExportMode == RowsDataExportMode.InsertIgnore ||
                 ExportInfo.RowsExportMode == RowsDataExportMode.Replace)
@@ -818,15 +838,12 @@ namespace MySqlConnector
                 object ob = rdr[i];
                 var col = table.Columns[columnName];
 
-                var adjustedValue = ExportInfo.AdjustColumnValue(new InfoObjects.ColumnWithValue
+                if (_currentTableHasAdjustedValueRule && _currentTableColumnValueAdjustment.TryGetValue(columnName, out var adjustFunc))
                 {
-                    TableName = table.Name,
-                    Value = ob,
-                    ColumnName = columnName,
-                    MySqlDataType = col.MySqlDataType
-                });
-                //sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
-                sb.Append(QueryExpress.ConvertToSqlFormat(adjustedValue, true, true, col, ExportInfo.BlobExportMode));
+                    ob = adjustFunc(ob);
+                }
+
+                sb.Append(QueryExpress.ConvertToSqlFormat(ob, true, true, col, ExportInfo.BlobExportMode));
             }
 
             sb.AppendFormat(")");
@@ -839,9 +856,9 @@ namespace MySqlConnector
 
             for (int i = 0; i < rdr.FieldCount; i++)
             {
-                string colName = rdr.GetName(i);
+                string columnName = rdr.GetName(i);
 
-                var col = table.Columns[colName];
+                var col = table.Columns[columnName];
 
                 if (!col.IsPrimaryKey)
                 {
@@ -851,18 +868,18 @@ namespace MySqlConnector
                         sb.Append(",");
 
                     sb.Append("`");
-                    sb.Append(colName);
+                    sb.Append(columnName);
                     sb.Append("`=");
 
-                    var adjustedValue = ExportInfo.AdjustColumnValue(new InfoObjects.ColumnWithValue
+                    var ob = rdr[i];
+
+                    if (_currentTableHasAdjustedValueRule && _currentTableColumnValueAdjustment.TryGetValue(columnName, out var adjustFunc))
                     {
-                        TableName = table.Name,
-                        Value = rdr[i],
-                        ColumnName = colName,
-                        MySqlDataType = col.MySqlDataType
-                    });
+                        ob = adjustFunc(ob);
+                    }
+
                     //sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
-                    sb.Append(QueryExpress.ConvertToSqlFormat(adjustedValue, true, true, col, ExportInfo.BlobExportMode));
+                    sb.Append(QueryExpress.ConvertToSqlFormat(ob, true, true, col, ExportInfo.BlobExportMode));
                 }
             }
         }
@@ -873,9 +890,9 @@ namespace MySqlConnector
 
             for (int i = 0; i < rdr.FieldCount; i++)
             {
-                string colName = rdr.GetName(i);
+                string columnName = rdr.GetName(i);
 
-                var col = table.Columns[colName];
+                var col = table.Columns[columnName];
 
                 if (col.IsPrimaryKey)
                 {
@@ -885,18 +902,18 @@ namespace MySqlConnector
                         sb.Append(" and ");
 
                     sb.Append("`");
-                    sb.Append(colName);
+                    sb.Append(columnName);
                     sb.Append("`=");
 
-                    var adjustedValue = ExportInfo.AdjustColumnValue(new InfoObjects.ColumnWithValue
+                    var ob = rdr[i];
+
+                    if (_currentTableHasAdjustedValueRule && _currentTableColumnValueAdjustment.TryGetValue(columnName, out var adjustFunc))
                     {
-                        TableName = table.Name,
-                        Value = rdr[i],
-                        ColumnName = colName,
-                        MySqlDataType = col.MySqlDataType
-                    });
+                        ob = adjustFunc(ob);
+                    }
+
                     //sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
-                    sb.Append(QueryExpress.ConvertToSqlFormat(adjustedValue, true, true, col, ExportInfo.BlobExportMode));
+                    sb.Append(QueryExpress.ConvertToSqlFormat(ob, true, true, col, ExportInfo.BlobExportMode));
                 }
             }
         }

@@ -14,9 +14,9 @@
     <PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</RepositoryUrl>
-    <Version>2.3.9</Version>
-    <AssemblyVersion>2.3.9</AssemblyVersion>
-    <FileVersion>2.3.9</FileVersion>
+    <Version>2.3.10</Version>
+    <AssemblyVersion>2.3.10</AssemblyVersion>
+    <FileVersion>2.3.10</FileVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <AssemblyName>MySqlBackup</AssemblyName>
     <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MySql.Data" Version="9.2.0" />
+    <PackageReference Include="MySql.Data" Version="9.3.0" />
   </ItemGroup>
 
 </Project>

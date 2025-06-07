@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Timers;
-using Devart.Data.MySql.InfoObjects;
 
 namespace Devart.Data.MySql
 {
@@ -69,6 +68,11 @@ namespace Devart.Data.MySql
         StringBuilder _sbImport = null;
         MySqlScript _mySqlScript = null;
         string _delimiter = string.Empty;
+
+        // for used of AdjustedColumnValue
+        bool _hasAdjustedValueRule = false;
+        bool _currentTableHasAdjustedValueRule = false;
+        Dictionary<string, Func<object, object>> _currentTableColumnValueAdjustment = null;
 
         enum NextImportAction
         {
@@ -291,6 +295,7 @@ namespace Devart.Data.MySql
 
             _database.GetDatabaseInfo(Command, ExportInfo.GetTotalRowsMode);
             _server.GetServerInfo(Command);
+            _hasAdjustedValueRule = ExportInfo.TableColumnValueAdjustments != null;
             _currentTableName = string.Empty;
             _totalRowsInCurrentTable = 0L;
             _totalRowsInAllTables = Export_GetTablesToBeExported()
@@ -382,7 +387,8 @@ namespace Devart.Data.MySql
                     if (ExportInfo.ExportTableStructure)
                         Export_TableStructure(tableName);
 
-                    if (ExportInfo.ExportRows)
+                    var excludeRows = Export_ThisRowForTableIsExcluded(tableName);
+                    if (ExportInfo.ExportRows && !excludeRows)
                         Export_Rows(tableName, selectSQL);
                 }
             }
@@ -393,6 +399,19 @@ namespace Devart.Data.MySql
             string tableNameLower = tableName.ToLower();
 
             foreach (string blacklistedTable in ExportInfo.ExcludeTables)
+            {
+                if (blacklistedTable.ToLower() == tableNameLower)
+                    return true;
+            }
+
+            return false;
+        }
+
+        bool Export_ThisRowForTableIsExcluded(string tableName)
+        {
+            var tableNameLower = tableName.ToLower();
+
+            foreach (var blacklistedTable in ExportInfo.ExcludeRowsForTables)
             {
                 if (blacklistedTable.ToLower() == tableNameLower)
                     return true;
@@ -557,6 +576,20 @@ namespace Devart.Data.MySql
         void Export_RowsData(string tableName, string selectSQL)
         {
             _currentRowIndexInCurrentTable = 0L;
+
+            if (_hasAdjustedValueRule)
+            {
+                if (ExportInfo.TableColumnValueAdjustments.ContainsKey(tableName))
+                {
+                    _currentTableHasAdjustedValueRule = true;
+                    _currentTableColumnValueAdjustment = ExportInfo.TableColumnValueAdjustments[tableName];
+                }
+                else
+                {
+                    _currentTableHasAdjustedValueRule = false;
+                    _currentTableColumnValueAdjustment = null;
+                }
+            }
 
             if (ExportInfo.RowsExportMode == RowsDataExportMode.Insert ||
                 ExportInfo.RowsExportMode == RowsDataExportMode.InsertIgnore ||
@@ -805,15 +838,12 @@ namespace Devart.Data.MySql
                 object ob = rdr[i];
                 var col = table.Columns[columnName];
 
-                var adjustedValue = ExportInfo.AdjustColumnValue(new InfoObjects.ColumnWithValue
+                if (_currentTableHasAdjustedValueRule && _currentTableColumnValueAdjustment.TryGetValue(columnName, out var adjustFunc))
                 {
-                    TableName = table.Name,
-                    Value = ob,
-                    ColumnName = columnName,
-                    MySqlDataType = col.MySqlDataType
-                });
-                //sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
-                sb.Append(QueryExpress.ConvertToSqlFormat(adjustedValue, true, true, col, ExportInfo.BlobExportMode));
+                    ob = adjustFunc(ob);
+                }
+
+                sb.Append(QueryExpress.ConvertToSqlFormat(ob, true, true, col, ExportInfo.BlobExportMode));
             }
 
             sb.AppendFormat(")");
@@ -826,9 +856,9 @@ namespace Devart.Data.MySql
 
             for (int i = 0; i < rdr.FieldCount; i++)
             {
-                string colName = rdr.GetName(i);
+                string columnName = rdr.GetName(i);
 
-                var col = table.Columns[colName];
+                var col = table.Columns[columnName];
 
                 if (!col.IsPrimaryKey)
                 {
@@ -838,18 +868,18 @@ namespace Devart.Data.MySql
                         sb.Append(",");
 
                     sb.Append("`");
-                    sb.Append(colName);
+                    sb.Append(columnName);
                     sb.Append("`=");
 
-                    var adjustedValue = ExportInfo.AdjustColumnValue(new InfoObjects.ColumnWithValue
+                    var ob = rdr[i];
+
+                    if (_currentTableHasAdjustedValueRule && _currentTableColumnValueAdjustment.TryGetValue(columnName, out var adjustFunc))
                     {
-                        TableName = table.Name,
-                        Value = rdr[i],
-                        ColumnName = colName,
-                        MySqlDataType = col.MySqlDataType
-                    });
+                        ob = adjustFunc(ob);
+                    }
+
                     //sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
-                    sb.Append(QueryExpress.ConvertToSqlFormat(adjustedValue, true, true, col, ExportInfo.BlobExportMode));
+                    sb.Append(QueryExpress.ConvertToSqlFormat(ob, true, true, col, ExportInfo.BlobExportMode));
                 }
             }
         }
@@ -860,9 +890,9 @@ namespace Devart.Data.MySql
 
             for (int i = 0; i < rdr.FieldCount; i++)
             {
-                string colName = rdr.GetName(i);
+                string columnName = rdr.GetName(i);
 
-                var col = table.Columns[colName];
+                var col = table.Columns[columnName];
 
                 if (col.IsPrimaryKey)
                 {
@@ -872,18 +902,18 @@ namespace Devart.Data.MySql
                         sb.Append(" and ");
 
                     sb.Append("`");
-                    sb.Append(colName);
+                    sb.Append(columnName);
                     sb.Append("`=");
 
-                    var adjustedValue = ExportInfo.AdjustColumnValue(new InfoObjects.ColumnWithValue
+                    var ob = rdr[i];
+
+                    if (_currentTableHasAdjustedValueRule && _currentTableColumnValueAdjustment.TryGetValue(columnName, out var adjustFunc))
                     {
-                        TableName = table.Name,
-                        Value = rdr[i],
-                        ColumnName = colName,
-                        MySqlDataType = col.MySqlDataType
-                    });
+                        ob = adjustFunc(ob);
+                    }
+
                     //sb.Append(QueryExpress.ConvertToSqlFormat(rdr, i, true, true, col));
-                    sb.Append(QueryExpress.ConvertToSqlFormat(adjustedValue, true, true, col, ExportInfo.BlobExportMode));
+                    sb.Append(QueryExpress.ConvertToSqlFormat(ob, true, true, col, ExportInfo.BlobExportMode));
                 }
             }
         }

@@ -1,5 +1,4 @@
-﻿using MySql.Data.MySqlClient.InfoObjects;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -19,7 +18,8 @@ namespace MySql.Data.MySqlClient
         Dictionary<string, string> _customTable = new Dictionary<string, string>();
 
         List<string> _lstExcludeTables = null;
-        
+        List<string> _lstExcludeRowsForTables = null;
+
         /// <summary>
         /// Gets or Sets the tables (black list) that will be excluded for export. The rows of the these tables will not be exported too.
         /// </summary>
@@ -38,6 +38,23 @@ namespace MySql.Data.MySqlClient
         }
 
         /// <summary>
+        /// Gets or Sets the tables (black list) that will be excluded for row export.
+        /// </summary>
+        public List<string> ExcludeRowsForTables
+        {
+            get
+            {
+                if (_lstExcludeRowsForTables == null)
+                    _lstExcludeRowsForTables = new List<string>();
+                return _lstExcludeRowsForTables;
+            }
+            set
+            {
+                _lstExcludeRowsForTables = value;
+            }
+        }
+
+        /// <summary>
         /// Gets the list of document headers.
         /// </summary>
         /// <param name="cmd">The MySqlCommand that will be used to retrieve the database default character set.</param>
@@ -47,21 +64,59 @@ namespace MySql.Data.MySqlClient
             if (_documentHeaders == null)
             {
                 _documentHeaders = new List<string>();
-                string databaseCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW variables LIKE 'character_set_database';", 1);
 
+                string databaseCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW VARIABLES LIKE 'character_set_database';", 1);
+                if (string.IsNullOrEmpty(databaseCharSet) || !IsValidMySqlCharacterSet(databaseCharSet))
+                {
+                    databaseCharSet = "utf8mb4"; // Default to modern Unicode character set
+                }
+
+                // Save original client character set and results for restoration
                 _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;");
                 _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;");
+                // Save original collation for restoration
                 _documentHeaders.Add("/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;");
+                // Set character set to match database for consistent encoding
                 _documentHeaders.Add(string.Format("/*!40101 SET NAMES {0} */;", databaseCharSet));
-                //_documentHeaders.Add("/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;");
-                //_documentHeaders.Add("/*!40103 SET TIME_ZONE='+00:00' */;");
+                // Save and set time zone to UTC for consistent timestamps
+                _documentHeaders.Add("/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;");
+                _documentHeaders.Add("/*!40103 SET TIME_ZONE='+00:00' */;");
+                // Disable unique checks to allow data insertion without constraint issues
                 _documentHeaders.Add("/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;");
+                // Disable foreign key checks for easier data import
                 _documentHeaders.Add("/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;");
+                // Save and set SQL mode to avoid auto-increment issues
                 _documentHeaders.Add("/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;");
+                // Disable SQL notes to reduce warnings during import
                 _documentHeaders.Add("/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;");
             }
 
+
+
+            //if (_documentHeaders == null)
+            //{
+            //    _documentHeaders = new List<string>();
+            //    string databaseCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW variables LIKE 'character_set_database';", 1);
+
+            //    _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;");
+            //    _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;");
+            //    _documentHeaders.Add("/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;");
+            //    _documentHeaders.Add(string.Format("/*!40101 SET NAMES {0} */;", databaseCharSet));
+            //    //_documentHeaders.Add("/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;");
+            //    //_documentHeaders.Add("/*!40103 SET TIME_ZONE='+00:00' */;");
+            //    _documentHeaders.Add("/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;");
+            //    _documentHeaders.Add("/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;");
+            //    _documentHeaders.Add("/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;");
+            //    _documentHeaders.Add("/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;");
+            //}
+
             return _documentHeaders;
+        }
+
+        private bool IsValidMySqlCharacterSet(string charSet)
+        {
+            var validCharSets = new HashSet<string> { "utf8", "utf8mb4", "latin1", "ascii", "binary" };
+            return validCharSets.Contains(charSet.ToLower());
         }
 
         /// <summary>
@@ -82,17 +137,41 @@ namespace MySql.Data.MySqlClient
             if (_documentFooters == null)
             {
                 _documentFooters = new List<string>();
-                //_documentFooters.Add("/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;");
-                _documentFooters.Add("/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;");
-                _documentFooters.Add("/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;");
+
+                // Restore unique checks to original state
                 _documentFooters.Add("/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;");
+                // Restore foreign key checks to original state
+                _documentFooters.Add("/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;");
+                // Restore character set for client to original state
                 _documentFooters.Add("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;");
+                // Restore character set for results to original state
                 _documentFooters.Add("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;");
+                // Restore collation to original state
                 _documentFooters.Add("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;");
+                // Restore time zone to original state
+                _documentFooters.Add("/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;");
+                // Restore SQL mode to original state
+                _documentFooters.Add("/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;");
+                // Restore SQL notes to original state
                 _documentFooters.Add("/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;");
             }
 
             return _documentFooters;
+
+            //if (_documentFooters == null)
+            //{
+            //    _documentFooters = new List<string>();
+            //    //_documentFooters.Add("/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;");
+            //    _documentFooters.Add("/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;");
+            //    _documentFooters.Add("/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;");
+            //    _documentFooters.Add("/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;");
+            //    _documentFooters.Add("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;");
+            //    _documentFooters.Add("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;");
+            //    _documentFooters.Add("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;");
+            //    _documentFooters.Add("/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;");
+            //}
+
+            //return _documentFooters;
         }
 
         /// <summary>
@@ -268,10 +347,33 @@ namespace MySql.Data.MySqlClient
         /// </summary>
         public bool InsertLineBreakBetweenInserts = false;
 
+        private Dictionary<string, Dictionary<string, Func<object, object>>> _columnAdjustments;
+
         /// <summary>
-        /// Returns the row's default column value. Set this value if you wish to change the row's column value before exporting.
+        /// Gets or sets table and column-specific value adjustment functions.
+        /// Key structure: [TableName][ColumnName] = AdjustmentFunction
+        /// Use SetTableColumnValueAdjustment() to add individual adjustments.
+        /// Read documentation for more details at wiki page [Table Column Value Adjustments] at github
         /// </summary>
-        public Func<ColumnWithValue, object> AdjustColumnValue = (ColumnWithValue columnInfo) => columnInfo.Value;
+        public Dictionary<string, Dictionary<string, Func<object, object>>> TableColumnValueAdjustments
+        {
+            get => _columnAdjustments;
+            set => _columnAdjustments = value;
+        }
+
+        /// <summary>
+        /// Helper method to add column adjustment
+        /// </summary>
+        public void SetTableColumnValueAdjustment(string tableName, string columnName, Func<object, object> adjustFunc)
+        {
+            if (_columnAdjustments == null)
+                _columnAdjustments = new Dictionary<string, Dictionary<string, Func<object, object>>>(StringComparer.OrdinalIgnoreCase);
+
+            if (!_columnAdjustments.ContainsKey(tableName))
+                _columnAdjustments[tableName] = new Dictionary<string, Func<object, object>>(StringComparer.OrdinalIgnoreCase);
+
+            _columnAdjustments[tableName][columnName] = adjustFunc;
+        }
 
         public ExportInformations()
         {
