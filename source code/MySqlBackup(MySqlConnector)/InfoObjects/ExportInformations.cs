@@ -9,7 +9,8 @@ namespace MySqlConnector
     /// </summary>
     public class ExportInformations
     {
-        int _interval = 100;
+        private int _maxSqlLength = 5 * 1024 * 1024;
+        private int _interval = 100;
         string _delimiter = "|";
 
         List<string> _documentHeaders = null;
@@ -19,6 +20,8 @@ namespace MySqlConnector
 
         List<string> _lstExcludeTables = null;
         List<string> _lstExcludeRowsForTables = null;
+
+        private Dictionary<string, Dictionary<string, Func<object, object>>> _columnAdjustments;
 
         /// <summary>
         /// Gets or Sets the tables (black list) that will be excluded for export. The rows of the these tables will not be exported too.
@@ -230,62 +233,75 @@ namespace MySqlConnector
         /// <summary>
         /// Gets or Sets a value indicates whether the SQL statement of "CREATE DATABASE" should be added into dump file.
         /// </summary>
-        public bool AddCreateDatabase = false;
+        public bool AddCreateDatabase { get; set; } = false;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the SQL statement of "DROP DATABASE" should be added into dump file.
         /// </summary>
-        public bool AddDropDatabase = false;
+        public bool AddDropDatabase { get; set; } = false;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Table Structure (CREATE TABLE) should be exported.
         /// </summary>
-        public bool ExportTableStructure = true;
+        public bool ExportTableStructure { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the SQL statement of "DROP TABLE" should be added into the dump file.
         /// </summary>
-        public bool AddDropTable = true;
+        public bool AddDropTable { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the value of auto-increment of each table should be reset to 1.
         /// </summary>
-        public bool ResetAutoIncrement = false;
+        public bool ResetAutoIncrement { get; set; } = false;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Rows should be exported.
         /// </summary>
-        public bool ExportRows = true;
+        public bool ExportRows { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets the maximum length for combining multiple INSERTs into single sql. Default value is 5MB. Only applies if RowsExportMode = "INSERT" or "INSERTIGNORE" or "REPLACE". This value will be ignored if RowsExportMode = ONDUPLICATEKEYUPDATE or UPDATE.
         /// </summary>
-        public int MaxSqlLength = 5 * 1024 * 1024;
+        public int MaxSqlLength
+        {
+            get => _maxSqlLength;
+            set
+            {
+                if (value < 1024)
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "SQL length must be at least 1KB (1024 bytes).");
+
+                if (value > 1073741824) // 1GB
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "SQL length cannot exceed 1GB (1073741824 bytes).");
+                
+                _maxSqlLength = value;
+            }
+        }
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Stored Procedures should be exported.
         /// </summary>
-        public bool ExportProcedures = true;
+        public bool ExportProcedures { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Stored Functions should be exported.
         /// </summary>
-        public bool ExportFunctions = true;
+        public bool ExportFunctions { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Stored Triggers should be exported.
         /// </summary>
-        public bool ExportTriggers = true;
+        public bool ExportTriggers { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Stored Views should be exported.
         /// </summary>
-        public bool ExportViews = true;
+        public bool ExportViews { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Stored Events should be exported.
         /// </summary>
-        public bool ExportEvents = true;
+        public bool ExportEvents { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates the interval of time (in miliseconds) to raise the event of ExportProgressChanged.
@@ -305,39 +321,37 @@ namespace MySqlConnector
         /// <summary>
         /// Gets or Sets a value indicates whether the exported Scripts (Procedure, Functions, Events, Triggers, Events) should exclude DEFINER.
         /// </summary>
-        public bool ExportRoutinesWithoutDefiner = true;
+        public bool ExportRoutinesWithoutDefiner { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a enum value indicates how the rows of each table should be exported. INSERT = The default option. Recommended if exporting to a new database. If the primary key existed, the process will halt; INSERT IGNORE = If the primary key existed, skip it; REPLACE = If the primary key existed, delete the row and insert new data; OnDuplicateKeyUpdate = If the primary key existed, update the row. If all fields are primary keys, it will change to INSERT IGNORE; UPDATE = If the primary key is not existed, skip it and if all the fields are primary key, no rows will be exported.
         /// </summary>
-        public RowsDataExportMode RowsExportMode = RowsDataExportMode.Insert;
+        public RowsDataExportMode RowsExportMode { get; set; } = RowsDataExportMode.Insert;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the rows dump should be wrapped with transaction. Recommended to set this value to FALSE if using RowsExportMode = "INSERT" or "INSERTIGNORE" or "REPLACE", else TRUE.
         /// </summary>
-        public bool WrapWithinTransaction = false;
+        public bool WrapWithinTransaction { get; set; } = false;
 
         /// <summary>
         /// Gets or Sets a value indicates the encoding to be used for exporting the dump. Default = UTF8Coding(false)
         /// </summary>
-        public Encoding TextEncoding = new UTF8Encoding(false);
+        public Encoding TextEncoding { get; set; } = new UTF8Encoding(false);
 
         /// <summary>
         /// Gets or Sets a value indicates the method of how the total rows value is being obtained. InformationSchema = Fast, but approximate value; SelectCount = Slow but accurate; Skip = Skip obtaining total rows.
         /// </summary>
-        public GetTotalRowsMethod GetTotalRowsMode = GetTotalRowsMethod.InformationSchema;
+        public GetTotalRowsMethod GetTotalRowsMode { get; set; } = GetTotalRowsMethod.InformationSchema;
 
         /// <summary>
         /// Gets or Sets a value indicates whether comments should be included in the dump content.
         /// </summary>
-        public bool EnableComment = true;
+        public bool EnableComment { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether line breaks should be added in between multiple INSERTs.
         /// </summary>
-        public bool InsertLineBreakBetweenInserts = false;
-
-        private Dictionary<string, Dictionary<string, Func<object, object>>> _columnAdjustments;
+        public bool InsertLineBreakBetweenInserts { get; set; } = false;
 
         /// <summary>
         /// Gets or sets table and column-specific value adjustment functions.

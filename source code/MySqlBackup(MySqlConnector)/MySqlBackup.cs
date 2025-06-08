@@ -132,13 +132,10 @@ namespace MySqlConnector
 
         void InitializeComponents()
         {
-            //AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             _database.GetTotalRowsProgressChanged += _database_GetTotalRowsProgressChanged;
 
             timerReport = new Timer();
             timerReport.Elapsed += timerReport_Elapsed;
-
-            //textEncoding = new UTF8Encoding(false);
         }
 
         void _database_GetTotalRowsProgressChanged(object sender, GetTotalRowsArgs e)
@@ -167,17 +164,29 @@ namespace MySqlConnector
         public void ExportToFile(string filePath)
         {
             string dir = Path.GetDirectoryName(filePath);
-
-            if (!Directory.Exists(dir))
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
             }
 
-            using (textWriter = new StreamWriter(filePath, false, textEncoding))
+            FileStream fileStream = null;
+            StreamWriter writer = null;
+
+            try
             {
+                fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
+                writer = new StreamWriter(fileStream, textEncoding);
+                textWriter = writer;
+
                 ExportStart();
-                textWriter.Close();
             }
+            finally
+            {
+                textWriter = null;
+                writer?.Dispose();
+                fileStream?.Dispose();
+            }
+
         }
 
         public void ExportToTextWriter(TextWriter tw)
@@ -244,7 +253,7 @@ namespace MySqlConnector
 
                     textWriter.Flush();
 
-                    stage = stage + 1;
+                    stage++;
                 }
 
                 if (stopProcess) processCompletionType = ProcessEndType.Cancelled;
@@ -266,18 +275,19 @@ namespace MySqlConnector
         {
             if (Command == null)
             {
-                throw new Exception("MySqlCommand is not initialized. Object not set to an instance of an object.");
+                throw new InvalidOperationException("MySqlCommand is not initialized. Please provide a valid MySqlCommand instance before calling export methods.");
             }
 
             if (Command.Connection == null)
             {
-                throw new Exception("MySqlCommand.Connection is not initialized. Object not set to an instance of an object.");
+                throw new InvalidOperationException("MySqlCommand.Connection is not initialized. Please ensure the MySqlCommand has a valid connection.");
             }
 
             if (Command.Connection.State != System.Data.ConnectionState.Open)
             {
-                throw new Exception("MySqlCommand.Connection is not opened.");
+                throw new InvalidOperationException("MySqlCommand.Connection is not open. Please open the connection before calling export methods.");
             }
+
 
             timeStart = DateTime.Now;
 
@@ -286,7 +296,6 @@ namespace MySqlConnector
             currentProcess = ProcessType.Export;
             _lastError = null;
             timerReport.Interval = ExportInfo.IntervalForProgressReport;
-            //GetSHA512HashFromPassword(ExportInfo.EncryptionPassword);
 
             _database.GetDatabaseInfo(Command, ExportInfo.GetTotalRowsMode);
             _server.GetServerInfo(Command);
@@ -809,7 +818,7 @@ namespace MySqlConnector
             rdr.Close();
         }
 
-        private string Export_GetInsertStatementHeader(RowsDataExportMode rowsExportMode, string tableName, MySqlDataReader rdr)
+        string Export_GetInsertStatementHeader(RowsDataExportMode rowsExportMode, string tableName, MySqlDataReader rdr)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -841,7 +850,7 @@ namespace MySqlConnector
             return sb.ToString();
         }
 
-        private string Export_GetValueString(MySqlDataReader rdr, MySqlTable table)
+        string Export_GetValueString(MySqlDataReader rdr, MySqlTable table)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -873,7 +882,7 @@ namespace MySqlConnector
             return sb.ToString();
         }
 
-        private void Export_GetUpdateString(MySqlDataReader rdr, MySqlTable table, StringBuilder sb)
+        void Export_GetUpdateString(MySqlDataReader rdr, MySqlTable table, StringBuilder sb)
         {
             bool isFirst = true;
 
@@ -907,7 +916,7 @@ namespace MySqlConnector
             }
         }
 
-        private void Export_GetConditionString(MySqlDataReader rdr, MySqlTable table, StringBuilder sb)
+        void Export_GetConditionString(MySqlDataReader rdr, MySqlTable table, StringBuilder sb)
         {
             bool isFirst = true;
 
@@ -941,7 +950,7 @@ namespace MySqlConnector
             }
         }
 
-        private void Export_ConvertToSqlValueFormat(StringBuilder sb, Object ob, MySqlColumn col, bool escapeStringSequence, bool wrapStringWithSingleQuote)
+        void Export_ConvertToSqlValueFormat(StringBuilder sb, Object ob, MySqlColumn col, bool escapeStringSequence, bool wrapStringWithSingleQuote)
         {
             if (ob == null || ob is System.DBNull)
             {
@@ -969,7 +978,6 @@ namespace MySqlConnector
             else if (ob is System.Byte[])
             {
                 Export_ConvertByteArrayToHexString(sb, ob);
-                
             }
             else if (ob is short)
             {
@@ -1737,23 +1745,19 @@ namespace MySqlConnector
 
         public void Dispose()
         {
-            try
-            {
-                _database.Dispose();
-            }
-            catch { }
-
-            try
-            {
-                _server = null;
-            }
-            catch { }
-
-            try
-            {
-                _mySqlScript = null;
-            }
-            catch { }
+            StopAllProcess();
+            timerReport?.Stop();
+            timerReport?.Dispose();
+            timerReport = null;
+            textWriter?.Dispose();
+            textWriter = null;
+            textReader?.Dispose();
+            textReader = null;
+            _database?.Dispose();
+            _database = null;
+            _server = null;
+            _mySqlScript = null;
+            GC.SuppressFinalize(this);
         }
     }
 }
