@@ -323,16 +323,6 @@ namespace MySqlConnector
         public Encoding TextEncoding = new UTF8Encoding(false);
 
         /// <summary>
-        /// Gets or Sets a enum value indicates how the BLOB should be exported. HexString = Hexa Decimal String (default); BinaryChar = char format.
-        /// </summary>
-        public BlobDataExportMode BlobExportMode = BlobDataExportMode.HexString;
-
-        /// <summary>
-        /// BlobExportMode = BlobDataExportMode.BinaryChar is disabled by default as this feature is under development. Set this value to true if you wish continue to export BLOB into binary string/char format. This is temporary available for debugging and development purposes.
-        /// </summary>
-        public bool BlobExportModeForBinaryStringAllow = false;
-
-        /// <summary>
         /// Gets or Sets a value indicates the method of how the total rows value is being obtained. InformationSchema = Fast, but approximate value; SelectCount = Slow but accurate; Skip = Skip obtaining total rows.
         /// </summary>
         public GetTotalRowsMethod GetTotalRowsMode = GetTotalRowsMethod.InformationSchema;

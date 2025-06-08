@@ -8,13 +8,13 @@ namespace MySqlConnector
 {
     public class QueryExpress
     {
-        static NumberFormatInfo _numberFormatInfo = new NumberFormatInfo()
+        internal static NumberFormatInfo _numberFormatInfo = new NumberFormatInfo()
         {
             NumberDecimalSeparator = ".",
             NumberGroupSeparator = string.Empty
         };
 
-        static DateTimeFormatInfo _dateFormatInfo = new DateTimeFormatInfo()
+        internal static DateTimeFormatInfo _dateFormatInfo = new DateTimeFormatInfo()
         {
             DateSeparator = "-",
             TimeSeparator = ":"
@@ -174,225 +174,225 @@ namespace MySqlConnector
             return input.Replace(sb.ToString(), string.Empty);
         }
 
-        public static string ConvertToSqlFormat(object ob, bool wrapStringWithSingleQuote, bool escapeStringSequence, MySqlColumn col, BlobDataExportMode blobExportMode)
-        {
-            StringBuilder sb = new StringBuilder();
+        //public static string ConvertToSqlFormat(object ob, bool wrapStringWithSingleQuote, bool escapeStringSequence, MySqlColumn col)
+        //{
+        //    StringBuilder sb = new StringBuilder();
 
-            if (ob == null || ob is System.DBNull)
-            {
-                sb.AppendFormat("NULL");
-            }
-            else if (ob is System.String)
-            {
-                string str = (string)ob;
+        //    if (ob == null || ob is System.DBNull)
+        //    {
+        //        sb.AppendFormat("NULL");
+        //    }
+        //    else if (ob is System.String)
+        //    {
+        //        string str = (string)ob;
 
-                if (escapeStringSequence)
-                    str = QueryExpress.EscapeStringSequence(str);
+        //        if (escapeStringSequence)
+        //            str = QueryExpress.EscapeStringSequence(str);
 
-                if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+        //        if (wrapStringWithSingleQuote)
+        //            sb.AppendFormat("'");
 
-                sb.Append(str);
+        //        sb.Append(str);
 
-                if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
-            }
-            else if (ob is System.Boolean)
-            {
-                sb.AppendFormat(Convert.ToInt32(ob).ToString());
-            }
-            else if (ob is System.Byte[])
-            {
-                if (((byte[])ob).Length == 0)
-                {
-                    if (wrapStringWithSingleQuote)
-                        return "''";
-                    else
-                        return "";
-                }
-                else
-                {
-                    if (blobExportMode == BlobDataExportMode.HexString)
-                    {
-                        sb.AppendFormat(CryptoExpress.ConvertByteArrayToHexString((byte[])ob));
-                    }
-                    else if (blobExportMode == BlobDataExportMode.BinaryChar)
-                    {
-                        if (wrapStringWithSingleQuote)
-                            sb.Append("'");
+        //        if (wrapStringWithSingleQuote)
+        //            sb.AppendFormat("'");
+        //    }
+        //    else if (ob is System.Boolean)
+        //    {
+        //        sb.AppendFormat(Convert.ToInt32(ob).ToString());
+        //    }
+        //    else if (ob is System.Byte[])
+        //    {
+        //        if (((byte[])ob).Length == 0)
+        //        {
+        //            if (wrapStringWithSingleQuote)
+        //                return "''";
+        //            else
+        //                return "";
+        //        }
+        //        else
+        //        {
+        //            if (blobExportMode == BlobDataExportMode.HexString)
+        //            {
+        //                sb.AppendFormat(CryptoExpress.ConvertByteArrayToHexString((byte[])ob));
+        //            }
+        //            else if (blobExportMode == BlobDataExportMode.BinaryChar)
+        //            {
+        //                if (wrapStringWithSingleQuote)
+        //                    sb.Append("'");
 
-                        foreach (byte b in ((byte[])ob))
-                        {
-                            char ch = (char)b;
-                            escape_string(sb, ch);
-                        }
+        //                foreach (byte b in ((byte[])ob))
+        //                {
+        //                    char ch = (char)b;
+        //                    escape_string(sb, ch);
+        //                }
 
-                        if (wrapStringWithSingleQuote)
-                            sb.Append("'");
-                    }
-                }
-            }
-            else if (ob is short)
-            {
-                sb.AppendFormat(((short)ob).ToString(_numberFormatInfo));
-            }
-            else if (ob is int)
-            {
-                sb.AppendFormat(((int)ob).ToString(_numberFormatInfo));
-            }
-            else if (ob is long)
-            {
-                sb.AppendFormat(((long)ob).ToString(_numberFormatInfo));
-            }
-            else if (ob is ushort)
-            {
-                sb.AppendFormat(((ushort)ob).ToString(_numberFormatInfo));
-            }
-            else if (ob is uint)
-            {
-                sb.AppendFormat(((uint)ob).ToString(_numberFormatInfo));
-            }
-            else if (ob is ulong)
-            {
-                sb.AppendFormat(((ulong)ob).ToString(_numberFormatInfo));
-            }
-            else if (ob is double)
-            {
-                sb.AppendFormat(((double)ob).ToString(_numberFormatInfo));
-            }
-            else if (ob is decimal)
-            {
-                sb.AppendFormat(((decimal)ob).ToString(_numberFormatInfo));
-            }
-            else if (ob is float)
-            {
-                sb.AppendFormat(((float)ob).ToString(_numberFormatInfo));
-            }
-            else if (ob is byte)
-            {
-                sb.AppendFormat(((byte)ob).ToString(_numberFormatInfo));
-            }
-            else if (ob is sbyte)
-            {
-                sb.AppendFormat(((sbyte)ob).ToString(_numberFormatInfo));
-            }
-            else if (ob is TimeSpan)
-            {
-                TimeSpan ts = (TimeSpan)ob;
+        //                if (wrapStringWithSingleQuote)
+        //                    sb.Append("'");
+        //            }
+        //        }
+        //    }
+        //    else if (ob is short)
+        //    {
+        //        sb.AppendFormat(((short)ob).ToString(_numberFormatInfo));
+        //    }
+        //    else if (ob is int)
+        //    {
+        //        sb.AppendFormat(((int)ob).ToString(_numberFormatInfo));
+        //    }
+        //    else if (ob is long)
+        //    {
+        //        sb.AppendFormat(((long)ob).ToString(_numberFormatInfo));
+        //    }
+        //    else if (ob is ushort)
+        //    {
+        //        sb.AppendFormat(((ushort)ob).ToString(_numberFormatInfo));
+        //    }
+        //    else if (ob is uint)
+        //    {
+        //        sb.AppendFormat(((uint)ob).ToString(_numberFormatInfo));
+        //    }
+        //    else if (ob is ulong)
+        //    {
+        //        sb.AppendFormat(((ulong)ob).ToString(_numberFormatInfo));
+        //    }
+        //    else if (ob is double)
+        //    {
+        //        sb.AppendFormat(((double)ob).ToString(_numberFormatInfo));
+        //    }
+        //    else if (ob is decimal)
+        //    {
+        //        sb.AppendFormat(((decimal)ob).ToString(_numberFormatInfo));
+        //    }
+        //    else if (ob is float)
+        //    {
+        //        sb.AppendFormat(((float)ob).ToString(_numberFormatInfo));
+        //    }
+        //    else if (ob is byte)
+        //    {
+        //        sb.AppendFormat(((byte)ob).ToString(_numberFormatInfo));
+        //    }
+        //    else if (ob is sbyte)
+        //    {
+        //        sb.AppendFormat(((sbyte)ob).ToString(_numberFormatInfo));
+        //    }
+        //    else if (ob is TimeSpan)
+        //    {
+        //        TimeSpan ts = (TimeSpan)ob;
 
-                if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+        //        if (wrapStringWithSingleQuote)
+        //            sb.AppendFormat("'");
 
-                sb.AppendFormat(((int)ts.TotalHours).ToString().PadLeft(2, '0'));
-                sb.AppendFormat(":");
-                sb.AppendFormat(ts.Duration().Minutes.ToString().PadLeft(2, '0'));
-                sb.AppendFormat(":");
-                sb.AppendFormat(ts.Duration().Seconds.ToString().PadLeft(2, '0'));
+        //        sb.AppendFormat(((int)ts.TotalHours).ToString().PadLeft(2, '0'));
+        //        sb.AppendFormat(":");
+        //        sb.AppendFormat(ts.Duration().Minutes.ToString().PadLeft(2, '0'));
+        //        sb.AppendFormat(":");
+        //        sb.AppendFormat(ts.Duration().Seconds.ToString().PadLeft(2, '0'));
 
-                if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+        //        if (wrapStringWithSingleQuote)
+        //            sb.AppendFormat("'");
 
-            }
-            else if (ob is System.DateTime)
-            {
-                if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+        //    }
+        //    else if (ob is System.DateTime)
+        //    {
+        //        if (wrapStringWithSingleQuote)
+        //            sb.AppendFormat("'");
 
-                sb.AppendFormat(((DateTime)ob).ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
+        //        sb.AppendFormat(((DateTime)ob).ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
 
-                if (col.TimeFractionLength > 0)
-                {
-                    sb.Append(".");
-                    string _microsecond = ((DateTime)ob).ToString("".PadLeft(col.TimeFractionLength, 'f'));
-                    sb.Append(_microsecond);
-                }
+        //        if (col.TimeFractionLength > 0)
+        //        {
+        //            sb.Append(".");
+        //            string _microsecond = ((DateTime)ob).ToString("".PadLeft(col.TimeFractionLength, 'f'));
+        //            sb.Append(_microsecond);
+        //        }
 
-                if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
-            }
-            else if (ob is MySqlDateTime mdt)
-            {
-                if (mdt.IsValidDateTime)
-                {
-                    DateTime dtime = mdt.GetDateTime();
+        //        if (wrapStringWithSingleQuote)
+        //            sb.AppendFormat("'");
+        //    }
+        //    else if (ob is MySqlDateTime mdt)
+        //    {
+        //        if (mdt.IsValidDateTime)
+        //        {
+        //            DateTime dtime = mdt.GetDateTime();
 
-                    if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
+        //            if (wrapStringWithSingleQuote)
+        //                sb.AppendFormat("'");
 
-                    if (col.MySqlDataType == "datetime")
-                        sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
-                    else if (col.MySqlDataType == "date")
-                        sb.AppendFormat(dtime.ToString("yyyy-MM-dd", _dateFormatInfo));
-                    else if (col.MySqlDataType == "time")
-                        sb.AppendFormat("{0}:{1}:{2}", mdt.Hour, mdt.Minute, mdt.Second);
-                    else
-                        sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
+        //            if (col.MySqlDataType == "datetime")
+        //                sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
+        //            else if (col.MySqlDataType == "date")
+        //                sb.AppendFormat(dtime.ToString("yyyy-MM-dd", _dateFormatInfo));
+        //            else if (col.MySqlDataType == "time")
+        //                sb.AppendFormat("{0}:{1}:{2}", mdt.Hour, mdt.Minute, mdt.Second);
+        //            else
+        //                sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
 
-                    if (col.TimeFractionLength > 0)
-                    {
-                        sb.Append(".");
-                        sb.Append(((MySqlDateTime)ob).Microsecond.ToString().PadLeft(col.TimeFractionLength, '0'));
-                    }
+        //            if (col.TimeFractionLength > 0)
+        //            {
+        //                sb.Append(".");
+        //                sb.Append(((MySqlDateTime)ob).Microsecond.ToString().PadLeft(col.TimeFractionLength, '0'));
+        //            }
 
-                    if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
-                }
-                else
-                {
-                    if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
+        //            if (wrapStringWithSingleQuote)
+        //                sb.AppendFormat("'");
+        //        }
+        //        else
+        //        {
+        //            if (wrapStringWithSingleQuote)
+        //                sb.AppendFormat("'");
 
-                    if (col.MySqlDataType == "datetime")
-                        sb.AppendFormat("0000-00-00 00:00:00");
-                    else if (col.MySqlDataType == "date")
-                        sb.AppendFormat("0000-00-00");
-                    else if (col.MySqlDataType == "time")
-                        sb.AppendFormat("00:00:00");
-                    else
-                        sb.AppendFormat("0000-00-00 00:00:00");
+        //            if (col.MySqlDataType == "datetime")
+        //                sb.AppendFormat("0000-00-00 00:00:00");
+        //            else if (col.MySqlDataType == "date")
+        //                sb.AppendFormat("0000-00-00");
+        //            else if (col.MySqlDataType == "time")
+        //                sb.AppendFormat("00:00:00");
+        //            else
+        //                sb.AppendFormat("0000-00-00 00:00:00");
 
-                    if (col.TimeFractionLength > 0)
-                    {
-                        sb.Append(".".PadRight(col.TimeFractionLength, '0'));
-                    }
+        //            if (col.TimeFractionLength > 0)
+        //            {
+        //                sb.Append(".".PadRight(col.TimeFractionLength, '0'));
+        //            }
 
-                    if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
-                }
-            }
-            else if (ob is System.Guid)
-            {
-                if (col.MySqlDataType == "binary(16)")
-                {
-                    sb.Append(CryptoExpress.ConvertByteArrayToHexString(((Guid)ob).ToByteArray()));
-                }
-                else if (col.MySqlDataType == "char(36)")
-                {
-                    if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
+        //            if (wrapStringWithSingleQuote)
+        //                sb.AppendFormat("'");
+        //        }
+        //    }
+        //    else if (ob is System.Guid)
+        //    {
+        //        if (col.MySqlDataType == "binary(16)")
+        //        {
+        //            sb.Append(CryptoExpress.ConvertByteArrayToHexString(((Guid)ob).ToByteArray()));
+        //        }
+        //        else if (col.MySqlDataType == "char(36)")
+        //        {
+        //            if (wrapStringWithSingleQuote)
+        //                sb.AppendFormat("'");
 
-                    sb.Append(ob);
+        //            sb.Append(ob);
 
-                    if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
-                }
-                else
-                {
-                    if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
+        //            if (wrapStringWithSingleQuote)
+        //                sb.AppendFormat("'");
+        //        }
+        //        else
+        //        {
+        //            if (wrapStringWithSingleQuote)
+        //                sb.AppendFormat("'");
 
-                    sb.Append(ob);
+        //            sb.Append(ob);
 
-                    if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
-                }
-            }
-            else
-            {
-                throw new Exception("Unhandled data type. Current processing data type: " + ob.GetType().ToString() + ". Please report this bug with this message to the development team.");
-            }
-            return sb.ToString();
-        }
+        //            if (wrapStringWithSingleQuote)
+        //                sb.AppendFormat("'");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        throw new Exception("Unhandled data type. Current processing data type: " + ob.GetType().ToString() + ". Please report this bug with this message to the development team.");
+        //    }
+        //    return sb.ToString();
+        //}
 
     }
 }
