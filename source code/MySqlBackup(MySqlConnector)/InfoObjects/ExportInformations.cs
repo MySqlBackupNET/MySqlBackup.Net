@@ -9,7 +9,7 @@ namespace MySqlConnector
     /// </summary>
     public class ExportInformations
     {
-        private int _maxSqlLength = 5 * 1024 * 1024;
+        private int _maxSqlLength = 16 * 1024 * 1024;
         private int _interval = 100;
         string _delimiter = "|";
 
@@ -67,59 +67,21 @@ namespace MySqlConnector
             if (_documentHeaders == null)
             {
                 _documentHeaders = new List<string>();
+                string databaseCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW variables LIKE 'character_set_database';", 1);
 
-                string databaseCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW VARIABLES LIKE 'character_set_database';", 1);
-                if (string.IsNullOrEmpty(databaseCharSet) || !IsValidMySqlCharacterSet(databaseCharSet))
-                {
-                    databaseCharSet = "utf8mb4"; // Default to modern Unicode character set
-                }
-
-                // Save original client character set and results for restoration
                 _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;");
                 _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;");
-                // Save original collation for restoration
                 _documentHeaders.Add("/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;");
-                // Set character set to match database for consistent encoding
                 _documentHeaders.Add(string.Format("/*!40101 SET NAMES {0} */;", databaseCharSet));
-                // Save and set time zone to UTC for consistent timestamps
-                _documentHeaders.Add("/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;");
-                _documentHeaders.Add("/*!40103 SET TIME_ZONE='+00:00' */;");
-                // Disable unique checks to allow data insertion without constraint issues
+                //_documentHeaders.Add("/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;");
+                //_documentHeaders.Add("/*!40103 SET TIME_ZONE='+00:00' */;");
                 _documentHeaders.Add("/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;");
-                // Disable foreign key checks for easier data import
                 _documentHeaders.Add("/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;");
-                // Save and set SQL mode to avoid auto-increment issues
                 _documentHeaders.Add("/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;");
-                // Disable SQL notes to reduce warnings during import
                 _documentHeaders.Add("/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;");
             }
 
-           
-
-            //if (_documentHeaders == null)
-            //{
-            //    _documentHeaders = new List<string>();
-            //    string databaseCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW variables LIKE 'character_set_database';", 1);
-
-            //    _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;");
-            //    _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;");
-            //    _documentHeaders.Add("/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;");
-            //    _documentHeaders.Add(string.Format("/*!40101 SET NAMES {0} */;", databaseCharSet));
-            //    //_documentHeaders.Add("/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;");
-            //    //_documentHeaders.Add("/*!40103 SET TIME_ZONE='+00:00' */;");
-            //    _documentHeaders.Add("/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;");
-            //    _documentHeaders.Add("/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;");
-            //    _documentHeaders.Add("/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;");
-            //    _documentHeaders.Add("/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;");
-            //}
-
             return _documentHeaders;
-        }
-
-        private bool IsValidMySqlCharacterSet(string charSet)
-        {
-            var validCharSets = new HashSet<string> { "utf8", "utf8mb4", "latin1", "ascii", "binary" };
-            return validCharSets.Contains(charSet.ToLower());
         }
 
         /// <summary>
