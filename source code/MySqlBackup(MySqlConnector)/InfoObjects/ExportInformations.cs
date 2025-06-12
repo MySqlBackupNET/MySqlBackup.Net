@@ -190,7 +190,7 @@ namespace MySqlConnector
         /// <summary>
         /// Gets or Sets a value indicates whether the Dump Time should recorded in dump file.
         /// </summary>
-        public bool RecordDumpTime = true;
+        public bool RecordDumpTime { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the SQL statement of "CREATE DATABASE" should be added into dump file.
@@ -269,11 +269,6 @@ namespace MySqlConnector
         /// Gets or Sets a value indicates the interval of time (in miliseconds) to raise the event of ExportProgressChanged.
         /// </summary>
         public int IntervalForProgressReport { get { if (_interval == 0) return 100; return _interval; } set { _interval = value; } }
-
-        /// <summary>
-        /// Gets or Sets a value indicates whether the totals of rows should be counted before export process commence. The value of total rows is used for progress reporting. Extra time is needed to get the total rows. Sets this value to FALSE if not applying progress reporting.
-        /// </summary>
-        //public bool GetTotalRowsBeforeExport = true;
 
         /// <summary>
         /// Gets or Sets the delimiter used for exporting Procedures, Functions, Events and Triggers. Default delimiter is "|".

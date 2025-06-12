@@ -51,9 +51,6 @@
             this.cbAddDropDatabase = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.dropTextEncoding = new System.Windows.Forms.ComboBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.dropBlobExportMode = new System.Windows.Forms.ComboBox();
-            this.cbAllowBinaryChar = new System.Windows.Forms.CheckBox();
             this.cbExportEnableComment = new System.Windows.Forms.CheckBox();
             this.cbExport_InsertLineBreaksBetweenInsert = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.nmExMaxSqlLength)).BeginInit();
@@ -310,37 +307,6 @@
             this.dropTextEncoding.Size = new System.Drawing.Size(178, 23);
             this.dropTextEncoding.TabIndex = 35;
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 392);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(112, 15);
-            this.label4.TabIndex = 36;
-            this.label4.Text = "BLOB Export Mode:";
-            // 
-            // dropBlobExportMode
-            // 
-            this.dropBlobExportMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.dropBlobExportMode.FormattingEnabled = true;
-            this.dropBlobExportMode.Items.AddRange(new object[] {
-            "Hexdecimal String",
-            "Binary String"});
-            this.dropBlobExportMode.Location = new System.Drawing.Point(130, 389);
-            this.dropBlobExportMode.Name = "dropBlobExportMode";
-            this.dropBlobExportMode.Size = new System.Drawing.Size(178, 23);
-            this.dropBlobExportMode.TabIndex = 37;
-            // 
-            // cbAllowBinaryChar
-            // 
-            this.cbAllowBinaryChar.AutoSize = true;
-            this.cbAllowBinaryChar.Location = new System.Drawing.Point(15, 429);
-            this.cbAllowBinaryChar.Name = "cbAllowBinaryChar";
-            this.cbAllowBinaryChar.Size = new System.Drawing.Size(221, 19);
-            this.cbAllowBinaryChar.TabIndex = 38;
-            this.cbAllowBinaryChar.Text = "Allow BlobExportMode = BinaryChar";
-            this.cbAllowBinaryChar.UseVisualStyleBackColor = true;
-            // 
             // cbExportEnableComment
             // 
             this.cbExportEnableComment.AutoSize = true;
@@ -356,7 +322,7 @@
             // cbExport_InsertLineBreaksBetweenInsert
             // 
             this.cbExport_InsertLineBreaksBetweenInsert.AutoSize = true;
-            this.cbExport_InsertLineBreaksBetweenInsert.Location = new System.Drawing.Point(15, 454);
+            this.cbExport_InsertLineBreaksBetweenInsert.Location = new System.Drawing.Point(16, 402);
             this.cbExport_InsertLineBreaksBetweenInsert.Name = "cbExport_InsertLineBreaksBetweenInsert";
             this.cbExport_InsertLineBreaksBetweenInsert.Size = new System.Drawing.Size(230, 19);
             this.cbExport_InsertLineBreaksBetweenInsert.TabIndex = 43;
@@ -371,9 +337,6 @@
             this.ClientSize = new System.Drawing.Size(694, 509);
             this.Controls.Add(this.cbExport_InsertLineBreaksBetweenInsert);
             this.Controls.Add(this.cbExportEnableComment);
-            this.Controls.Add(this.cbAllowBinaryChar);
-            this.Controls.Add(this.dropBlobExportMode);
-            this.Controls.Add(this.label4);
             this.Controls.Add(this.comboBox_RowsExportMode);
             this.Controls.Add(this.checkBox_WrapInTransaction);
             this.Controls.Add(this.label6);
@@ -431,9 +394,6 @@
         private System.Windows.Forms.CheckBox cbAddDropDatabase;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox dropTextEncoding;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.ComboBox dropBlobExportMode;
-        private System.Windows.Forms.CheckBox cbAllowBinaryChar;
         private System.Windows.Forms.CheckBox cbExportEnableComment;
         private System.Windows.Forms.CheckBox cbExport_InsertLineBreaksBetweenInsert;
     }

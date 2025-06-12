@@ -30,7 +30,6 @@ namespace MySqlBackupTestApp
             comboBox_RowsExportMode.SelectedIndex = 0;
 
             dropTextEncoding.SelectedIndex = 0;
-            dropBlobExportMode.SelectedIndex = 0;
         }
 
         private void button_Backup_Click(object sender, EventArgs e)
@@ -72,14 +71,6 @@ namespace MySqlBackupTestApp
                                 mb.ExportInfo.TextEncoding = System.Text.Encoding.UTF8;
                             else if (dropTextEncoding.SelectedIndex == 2)
                                 mb.ExportInfo.TextEncoding = new ASCIIEncoding();
-
-                            if (dropBlobExportMode.SelectedIndex < 1)
-                                mb.ExportInfo.BlobExportMode = BlobDataExportMode.HexString;
-                            else
-                                mb.ExportInfo.BlobExportMode = BlobDataExportMode.BinaryChar;
-
-                            mb.ExportInfo.BlobExportModeForBinaryStringAllow = cbAllowBinaryChar.Checked;
-
                             mb.ExportInfo.InsertLineBreakBetweenInserts = cbExport_InsertLineBreaksBetweenInsert.Checked;
 
                             mb.ExportToFile(Program.TargetFile);

@@ -35,8 +35,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.lbHash1 = new System.Windows.Forms.Label();
             this.lbHash2 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.dropBlobExportMode = new System.Windows.Forms.ComboBox();
             this.lbResult = new System.Windows.Forms.Label();
             this.lbDumpSize = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -84,7 +82,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 278);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(269, 192);
+            this.label1.Size = new System.Drawing.Size(268, 192);
             this.label1.TabIndex = 3;
             this.label1.Text = "*Note: Please test this with small size file.\r\n\r\n\r\nbyte array of files before sav" +
     "e into database\r\n\r\nSHA128 Hash:\r\n\r\nbyte array after getting out from database\r\n\r" +
@@ -96,7 +94,7 @@
             this.lbHash1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbHash1.Location = new System.Drawing.Point(122, 358);
             this.lbHash1.Name = "lbHash1";
-            this.lbHash1.Size = new System.Drawing.Size(65, 16);
+            this.lbHash1.Size = new System.Drawing.Size(64, 16);
             this.lbHash1.TabIndex = 4;
             this.lbHash1.Text = "lbHash1";
             // 
@@ -106,30 +104,9 @@
             this.lbHash2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbHash2.Location = new System.Drawing.Point(122, 438);
             this.lbHash2.Name = "lbHash2";
-            this.lbHash2.Size = new System.Drawing.Size(65, 16);
+            this.lbHash2.Size = new System.Drawing.Size(64, 16);
             this.lbHash2.TabIndex = 5;
             this.lbHash2.Text = "lbHash2";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(299, 252);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(178, 16);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "ExportInfo.BlobExportMode=";
-            // 
-            // dropBlobExportMode
-            // 
-            this.dropBlobExportMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.dropBlobExportMode.FormattingEnabled = true;
-            this.dropBlobExportMode.Items.AddRange(new object[] {
-            "Hexdecimal String",
-            "Binary Char"});
-            this.dropBlobExportMode.Location = new System.Drawing.Point(483, 249);
-            this.dropBlobExportMode.Name = "dropBlobExportMode";
-            this.dropBlobExportMode.Size = new System.Drawing.Size(153, 24);
-            this.dropBlobExportMode.TabIndex = 38;
             // 
             // lbResult
             // 
@@ -137,7 +114,7 @@
             this.lbResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbResult.Location = new System.Drawing.Point(122, 454);
             this.lbResult.Name = "lbResult";
-            this.lbResult.Size = new System.Drawing.Size(65, 16);
+            this.lbResult.Size = new System.Drawing.Size(64, 16);
             this.lbResult.TabIndex = 39;
             this.lbResult.Text = "lbResult";
             // 
@@ -147,7 +124,7 @@
             this.lbDumpSize.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbDumpSize.Location = new System.Drawing.Point(122, 422);
             this.lbDumpSize.Name = "lbDumpSize";
-            this.lbDumpSize.Size = new System.Drawing.Size(91, 16);
+            this.lbDumpSize.Size = new System.Drawing.Size(90, 16);
             this.lbDumpSize.TabIndex = 40;
             this.lbDumpSize.Text = "lbDumpSize";
             // 
@@ -158,7 +135,7 @@
             this.label3.ForeColor = System.Drawing.Color.Red;
             this.label3.Location = new System.Drawing.Point(12, 3);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(640, 80);
+            this.label3.Size = new System.Drawing.Size(639, 80);
             this.label3.TabIndex = 41;
             this.label3.Text = resources.GetString("label3.Text");
             // 
@@ -179,8 +156,6 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.lbDumpSize);
             this.Controls.Add(this.lbResult);
-            this.Controls.Add(this.dropBlobExportMode);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.lbHash2);
             this.Controls.Add(this.lbHash1);
             this.Controls.Add(this.label1);
@@ -204,8 +179,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lbHash1;
         private System.Windows.Forms.Label lbHash2;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ComboBox dropBlobExportMode;
         private System.Windows.Forms.Label lbResult;
         private System.Windows.Forms.Label lbDumpSize;
         private System.Windows.Forms.Label label3;

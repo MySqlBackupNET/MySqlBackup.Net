@@ -239,6 +239,7 @@
     <Compile Include="HtmlExpress.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryExpress.cs" />
     <Compile Include="ZipStorer.cs" />
     <EmbeddedResource Include="FormAbout.resx">
       <DependentUpon>FormAbout.cs</DependentUpon>

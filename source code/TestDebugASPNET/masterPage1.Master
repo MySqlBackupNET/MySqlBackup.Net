@@ -1,0 +1,42 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="masterPage1.master.cs" Inherits="System.masterPage1" %>
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+    <title>MySqlBackup.NET - Tester / Debugger</title>
+    <link rel="stylesheet" href="/cssjs/main.css" />
+    <script type="text/javascript" src="/cssjs/main.js"></script>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div class="headbanner">
+            MySqlBackup.NET - Tester / Debugger
+        </div>
+        <div class="menubar">
+            <a href="/">Home / Setup</a>
+            <a href="/Tests">Tests</a>
+            <a href="/QueryBrowser">Query Browser</a>
+            <a href="/DatabaseRecordList">Database Records</a>
+            <a href="/Typography">Typography</a>
+        </div>
+        <div>
+
+            <asp:PlaceHolder ID="phMessageBar" runat="server"></asp:PlaceHolder>
+
+            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+        <div class="footer">
+            <hr />
+            MySqlBackup.NET - A tool to backup/restore MySQL database in C# / VB.NET /.NET<br />
+            <a href="https://github.com/MySqlBackupNET/MySqlBackup.Net">https://github.com/MySqlBackupNET/MySqlBackup.Net</a>
+        </div>
+    </form>
+
+    <asp:PlaceHolder ID="phBottomScript" runat="server"></asp:PlaceHolder>
+
+</body>
+</html>

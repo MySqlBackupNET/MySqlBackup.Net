@@ -12,7 +12,6 @@ namespace MySqlBackupTestApp
         {
             InitializeComponent();
             lbResult.Text = string.Empty;
-            dropBlobExportMode.SelectedIndex = 1;
         }
 
         private void btCreateTable_Click(object sender, EventArgs e)
@@ -102,15 +101,7 @@ namespace MySqlBackupTestApp
                             mb.ExportInfo.AddDropTable = true;
                             mb.ExportInfo.ExportTableStructure = true;
                             mb.ExportInfo.ExportRows = true;
-
-                            if (dropBlobExportMode.SelectedIndex < 1)
-                                mb.ExportInfo.BlobExportMode = BlobDataExportMode.HexString;
-                            else
-                            {
-                                mb.ExportInfo.BlobExportMode = BlobDataExportMode.BinaryChar;
-                                mb.ExportInfo.BlobExportModeForBinaryStringAllow = true;
-                            }
-
+                            
                             sqlDump = mb.ExportToString();
 
                             conn.Close();
