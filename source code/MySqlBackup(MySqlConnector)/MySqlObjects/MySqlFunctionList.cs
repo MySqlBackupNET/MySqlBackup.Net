@@ -5,7 +5,7 @@ using System.Data;
 
 namespace MySqlConnector
 {
-    public class MySqlFunctionList : IDisposable, IEnumerable<MySqlFunction>
+    public class MySqlFunctionList : IEnumerable<MySqlFunction>
     {
         string _sqlShowFunctions = string.Empty;
         Dictionary<string, MySqlFunction> _lst = new Dictionary<string, MySqlFunction>();
@@ -72,14 +72,5 @@ namespace MySqlConnector
 
         IEnumerator IEnumerable.GetEnumerator() =>
            _lst.Values.GetEnumerator();
-
-        public void Dispose()
-        {
-            foreach (var key in _lst.Keys)
-            {
-                _lst[key] = null;
-            }
-            _lst = null;
-        }
     }
 }

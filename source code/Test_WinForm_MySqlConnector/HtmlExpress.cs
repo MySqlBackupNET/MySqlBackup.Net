@@ -32,7 +32,7 @@ namespace MySqlBackupTestApp
                 {
                     sb.AppendFormat("<td>");
 
-                    string dataStr = QueryExpress.ConvertToSqlFormat(dr[dc.ColumnName], false, false, null, BlobDataExportMode.HexString);
+                    string dataStr = QueryExpress.ConvertToSqlFormat(dr[dc.ColumnName], false, false, null);
 
                     sb.AppendFormat(EscapeForHtml(dataStr));
                     sb.AppendFormat("</td>");

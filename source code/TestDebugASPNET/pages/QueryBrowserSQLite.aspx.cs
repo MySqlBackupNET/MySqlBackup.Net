@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using MySqlConnector;
+using System.Data.SQLite;
 
 namespace System.pages
 {
-    public partial class QueryBrowser : System.Web.UI.Page
+    public partial class QueryBrowserSQLite : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -24,11 +23,11 @@ namespace System.pages
                 int totalRowsAffected = 0;
                 StringBuilder resultInfo = new StringBuilder();
 
-                using (MySqlConnection conn = config.GetNewConnection())
+                using (SQLiteConnection conn = new SQLiteConnection(BackupFilesManager.sqliteConnectionString))
                 {
                     conn.Open();
 
-                    using (MySqlCommand cmd = new MySqlCommand())
+                    using (SQLiteCommand cmd = new SQLiteCommand())
                     {
                         cmd.Connection = conn;
                         cmd.CommandText = txtSql.Text;
@@ -38,60 +37,41 @@ namespace System.pages
                         totalRowsAffected = cmd.ExecuteNonQuery();
                         stopwatch.Stop();
 
-                        // Get warnings - MySqlConnector style
-                        using (MySqlCommand warningCmd = new MySqlCommand("SHOW WARNINGS", conn))
-                        using (MySqlDataReader warningReader = warningCmd.ExecuteReader())
-                        {
-                            int warningCount = 0;
-                            List<string> warnings = new List<string>();
-
-                            while (warningReader.Read())
-                            {
-                                string level = warningReader.GetString(0);    // Level
-                                string code = warningReader.GetString(1);     // Code  
-                                string message = warningReader.GetString(2);  // Message
-
-                                string color = level == "Warning" ? "orange" : level == "Error" ? "red" : "blue";
-                                warnings.Add($"<span style='color: {color}'>{level} ({code}): {message}</span>");
-                                warningCount++;
-                            }
-
-                            if (warningCount > 0)
-                            {
-                                resultInfo.AppendLine($"<br/><strong>{warningCount} warning(s)/note(s) found:</strong>");
-                                foreach (var warning in warnings)
-                                {
-                                    resultInfo.AppendLine($"<br/>{warning}");
-                                }
-                            }
-                        }
+                        // SQLite doesn't have SHOW WARNINGS like MySQL
+                        // Instead, we can check for any pragma or other SQLite-specific info
+                        // Most SQLite operations don't generate warnings in the same way MySQL does
 
                         // Get additional session info
                         Dictionary<string, string> sessionInfo = new Dictionary<string, string>();
 
-                        // Get last insert ID if applicable
-                        if (cmd.LastInsertedId > 0)
+                        // Get last insert rowid if applicable (SQLite equivalent of last insert ID)
+                        long lastInsertRowId = conn.LastInsertRowId;
+                        if (lastInsertRowId > 0)
                         {
-                            sessionInfo["Last Insert ID"] = cmd.LastInsertedId.ToString();
+                            sessionInfo["Last Insert RowID"] = lastInsertRowId.ToString();
                         }
 
-                        // Get current database
-                        using (MySqlCommand dbCmd = new MySqlCommand("SELECT DATABASE()", conn))
+                        // Get current database file path
+                        using (SQLiteCommand dbCmd = new SQLiteCommand("PRAGMA database_list", conn))
+                        using (SQLiteDataReader dbReader = dbCmd.ExecuteReader())
                         {
-                            var currentDb = dbCmd.ExecuteScalar();
-                            if (currentDb != null && currentDb != DBNull.Value)
+                            if (dbReader.Read())
                             {
-                                sessionInfo["Database"] = currentDb.ToString();
+                                string dbFile = dbReader["file"].ToString();
+                                if (!string.IsNullOrEmpty(dbFile))
+                                {
+                                    sessionInfo["Database File"] = System.IO.Path.GetFileName(dbFile);
+                                }
                             }
                         }
 
-                        // Get connection ID
-                        using (MySqlCommand connIdCmd = new MySqlCommand("SELECT CONNECTION_ID()", conn))
+                        // Get SQLite version
+                        using (SQLiteCommand versionCmd = new SQLiteCommand("SELECT sqlite_version()", conn))
                         {
-                            var connId = connIdCmd.ExecuteScalar();
-                            if (connId != null)
+                            var version = versionCmd.ExecuteScalar();
+                            if (version != null)
                             {
-                                sessionInfo["Connection ID"] = connId.ToString();
+                                sessionInfo["SQLite Version"] = version.ToString();
                             }
                         }
 
@@ -118,19 +98,13 @@ namespace System.pages
                     conn.Close();
                 }
             }
-            catch (MySqlException mysqlEx)
+            catch (SQLiteException sqliteEx)
             {
-                // MySqlConnector specific error handling
-                string errorHtml = $"<div style='color: red;'><strong>{DateTime.Now:yyyy-MM-dd HH:mm:ss}</strong> - MySQL Error:<br/>" +
-                                  $"• Error Code: {mysqlEx.ErrorCode}<br/>";
-
-                // MySqlConnector uses ErrorCode instead of Number
-                if (mysqlEx.SqlState != null)
-                {
-                    errorHtml += $"• SQL State: {mysqlEx.SqlState}<br/>";
-                }
-
-                errorHtml += $"• Message: {mysqlEx.Message}</div>";
+                // SQLite specific error handling
+                string errorHtml = $"<div style='color: red;'><strong>{DateTime.Now:yyyy-MM-dd HH:mm:ss}</strong> - SQLite Error:<br/>" +
+                                  $"• Error Code: {sqliteEx.ErrorCode}<br/>" +
+                                  $"• Result Code: {sqliteEx.ResultCode}<br/>" +
+                                  $"• Message: {sqliteEx.Message}</div>";
 
                 phResult.Controls.Add(new LiteralControl(errorHtml));
             }
@@ -163,18 +137,18 @@ namespace System.pages
                 StringBuilder sb = new StringBuilder();
                 int rowCount = 0;
 
-                using (MySqlConnection conn = config.GetNewConnection())
+                using (SQLiteConnection conn = new SQLiteConnection(BackupFilesManager.sqliteConnectionString))
                 {
                     conn.Open();
 
-                    using (MySqlCommand cmd = new MySqlCommand())
+                    using (SQLiteCommand cmd = new SQLiteCommand())
                     {
                         cmd.Connection = conn;
                         cmd.CommandText = txtSql.Text;
 
                         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
                         {
                             sb.Append("<div class='div-table-result'><table>");
 
@@ -227,7 +201,7 @@ namespace System.pages
                                                 }
                                                 else
                                                 {
-                                                    QueryExpress.ConvertByteArrayToHexString(sb, value);
+                                                    MySqlConnector.QueryExpress.ConvertByteArrayToHexString(sb, value);
                                                 }
                                             }
                                             else if (value is string)
@@ -247,7 +221,7 @@ namespace System.pages
                                             {
                                                 // Use QueryExpress for normal formatting
                                                 sb.Append("<pre>");
-                                                QueryExpress.ConvertToSqlFormat(sb, value, false, false);
+                                                MySqlConnector.QueryExpress.ConvertToSqlFormat(sb, value, false, false);
                                                 sb.Append("</pre>");
                                             }
                                         }
@@ -292,17 +266,12 @@ namespace System.pages
                     conn.Close();
                 }
             }
-            catch (MySqlException mysqlEx)
+            catch (SQLiteException sqliteEx)
             {
-                string errorHtml = $"<div style='color: red;'><strong>{DateTime.Now:yyyy-MM-dd HH:mm:ss}</strong> - MySQL Error:<br/>" +
-                                  $"• Error Code: {mysqlEx.ErrorCode}<br/>";
-
-                if (mysqlEx.SqlState != null)
-                {
-                    errorHtml += $"• SQL State: {mysqlEx.SqlState}<br/>";
-                }
-
-                errorHtml += $"• Message: {mysqlEx.Message}</div>";
+                string errorHtml = $"<div style='color: red;'><strong>{DateTime.Now:yyyy-MM-dd HH:mm:ss}</strong> - SQLite Error:<br/>" +
+                                  $"• Error Code: {sqliteEx.ErrorCode}<br/>" +
+                                  $"• Result Code: {sqliteEx.ResultCode}<br/>" +
+                                  $"• Message: {sqliteEx.Message}</div>";
 
                 phResult.Controls.Add(new LiteralControl(errorHtml));
             }
@@ -314,7 +283,7 @@ namespace System.pages
 
         protected void btShowAllTables_Click(object sender, EventArgs e)
         {
-            txtSql.Text = "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE';";
+            txtSql.Text = "SELECT name FROM sqlite_master WHERE type='table';";
             btSelectShow_Click(null, null);
         }
     }

@@ -5,7 +5,7 @@ using System.Data;
 
 namespace MySqlConnector
 {
-    public class MySqlEventList : IDisposable, IEnumerable<MySqlEvent>
+    public class MySqlEventList : IEnumerable<MySqlEvent>
     {
         string _sqlShowEvents = string.Empty;
         Dictionary<string, MySqlEvent> _lst = new Dictionary<string, MySqlEvent>();
@@ -72,14 +72,5 @@ namespace MySqlConnector
 
         IEnumerator IEnumerable.GetEnumerator() =>
            _lst.Values.GetEnumerator();
-
-        public void Dispose()
-        {
-            foreach (var key in _lst.Keys)
-            {
-                _lst[key] = null;
-            }
-            _lst = null;
-        }
     }
 }

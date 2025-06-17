@@ -12,7 +12,7 @@ namespace System
 
         protected void Application_Start(object sender, EventArgs e)
         {
-            AutoRoute.Route("~/pages");
+            adriancs.AutoRoute.Route("~/pages");
         }
 
         protected void Session_Start(object sender, EventArgs e)

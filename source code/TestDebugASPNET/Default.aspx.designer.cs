@@ -186,6 +186,15 @@ namespace System
         protected global::System.Web.UI.WebControls.CheckBox cbEnableComments;
 
         /// <summary>
+        /// cbRecordDumpTime control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox cbRecordDumpTime;
+
+        /// <summary>
         /// cbInsertLineBreakBetweenInserts control.
         /// </summary>
         /// <remarks>
@@ -274,6 +283,15 @@ namespace System
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btRunRestore;
+
+        /// <summary>
+        /// fileUploadRestore control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload fileUploadRestore;
 
         /// <summary>
         /// cbIgnoreSqlError control.

@@ -1,0 +1,692 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data.SQLite;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Web;
+using System.Web.Services.Description;
+
+namespace System
+{
+    public static class BackupFilesManager
+    {
+        public static bool VariableInitialized = false;
+
+        static string _folder = null;
+        static string _tempFolder = null;
+        static string _tempZipFolder = null;
+
+        public static string folder
+        {
+            get
+            {
+                if (_folder == null)
+                {
+                    string f = HttpContext.Current.Server.MapPath("~/App_Data/backup");
+                    if (!Directory.Exists(f))
+                        Directory.CreateDirectory(f);
+                    _folder = f;
+                }
+                return _folder;
+            }
+        }
+
+        public static string tempFolder
+        {
+            get
+            {
+                if (_tempFolder == null)
+                {
+                    _tempFolder = Path.Combine(folder, "temp");
+                    if (!Directory.Exists(_tempFolder))
+                        Directory.CreateDirectory(_tempFolder);
+                }
+                return _tempFolder;
+            }
+        }
+
+        public static string tempZipFolder
+        {
+            get
+            {
+                if (_tempZipFolder == null)
+                {
+                    _tempZipFolder = Path.Combine(folder, "temp-zip");
+                    if (!Directory.Exists(_tempZipFolder))
+                        Directory.CreateDirectory(_tempZipFolder);
+                }
+                return _tempZipFolder;
+            }
+        }
+
+        public static void InitializeVariables()
+        {
+            string a = folder;
+            string b = tempFolder;
+            string c = tempZipFolder;
+            string d = sqliteConnectionString;
+
+            VariableInitialized = true;
+        }
+
+        public static string sqliteConnectionString
+        {
+            get
+            {
+                string f = Path.Combine(folder, "data.sqlite3");
+                string c = $"Data Source={f};Version=3;";
+                if (!File.Exists(f))
+                {
+                    using (var connection = new SQLiteConnection(c))
+                    {
+                        connection.Open();
+
+                        using (var cmd = new SQLiteCommand(connection))
+                        {
+                            string createTableSql = @"
+                            CREATE TABLE IF NOT EXISTS DatabaseFile (
+                                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                Operation TEXT,
+                                Filename TEXT,
+                                LogFilename TEXT,
+                                OriginalFilename TEXT,
+                                Sha256 TEXT,
+                                Filesize INTEGER,
+                                DatabaseName TEXT,
+                                DateCreated DATETIME,
+                                Remarks TEXT
+                            )";
+
+                            cmd.CommandText = createTableSql;
+                            cmd.ExecuteNonQuery();
+
+                            createTableSql = @"
+                            CREATE TABLE IF NOT EXISTS Log (
+                                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                DatabaseFileId INTEGER,
+                                Content TEXT
+                            )";
+
+                            cmd.CommandText = createTableSql;
+                            cmd.ExecuteNonQuery();
+
+                            createTableSql = @"CREATE TABLE progress_report (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    operation int,
+    start_time DATETIME,
+    end_time DATETIME,
+    is_completed INTEGER,
+    has_error INTEGER,
+    is_cancelled INTEGER,
+    filename TEXT,
+    total_tables INTEGER,
+    total_rows INTEGER,
+    total_rows_current_table INTEGER,
+    current_table TEXT,
+    current_table_index INTEGER,
+    current_row INTEGER,
+    current_row_in_current_table INTEGER,
+    total_bytes INTEGER,
+    current_bytes INTEGER,
+    percent_complete INTEGER,
+    remarks TEXT,
+    dbfile_id INTEGER,
+    last_update_time DATETIME,
+    client_request_cancel_task INTEGER
+);";
+
+                            cmd.CommandText = createTableSql;
+                            cmd.ExecuteNonQuery();
+
+                            createTableSql = @"
+                            CREATE TABLE IF NOT EXISTS Config (
+                                `Key` TEXT PRIMARY KEY,
+                                `Value` TEXT
+                            )";
+
+                            cmd.CommandText = createTableSql;
+                            cmd.ExecuteNonQuery();
+
+                            cmd.CommandText = "INSERT INTO Config (`Key`, `Value`) VALUES ('DataVersion','1');";
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+                return c;
+            }
+        }
+
+        #region Zip File Management
+
+        /// <summary>
+        /// Gets the cache ID for a file based on its properties
+        /// </summary>
+        public static string GetFileCacheId(string filePath)
+        {
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException($"File not found: {filePath}");
+
+            var fileInfo = new FileInfo(filePath);
+            string orifilename = Path.GetFileNameWithoutExtension(filePath);
+            string cacheKey = $"{orifilename}_{fileInfo.Length}_{fileInfo.LastWriteTimeUtc.Ticks}";
+            return GetMD5Hash(cacheKey);
+        }
+
+        /// <summary>
+        /// Gets the zip file path for a given SQL file. Creates the zip if it doesn't exist.
+        /// </summary>
+        public static string GetOrCreateZipFile(string sqlFilePath)
+        {
+            if (!File.Exists(sqlFilePath))
+                throw new FileNotFoundException($"SQL file not found: {sqlFilePath}");
+
+            string cacheId = GetFileCacheId(sqlFilePath);
+            string zipFilename = $"{cacheId}.zip";
+            string zipFilePath = Path.Combine(tempZipFolder, zipFilename);
+
+            // If zip already exists, update access time and return
+            if (File.Exists(zipFilePath))
+            {
+                File.SetLastAccessTime(zipFilePath, DateTime.Now);
+                return zipFilePath;
+            }
+
+            // Create the zip file
+            CreateZipFile(sqlFilePath, cacheId);
+            return zipFilePath;
+        }
+
+        /// <summary>
+        /// Creates a zip file for the given SQL file
+        /// </summary>
+        private static void CreateZipFile(string sqlFilePath, string cacheId)
+        {
+            string guidFolder = Path.Combine(tempFolder, cacheId);
+            string zipFilePath = Path.Combine(tempZipFolder, $"{cacheId}.zip");
+
+            try
+            {
+                // Create GUID folder
+                Directory.CreateDirectory(guidFolder);
+
+                // Copy SQL file to GUID folder
+                string orifilename = Path.GetFileNameWithoutExtension(sqlFilePath);
+                string tempSqlPath = Path.Combine(guidFolder, $"{orifilename}.sql");
+                File.Copy(sqlFilePath, tempSqlPath);
+
+                // Create zip file
+                ZipFile.CreateFromDirectory(guidFolder, zipFilePath, CompressionLevel.Optimal, false);
+            }
+            finally
+            {
+                // Clean up the temporary GUID folder immediately after zipping
+                try
+                {
+                    if (Directory.Exists(guidFolder))
+                        Directory.Delete(guidFolder, true);
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// Pre-generates a zip file for a SQL backup file (useful after backup completion)
+        /// </summary>
+        public static void PreGenerateZipFile(string sqlFilePath)
+        {
+            try
+            {
+                GetOrCreateZipFile(sqlFilePath);
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't throw - pre-generation is optional
+                // You might want to log this to your logging system
+            }
+        }
+
+        /// <summary>
+        /// Cleans up old temporary files
+        /// </summary>
+        public static void CleanupOldTempFiles(int hoursToKeep = 3)
+        {
+            try
+            {
+                var cutoffTime = DateTime.Now.AddHours(-hoursToKeep);
+
+                // Clean old GUID folders in temp folder
+                if (Directory.Exists(tempFolder))
+                {
+                    foreach (var dir in Directory.GetDirectories(tempFolder))
+                    {
+                        try
+                        {
+                            if (Directory.GetCreationTime(dir) < cutoffTime)
+                            {
+                                Directory.Delete(dir, true);
+                            }
+                        }
+                        catch { }
+                    }
+                }
+
+                // Clean old zip files in temp-zip folder (use LastAccessTime)
+                if (Directory.Exists(tempZipFolder))
+                {
+                    foreach (var file in Directory.GetFiles(tempZipFolder, "*.zip"))
+                    {
+                        try
+                        {
+                            if (File.GetLastAccessTime(file) < cutoffTime)
+                            {
+                                File.Delete(file);
+                            }
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private static string GetMD5Hash(string input)
+        {
+            using (var md5 = MD5.Create())
+            {
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            }
+        }
+
+        #endregion
+
+        #region Original Methods
+
+        public static int SaveRecord(DatabaseFileRecord dbFile)
+        {
+            int newid = 0;
+
+            using (var connection = new SQLiteConnection(sqliteConnectionString))
+            {
+                connection.Open();
+
+                string sql = @"
+                    INSERT INTO DatabaseFile (Operation, Filename, OriginalFilename, LogFilename, Sha256, Filesize, DatabaseName, DateCreated, Remarks)
+                    VALUES (@Operation, @Filename, @OriginalFilename, @LogFilename, @Sha256, @Filesize, @DatabaseName, @DateCreated, @Remarks)";
+
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Operation", dbFile.Operation);
+                    cmd.Parameters.AddWithValue("@Filename", dbFile.Filename);
+                    cmd.Parameters.AddWithValue("@OriginalFilename", dbFile.OriginalFilename);
+                    cmd.Parameters.AddWithValue("@LogFilename", dbFile.LogFilename);
+                    cmd.Parameters.AddWithValue("@Sha256", dbFile.Sha256);
+                    cmd.Parameters.AddWithValue("@Filesize", dbFile.Filesize);
+                    cmd.Parameters.AddWithValue("@DatabaseName", dbFile.DatabaseName);
+                    cmd.Parameters.AddWithValue("@DateCreated", dbFile.DateCreated);
+                    cmd.Parameters.AddWithValue("@Remarks", dbFile.Remarks);
+
+                    cmd.ExecuteNonQuery();
+
+                    newid = (int)connection.LastInsertRowId;
+                }
+            }
+
+            return newid;
+        }
+
+        public static void DeleteRecord(int id)
+        {
+            List<int> lst = new List<int>();
+            lst.Add(id);
+            DeleteRecords(lst);
+        }
+
+        public static void DeleteRecords(List<int> lstId)
+        {
+            List<int> lstTargetId = new List<int>();
+            List<string> lstFilename = new List<string>();
+
+            using (var connection = new SQLiteConnection(sqliteConnectionString))
+            {
+                connection.Open();
+
+                if (lstId.Count > 0)
+                {
+                    string placeholders = string.Join(",", lstId.Select((_, i) => $"@id{i}"));
+                    string sql = $"SELECT Id, Filename FROM DatabaseFile WHERE Id IN ({placeholders})";
+
+                    using (var cmd = new SQLiteCommand(sql, connection))
+                    {
+                        for (int i = 0; i < lstId.Count; i++)
+                        {
+                            cmd.Parameters.AddWithValue($"@id{i}", lstId[i]);
+                        }
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                int targetRecordId = reader.GetInt32(0);
+                                string filename = reader.GetString(1);
+                                if (targetRecordId > 0)
+                                {
+                                    lstTargetId.Add(targetRecordId);
+                                    lstFilename.Add(filename);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (lstTargetId.Count > 0)
+                {
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            using (var cmd = new SQLiteCommand("DELETE FROM DatabaseFile WHERE Id = @Id", connection, transaction))
+                            {
+                                foreach (var id in lstTargetId)
+                                {
+                                    cmd.Parameters.Clear();
+                                    cmd.Parameters.AddWithValue("@Id", id);
+                                    cmd.ExecuteNonQuery();
+                                }
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch
+                        {
+                            transaction.Rollback();
+                            throw;
+                        }
+                    }
+                }
+            }
+
+            if (lstFilename.Count > 0)
+            {
+                foreach (var filename in lstFilename)
+                {
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(filename))
+                        {
+                            string filePath = Path.Combine(folder, filename);
+                            if (File.Exists(filePath))
+                            {
+                                File.Delete(filePath);
+                            }
+                        }
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        public static DatabaseFileRecord GetRecord(int id)
+        {
+            var lst = GetRecordList(id, null, null);
+            if (lst.Count > 0)
+            {
+                return lst[0];
+            }
+            return null;
+        }
+
+        public static DatabaseFileRecord GetRecord(string filename)
+        {
+            var lst = GetRecordList(0, null, filename);
+            if (lst.Count > 0)
+            {
+                return lst[0];
+            }
+            return null;
+        }
+
+        public static List<DatabaseFileRecord> GetRecordList(int id, string operation, string filename)
+        {
+            Dictionary<string, object> dicParam = new Dictionary<string, object>();
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT * FROM DatabaseFile WHERE 1=1");
+
+            if (id != 0)
+            {
+                sb.Append($" AND Id = @Id");
+                dicParam["@Id"] = id;
+            }
+
+            if (!string.IsNullOrEmpty(operation))
+            {
+                sb.Append($" AND Operation = @Operation");
+                dicParam["@Operation"] = operation;
+            }
+
+            if (!string.IsNullOrEmpty(filename))
+            {
+                sb.Append($" AND (Filename = @Filename or LogFilename = @Filename)");
+                dicParam["@Filename"] = filename;
+            }
+
+            sb.Append(" ORDER BY DateCreated DESC;");
+
+            List<DatabaseFileRecord> lst = new List<DatabaseFileRecord>();
+
+            using (var connection = new SQLiteConnection(sqliteConnectionString))
+            {
+                connection.Open();
+
+                using (var cmd = new SQLiteCommand(connection))
+                {
+                    cmd.CommandText = sb.ToString();
+
+                    foreach (var kv in dicParam)
+                    {
+                        cmd.Parameters.AddWithValue(kv.Key, kv.Value);
+                    }
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            DatabaseFileRecord dbFile = new DatabaseFileRecord();
+                            dbFile.Id = Convert.ToInt32(reader["Id"]);
+                            dbFile.Operation = reader["Operation"] + "";
+                            dbFile.Filename = reader["Filename"] + "";
+                            dbFile.OriginalFilename = reader["OriginalFilename"] + "";
+                            dbFile.LogFilename = reader["LogFilename"] + "";
+                            dbFile.Sha256 = reader["Sha256"] + "";
+                            dbFile.Filesize = Convert.ToInt64(reader["Filesize"]);
+                            dbFile.DatabaseName = reader["DatabaseName"] + "";
+                            dbFile.DateCreated = Convert.ToDateTime(reader["DateCreated"]);
+                            dbFile.Remarks = reader["Remarks"] + "";
+
+                            lst.Add(dbFile);
+                        }
+                    }
+                }
+            }
+
+            return lst;
+        }
+
+        public static void CleanUpOldFiles(int keepMostRecent, string operation)
+        {
+            if (keepMostRecent < 0)
+                return;
+
+            using (var connection = new SQLiteConnection(sqliteConnectionString))
+            {
+                connection.Open();
+
+                string sql = "";
+
+                if (string.IsNullOrEmpty(operation))
+                {
+                    sql = @"
+                SELECT Id, Filename 
+                FROM DatabaseFile 
+                ORDER BY DateCreated DESC, Id DESC
+                LIMIT -1 OFFSET @offset";
+                }
+                else
+                {
+                    sql = @"
+                SELECT Id, Filename 
+                FROM DatabaseFile 
+                WHERE Operation = @Operation
+                ORDER BY DateCreated DESC, Id DESC
+                LIMIT -1 OFFSET @offset";
+                }
+
+                var filesToDelete = new List<(int Id, string Filename)>();
+
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Operation", operation ?? "");
+                    cmd.Parameters.AddWithValue("@offset", keepMostRecent);
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            filesToDelete.Add((
+                                reader.GetInt32(0),
+                                reader.IsDBNull(1) ? "" : reader.GetString(1)
+                            ));
+                        }
+                    }
+                }
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        using (var cmd = new SQLiteCommand("DELETE FROM DatabaseFile WHERE Id = @Id", connection, transaction))
+                        {
+                            foreach (var file in filesToDelete)
+                            {
+                                cmd.Parameters.Clear();
+                                cmd.Parameters.AddWithValue("@Id", file.Id);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+
+                // Delete physical files after database commit
+                foreach (var file in filesToDelete)
+                {
+                    if (!string.IsNullOrEmpty(file.Filename))
+                    {
+                        string filePath = Path.Combine(folder, file.Filename);
+                        try
+                        {
+                            if (File.Exists(filePath))
+                            {
+                                File.Delete(filePath);
+                            }
+                        }
+                        catch { }
+                    }
+                }
+            }
+        }
+
+        public static string ComputeSha256File(string filePath)
+        {
+            using (var sha256 = SHA256.Create())
+            using (var stream = File.OpenRead(filePath))
+            {
+                byte[] hash = sha256.ComputeHash(stream);
+                return BitConverter.ToString(hash).Replace("-", "").ToLower();
+            }
+        }
+
+        public static string GetFileContent(int id)
+        {
+            try
+            {
+                var dbFile = GetRecord(id);
+
+                if (dbFile != null && dbFile.Id > 0 && !string.IsNullOrEmpty(dbFile.Filename))
+                {
+                    string filePath = Path.Combine(folder, dbFile.Filename);
+                    if (File.Exists(filePath))
+                    {
+                        return File.ReadAllText(filePath);
+                    }
+                    else
+                    {
+                        return "File not exists";
+                    }
+                }
+                else
+                {
+                    return "File not exists";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
+            }
+        }
+
+        public static string GetFileContent(string filename)
+        {
+            try
+            {
+                var dbFile = GetRecord(filename);
+
+                if (dbFile != null && dbFile.Id > 0)
+                {
+                    string filePath = "";
+
+                    if (dbFile.Filename == filename)
+                    {
+                        filePath = Path.Combine(folder, dbFile.Filename);
+                    }
+                    else if (dbFile.LogFilename == filename)
+                    {
+                        filePath = Path.Combine(folder, dbFile.LogFilename);
+                    }
+
+                    if (File.Exists(filePath))
+                    {
+                        return File.ReadAllText(filePath);
+                    }
+                    else
+                    {
+                        return "File not exists";
+                    }
+                }
+                else
+                {
+                    return "File not exists";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
+            }
+        }
+
+        #endregion
+    }
+}

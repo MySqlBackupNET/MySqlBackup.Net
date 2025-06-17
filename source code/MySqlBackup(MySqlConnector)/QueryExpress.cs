@@ -174,12 +174,183 @@ namespace MySqlConnector
             return input.Replace(sb.ToString(), string.Empty);
         }
 
-        public static void ConvertToSqlValueFormat(StringBuilder sb, Object ob, bool escapeStringSequence, bool wrapStringWithSingleQuote)
+        public static string ConvertToSqlFormat(object ob, bool escapeStringSequence, bool wrapStringWithSingleQuote, MySqlColumn col)
         {
-            ConvertToSqlValueFormat(sb, ob, null, escapeStringSequence, wrapStringWithSingleQuote);
+            StringBuilder sb = new StringBuilder();
+
+            if (ob == null || ob is DBNull)
+            {
+                return "NULL";
+            }
+            else if (ob is string)
+            {
+                string str = (string)ob;
+
+                if (escapeStringSequence)
+                    str = EscapeStringSequence(str);
+
+                return wrapStringWithSingleQuote ? $"'{str}'" : str;
+            }
+            else if (ob is bool)
+            {
+                return Convert.ToInt32(ob).ToString();
+            }
+            else if (ob is byte[])
+            {
+                return ConvertByteArrayToHexString((byte[])ob);
+            }
+            else if (ob is short)
+            {
+                return ((short)ob).ToString(_numberFormatInfo);
+            }
+            else if (ob is int)
+            {
+                return ((int)ob).ToString(_numberFormatInfo);
+            }
+            else if (ob is long)
+            {
+                return ((long)ob).ToString(_numberFormatInfo);
+            }
+            else if (ob is ushort)
+            {
+                return ((ushort)ob).ToString(_numberFormatInfo);
+            }
+            else if (ob is uint)
+            {
+                return ((uint)ob).ToString(_numberFormatInfo);
+            }
+            else if (ob is ulong)
+            {
+                return ((ulong)ob).ToString(_numberFormatInfo);
+            }
+            else if (ob is double)
+            {
+                return ((double)ob).ToString(_numberFormatInfo);
+            }
+            else if (ob is decimal)
+            {
+                return ((decimal)ob).ToString(_numberFormatInfo);
+            }
+            else if (ob is float)
+            {
+                return ((float)ob).ToString(_numberFormatInfo);
+            }
+            else if (ob is byte)
+            {
+                return ((byte)ob).ToString(_numberFormatInfo);
+            }
+            else if (ob is sbyte)
+            {
+                return ((sbyte)ob).ToString(_numberFormatInfo);
+            }
+            else if (ob is TimeSpan ts)
+            {
+                string time = $"{((int)ts.TotalHours):D2}:{ts.Duration().Minutes:D2}:{ts.Duration().Seconds:D2}";
+                return wrapStringWithSingleQuote ? $"'{time}'" : time;
+            }
+            else if (ob is DateTime dt)
+            {
+                string dateTime = dt.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo);
+                if (col?.TimeFractionLength > 0)
+                {
+                    dateTime += "." + dt.ToString("".PadLeft(col.TimeFractionLength, 'f'));
+                }
+                return wrapStringWithSingleQuote ? $"'{dateTime}'" : dateTime;
+            }
+            else if (ob is MySqlDateTime mdt)
+            {
+                if (mdt.IsValidDateTime)
+                {
+                    DateTime dtime = mdt.GetDateTime();
+                    string dateTime;
+
+                    if (col != null)
+                    {
+                        if (col.MySqlDataType == "datetime")
+                            dateTime = dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo);
+                        else if (col.MySqlDataType == "date")
+                            dateTime = dtime.ToString("yyyy-MM-dd", _dateFormatInfo);
+                        else if (col.MySqlDataType == "time")
+                            dateTime = $"{mdt.Hour}:{mdt.Minute}:{mdt.Second}";
+                        else
+                            dateTime = dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo);
+
+                        if (col.TimeFractionLength > 0)
+                        {
+                            dateTime += "." + mdt.Microsecond.ToString().PadLeft(col.TimeFractionLength, '0');
+                        }
+                    }
+                    else
+                    {
+                        dateTime = dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo);
+                    }
+
+                    return wrapStringWithSingleQuote ? $"'{dateTime}'" : dateTime;
+                }
+                else
+                {
+                    string dateTime;
+
+                    if (col != null)
+                    {
+                        if (col.MySqlDataType == "datetime")
+                            dateTime = "0000-00-00 00:00:00";
+                        else if (col.MySqlDataType == "date")
+                            dateTime = "0000-00-00";
+                        else if (col.MySqlDataType == "time")
+                            dateTime = "00:00:00";
+                        else
+                            dateTime = "0000-00-00 00:00:00";
+
+                        if (col.TimeFractionLength > 0)
+                        {
+                            dateTime += "." + "".PadRight(col.TimeFractionLength, '0');
+                        }
+                    }
+                    else
+                    {
+                        dateTime = "0000-00-00 00:00:00";
+                    }
+
+                    return wrapStringWithSingleQuote ? $"'{dateTime}'" : dateTime;
+                }
+            }
+            else if (ob is Guid guid)
+            {
+                if (col != null && col.MySqlDataType == "binary(16)")
+                {
+                    return ConvertByteArrayToHexString(guid.ToByteArray());
+                }
+                else
+                {
+                    string guidStr = guid.ToString();
+                    return wrapStringWithSingleQuote ? $"'{guidStr}'" : guidStr;
+                }
+            }
+            else
+            {
+                throw new Exception($"Unhandled data type. Current processing data type: {ob.GetType()}. Please report this bug with this message to the development team.");
+            }
         }
 
-        public static void ConvertToSqlValueFormat(StringBuilder sb, Object ob, MySqlColumn col, bool escapeStringSequence, bool wrapStringWithSingleQuote)
+        // Helper method to convert byte array to hex string
+        private static string ConvertByteArrayToHexString(byte[] bytes)
+        {
+            StringBuilder hex = new StringBuilder(bytes.Length * 2);
+            hex.Append("0x");
+            foreach (byte b in bytes)
+            {
+                hex.AppendFormat("{0:x2}", b);
+            }
+            return hex.ToString();
+        }
+
+        public static void ConvertToSqlFormat(StringBuilder sb, Object ob, bool escapeStringSequence, bool wrapStringWithSingleQuote)
+        {
+            ConvertToSqlFormat(sb, ob, null, escapeStringSequence, wrapStringWithSingleQuote);
+        }
+
+        public static void ConvertToSqlFormat(StringBuilder sb, Object ob, MySqlColumn col, bool escapeStringSequence, bool wrapStringWithSingleQuote)
         {
             if (ob == null || ob is System.DBNull)
             {
@@ -276,7 +447,7 @@ namespace MySqlConnector
 
                 sb.AppendFormat(((DateTime)ob).ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
 
-                if (col.TimeFractionLength > 0)
+                if (col != null && col.TimeFractionLength > 0)
                 {
                     sb.Append(".");
                     string _microsecond = ((DateTime)ob).ToString("".PadLeft(col.TimeFractionLength, 'f'));

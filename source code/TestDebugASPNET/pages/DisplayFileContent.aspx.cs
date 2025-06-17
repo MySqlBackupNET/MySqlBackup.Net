@@ -1,21 +1,93 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.IO.Compression;
 
 namespace System.pages
 {
     public partial class DisplayFileContent : System.Web.UI.Page
     {
-        protected void Page_Load(object sender, EventArgs e)
+        protected async void Page_Load(object sender, EventArgs e)
         {
-            int.TryParse(Request["id"], out int id);
-            string text = EngineSQLite.GetRecordFileContent(id);
-            Response.Clear();
-            Response.ContentType = "text/plain; charset=utf-8";
-            Response.Write(text);
+            string action = Request["action"] + "";
+            string filename = Request["filename"] + "";
+
+            if (action == "download")
+            {
+                string filepath = "";
+                if (int.TryParse(Request["id"], out int id))
+                {
+                    var dbFile = BackupFilesManager.GetRecord(id);
+                    filepath = Path.Combine(BackupFilesManager.folder, dbFile.Filename);
+                }
+                else if (!string.IsNullOrWhiteSpace(filename))
+                {
+                    filepath = Path.Combine(BackupFilesManager.folder, filename);
+                }
+                else
+                {
+                    return;
+                }
+
+                if (File.Exists(filepath))
+                {
+                    try
+                    {
+                        // Get or create the zip file using BackupFilesManager
+                        string zipFilePath = BackupFilesManager.GetOrCreateZipFile(filepath);
+
+                        // Get original filename for download
+                        string orifilename = Path.GetFileNameWithoutExtension(filepath);
+
+                        // Transmit the file
+                        long fileSize = new FileInfo(zipFilePath).Length;
+                        Response.Clear();
+                        Response.ContentType = "application/octet-stream";
+                        Response.AddHeader("Content-Disposition", $"attachment; filename=\"{orifilename}.zip\"");
+                        Response.AddHeader("Content-Length", fileSize.ToString());
+
+                        await Task.Run(() => Response.TransmitFile(zipFilePath));
+                        Response.End();
+                    }
+                    finally
+                    {
+                        // Async cleanup task for files older than 72 hours
+                        _ = Task.Run(() => BackupFilesManager.CleanupOldTempFiles(720));
+                    }
+
+                    return;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                string text = "";
+
+                if (int.TryParse(Request["id"], out int id))
+                {
+                    text = BackupFilesManager.GetFileContent(id);
+                }
+                else if (!string.IsNullOrWhiteSpace(filename))
+                {
+                    text = BackupFilesManager.GetFileContent(filename);
+                }
+                else
+                {
+                    return;
+                }
+
+                Response.Clear();
+                Response.ContentType = "text/plain; charset=utf-8";
+                Response.Write(text);
+            }
         }
     }
 }

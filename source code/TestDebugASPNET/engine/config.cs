@@ -9,6 +9,8 @@ namespace System
 {
     public static class config
     {
+        public static bool VariablesInitialized = false;
+
         static string _constr = null;
 
         public static string ConnString
@@ -27,9 +29,16 @@ namespace System
             }
         }
 
+        public static void InitializeVariables()
+        {
+            string e = ConnString;
+            BackupFilesManager.InitializeVariables();
+            VariablesInitialized = true;
+        }
+
         public static MySqlConnection GetNewConnection()
         {
-            return new MySqlConnection(_constr);
+            return new MySqlConnection(ConnString);
         }
 
         public static bool TestConnectionOk()
@@ -70,6 +79,27 @@ namespace System
             {
                 _constr = null;
             }
+        }
+
+        public static string GetCurrentDatabaseName()
+        {
+            try
+            {
+                using (MySqlConnection conn = GetNewConnection())
+                {
+                    using (MySqlCommand cmd = new MySqlCommand())
+                    {
+                        conn.Open();
+                        cmd.Connection = conn;
+
+                        cmd.CommandText = "select database();";
+                        return cmd.ExecuteScalar() + "";
+                    }
+                }
+            }
+            catch { }
+
+            return "";
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace MySqlConnector
 {
-    public class MySqlTable : IDisposable
+    public class MySqlTable
     {
         string _name = string.Empty;
         MySqlColumnList _lst = null;
@@ -95,10 +95,10 @@ namespace MySqlConnector
             return sql;
         }
 
-        public void Dispose()
-        {
-            _lst.Dispose();
-            _lst = null;
-        }
+        //public void Dispose()
+        //{
+        //    _lst.Dispose();
+        //    _lst = null;
+        //}
     }
 }

@@ -1,1 +1,1 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="DisplayFileContent.aspx.cs" Inherits="System.pages.DisplayFileContent" %>
+﻿<%@ Page Language="C#" Async="true" AutoEventWireup="true" CodeBehind="DisplayFileContent.aspx.cs" Inherits="System.pages.DisplayFileContent" %>

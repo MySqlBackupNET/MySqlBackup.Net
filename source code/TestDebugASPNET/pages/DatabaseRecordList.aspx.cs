@@ -16,6 +16,15 @@ namespace System.pages
             {
                 LoadRecords();
             }
+            else
+            {
+                string action = Request["hiddenPostbackAction"] + "";
+
+                if (action == "delete")
+                {
+                    DeleteRecords();
+                }
+            }
         }
 
         protected void btnLoadFiles_Click(object sender, EventArgs e)
@@ -23,23 +32,13 @@ namespace System.pages
             LoadRecords();
         }
 
-        protected void btnDeleteSelected_Click(object sender, EventArgs e)
-        {
-            DeleteSelectedRecords();
-            LoadRecords();
-        }
-
         private void LoadRecords()
         {
-            try
-            {
-                // Get all records (empty string for operation to get all)
-                List<DatabaseFileRecord> records = EngineSQLite.GetRecordList("");
+            var records = BackupFilesManager.GetRecordList(0, null, null);
 
-                StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
 
-                // Start container div and add summary info
-                sb.Append($@"
+            sb.Append($@"
 <div class='records-container'>
     <div class='summary-info'>Total Records: {records.Count}</div>
     <table class='records-table'>
@@ -52,67 +51,92 @@ namespace System.pages
                 <th>Size</th>
                 <th>Database</th>
                 <th>Date Created</th>
-                <th>SHA256</th>
                 <th>Remarks</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>");
 
-                foreach (var record in records)
-                {
-                    sb.Append($@"
+            foreach (var record in records)
+            {
+                string elapsedTime = GetElapsedTime(record.DateCreated);
+
+                sb.Append($@"
             <tr>
                 <td><input type='checkbox' class='record-checkbox' name='del_{record.Id}' /></td>
                 <td>{record.Id}</td>
                 <td>{HttpUtility.HtmlEncode(record.Operation)}</td>
-                <td>{HttpUtility.HtmlEncode(record.OriginalFilename)}</td>
+                <td><span class='label-filename'>{HttpUtility.HtmlEncode(record.Filename)}</span><br />
+                    <span class='label-sha'>SHA256:</span><span class='value-sha'>{record.Sha256}</span>
+                </td>
                 <td>{FormatFileSize(record.Filesize)}</td>
                 <td>{HttpUtility.HtmlEncode(record.DatabaseName)}</td>
-                <td>{record.DateCreated:yyyy-MM-dd HH:mm:ss}</td>
-                <td>{record.Sha256}</td>
+                <td>{record.DateCreated:yyyy-MM-dd HH:mm:ss}<br />{elapsedTime}</td>
                 <td>{HttpUtility.HtmlEncode(record.Remarks)}</td>
-                <td><a href='/DisplayFileContent?id={record.Id}' target='_blank' class='view-link'>View</a></td>
+                <td><a href='/DisplayFileContent?id={record.Id}' target='_blank' class='view-link'>View</a><br />
+                    <a href='/DisplayFileContent?id={record.Id}&action=download' target='frame1' class='view-link' onclick='showBigLoading();'>Download</a>
+                </td>
             </tr>");
-                }
+            }
 
-                sb.Append($@"
+            sb.Append($@"
         </tbody>
     </table>
 </div>");
 
-                // Write to literal control
-                ltlRecords.Text = sb.ToString();
-            }
-            catch (Exception ex)
+            ltlRecords.Text = sb.ToString();
+        }
+
+        private string GetElapsedTime(DateTime dateCreated)
+        {
+            TimeSpan elapsed = DateTime.Now - dateCreated;
+
+            if (elapsed.TotalDays >= 1)
             {
-                ltlRecords.Text = $@"<div class='error-message'>Error loading records: {HttpUtility.HtmlEncode(ex.Message)}</div>";
+                int days = (int)elapsed.TotalDays;
+                return $"{days} day{(days == 1 ? "" : "s")} ago";
+            }
+            else if (elapsed.TotalHours >= 1)
+            {
+                int hours = (int)elapsed.TotalHours;
+                return $"{hours} hour{(hours == 1 ? "" : "s")} ago";
+            }
+            else if (elapsed.TotalMinutes >= 1)
+            {
+                int minutes = (int)elapsed.TotalMinutes;
+                return $"{minutes} minute{(minutes == 1 ? "" : "s")} ago";
+            }
+            else
+            {
+                int seconds = (int)elapsed.TotalSeconds;
+                return $"{seconds} second{(seconds == 1 ? "" : "s")} ago";
             }
         }
 
-        private void DeleteSelectedRecords()
+        void DeleteRecords()
         {
-            try
+            List<int> lstDelId = new List<int>();
+
+            // Collect all form keys that start with "del_"
+            foreach (string key in Request.Form.AllKeys)
             {
-                // Collect all form keys that start with "del_"
-                foreach (string key in Request.Form.AllKeys)
+                if (key != null && key.StartsWith("del_"))
                 {
-                    if (key != null && key.StartsWith("del_"))
+                    // Extract ID from the key name (del_123 -> 123)
+                    string idStr = key.Substring(4); // Remove "del_" prefix
+                    if (int.TryParse(idStr, out int id))
                     {
-                        // Extract ID from the key name (del_123 -> 123)
-                        string idStr = key.Substring(4); // Remove "del_" prefix
-                        if (int.TryParse(idStr, out int id))
-                        {
-                            EngineSQLite.DeleteRecord(id);
-                        }
+                        lstDelId.Add(id);
                     }
                 }
             }
-            catch (Exception ex)
+
+            if (lstDelId.Count > 0)
             {
-                // Log error or show message
-                ltlMessage.Text = $@"<div class='error-message'>Error deleting records: {HttpUtility.HtmlEncode(ex.Message)}</div>";
+                BackupFilesManager.DeleteRecords(lstDelId);
             }
+
+            LoadRecords();
         }
 
         private string FormatFileSize(long bytes)
@@ -125,7 +149,7 @@ namespace System.pages
                 order++;
                 len = len / 1024;
             }
-            return string.Format("{0:0.##} {1}", len, sizes[order]);
+            return string.Format("{0:0.###} {1}", len, sizes[order]);
         }
     }
 }

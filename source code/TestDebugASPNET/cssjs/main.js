@@ -8,17 +8,17 @@ function showErrorMessage(title, message) {
     showMessage(title, message, false);
 }
 
-function showMessage(title, message, isSuccess) {
-    // Remove existing message if any
-    const existingMessage = document.querySelector('.sp-message-container');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
+const activeMessages = [];
 
+function showMessage(title, message, isSuccess) {
     // Create message container
     const container = document.createElement('div');
     container.className = 'sp-message-container';
     container.classList.add(isSuccess ? 'sp-message-success' : 'sp-message-error');
+
+    // Create unique ID for this message
+    const messageId = Date.now() + Math.random();
+    container.dataset.messageId = messageId;
 
     // Create title
     const titleEl = document.createElement('div');
@@ -35,26 +35,69 @@ function showMessage(title, message, isSuccess) {
     container.appendChild(messageEl);
     document.body.appendChild(container);
 
-    // Slide down animation
+    // Add to active messages array
+    activeMessages.push({
+        id: messageId,
+        element: container,
+        timeout: null
+    });
+
+    // Position the message
+    updateMessagePositions();
+
+    // Show animation
     setTimeout(() => {
         container.classList.add('sp-message-show');
     }, 10);
 
-    // Slide up and remove after 1800ms (unless clicked)
-    const autoRemoveTimeout = setTimeout(() => {
-        container.classList.remove('sp-message-show');
-        setTimeout(() => {
-            container.remove();
-        }, 300); // Wait for slide up animation to complete
-    }, 1800);
+    // Store reference to the message object
+    const messageObj = activeMessages.find(m => m.id === messageId);
+
+    // Auto-remove after 2500ms
+    messageObj.timeout = setTimeout(() => {
+        removeMessage(messageId);
+    }, 2700);
 
     // Add click event listener to manually remove
     container.addEventListener('click', () => {
-        clearTimeout(autoRemoveTimeout); // Prevent automatic removal
-        container.classList.remove('sp-message-show');
-        setTimeout(() => {
-            container.remove();
-        }, 300); // Wait for slide up animation to complete
+        if (messageObj.timeout) {
+            clearTimeout(messageObj.timeout);
+        }
+        removeMessage(messageId);
+    });
+}
+
+function removeMessage(messageId) {
+    const index = activeMessages.findIndex(m => m.id === messageId);
+    if (index === -1) return;
+
+    const messageObj = activeMessages[index];
+    const container = messageObj.element;
+
+    // Hide animation
+    container.classList.remove('sp-message-show');
+
+    // Remove from array
+    activeMessages.splice(index, 1);
+
+    // Remove from DOM after animation
+    setTimeout(() => {
+        container.remove();
+        // Update positions of remaining messages
+        updateMessagePositions();
+    }, 300);
+}
+
+function updateMessagePositions() {
+    let currentTop = 30;
+
+    activeMessages.forEach((messageObj, index) => {
+        const container = messageObj.element;
+        container.style.top = currentTop + 'px';
+
+        // Calculate position for next message
+        const containerHeight = container.offsetHeight;
+        currentTop += containerHeight + 20; // 20px margin between messages
     });
 }
 
@@ -118,4 +161,44 @@ function spShowConfirmDialog(title, message, customData, onYesCallback, onNoCall
             if (onNoCallback) onNoCallback(data);
         }, 300);
     });
+}
+
+// Big Loading Animation
+
+function showBigLoading() {
+    // Close any existing loading first
+    closeBigLoading();
+
+    // Create the overlay div
+    const overlay = document.createElement('div');
+    overlay.id = 'bigLoadingOverlay';
+
+    // Create the spinner
+    const spinner = document.createElement('div');
+    spinner.id = 'loadingSpinner';
+
+    // Append spinner to overlay
+    overlay.appendChild(spinner);
+
+    // Add to document body
+    document.body.appendChild(overlay);
+
+    // Add click event listener to close when clicked
+    overlay.addEventListener('click', closeBigLoading);
+
+    // Store timeout ID on the overlay element itself
+    overlay.timeoutId = setTimeout(() => {
+        closeBigLoading();
+    }, 3000);
+}
+
+function closeBigLoading() {
+    const overlay = document.getElementById('bigLoadingOverlay');
+    if (overlay) {
+        // Clear the timeout stored on this specific overlay
+        if (overlay.timeoutId) {
+            clearTimeout(overlay.timeoutId);
+        }
+        overlay.remove();
+    }
 }

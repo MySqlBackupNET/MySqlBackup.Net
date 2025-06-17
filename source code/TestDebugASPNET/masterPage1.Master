@@ -17,8 +17,9 @@
         </div>
         <div class="menubar">
             <a href="/">Home / Setup</a>
-            <a href="/Tests">Tests</a>
-            <a href="/QueryBrowser">Query Browser</a>
+            <a href="/ReportProgress">Progress Report</a>
+            <a href="/QueryBrowser">Query Browser (MySQL)</a>
+            <a href="/QueryBrowserSQLite">Query Browser (SQLite)</a>
             <a href="/DatabaseRecordList">Database Records</a>
             <a href="/Typography">Typography</a>
         </div>

@@ -1,67 +1,68 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/masterPage1.Master" AutoEventWireup="true" CodeBehind="QueryBrowser.aspx.cs" Inherits="System.pages.QueryBrowser" %>
-
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/masterPage1.Master" AutoEventWireup="true" CodeBehind="QueryBrowserSQLite.aspx.cs" Inherits="System.pages.QueryBrowserSQLite" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+
     <style type="text/css">
-        .div-table-result {
-            max-width: calc(100vw - 50px);
-            max-height: calc(100vh - 330px);
-            overflow: auto;
-            border: 2px solid #767676;
-        }
+    .div-table-result {
+        max-width: calc(100vw - 50px);
+        max-height: calc(100vh - 330px);
+        overflow: auto;
+        border: 2px solid #767676;
+    }
 
-            .div-table-result table {
-                border-collapse: initial;
-                border-spacing: 0;
-            }
-
-            .div-table-result th {
-                position: sticky;
-                top: 0;
-                border-top: none;
-                border-left: none;
-                border-bottom: 1px solid black;
-                border-right: 1px solid black;
-            }
-
-            .div-table-result td {
-                border-top: none;
-                border-left: none;
-                border-bottom: 1px solid #878787;
-                border-right: 1px solid #878787;
-            }
-
-            .div-table-result pre {
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box;
-                overflow: auto;
-            }
-
-        table.table-settings {
-            border-collapse: collapse;
+        .div-table-result table {
+            border-collapse: initial;
             border-spacing: 0;
-            border: 2px solid #515279;
-            box-shadow: 5px 5px 5px #878787;
         }
 
-            table.table-settings th {
-                background: #515279;
-                color: white;
-                padding: 5px;
-                border: 1px solid #adadad;
-            }
+        .div-table-result th {
+            position: sticky;
+            top: 0;
+            border-top: none;
+            border-left: none;
+            border-bottom: 1px solid black;
+            border-right: 1px solid black;
+        }
 
-            table.table-settings td {
-                padding: 5px;
-                border: 1px solid #adadad;
-            }
-    </style>
+        .div-table-result td {
+            border-top: none;
+            border-left: none;
+            border-bottom: 1px solid #878787;
+            border-right: 1px solid #878787;
+        }
+
+        .div-table-result pre {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow: auto;
+        }
+
+    table.table-settings {
+        border-collapse: collapse;
+        border-spacing: 0;
+        border: 2px solid #515279;
+        box-shadow: 5px 5px 5px #878787;
+    }
+
+        table.table-settings th {
+            background: #515279;
+            color: white;
+            padding: 5px;
+            border: 1px solid #adadad;
+        }
+
+        table.table-settings td {
+            padding: 5px;
+            border: 1px solid #adadad;
+        }
+</style>
     <style id="style2" type="text/css"></style>
+
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
 
     <div class="main-content">
-        <b style="font-size: 15pt; color: #0347c2">MySQL</b>
+        <b style="font-size: 15pt; color: #8f0000">SQLite</b>
         <asp:Button ID="btSelectShow" runat="server" Text="Select/Show (Enter)" OnClick="btSelectShow_Click" ClientIDMode="Static" />
         <asp:Button ID="btExecute" runat="server" Text="Execute (Ctrl+Enter)" OnClick="btExecute_Click" ClientIDMode="Static" />
         <asp:Button ID="btShowAllTables" runat="server" Text="Show All Tables" OnClick="btShowAllTables_Click" />
@@ -78,7 +79,8 @@
                     <td>Max Rows:
                         <asp:TextBox ID="txtMaxRows" runat="server" TextMode="Number" Text="100" min="1" ClientIDMode="Static"></asp:TextBox>
                         Max Text Value Length:
-                        <asp:TextBox ID="txtMaxTextValueLength" runat="server" TextMode="Number" Text="1000" min="50" ClientIDMode="Static"></asp:TextBox></td>
+                        <asp:TextBox ID="txtMaxTextValueLength" runat="server" TextMode="Number" Text="1000" min="50" ClientIDMode="Static"></asp:TextBox>
+                    </td>
                 </tr>
                 <tr>
                     <td>Take Effect Real-time</td>
@@ -122,7 +124,7 @@
         function saveSettings() {
             let wrapTextChecked = cbWrapText.checked ? "1" : "0";
             let settingsString = `${txtMaxRows.value},${txtMaxTextValueLength.value},${txtMaxColumnWidth.value},${txtMaxColumnHeight.value},${wrapTextChecked}`;
-            localStorage.setItem('queryBrowserSettings', settingsString);
+            localStorage.setItem('queryBrowserSQLiteSettings', settingsString);
         }
 
         function loadSettings() {
@@ -130,7 +132,7 @@
             let settingsLoaded = false;
 
             try {
-                let settingsString = localStorage.getItem('queryBrowserSettings');
+                let settingsString = localStorage.getItem('queryBrowserSQLiteSettings');
                 if (settingsString) {
                     let settingsArray = settingsString.split(',');
                     if (settingsArray.length === 5) {
@@ -247,4 +249,5 @@
         updateStyle2Only();
 
     </script>
+
 </asp:Content>

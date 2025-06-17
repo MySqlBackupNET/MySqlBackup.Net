@@ -11,7 +11,7 @@ namespace System.pages
 {
 
 
-    public partial class QueryBrowser
+    public partial class QueryBrowserSQLite
     {
 
         /// <summary>

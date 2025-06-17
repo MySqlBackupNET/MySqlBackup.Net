@@ -158,15 +158,34 @@ namespace MySqlConnector
 
         public string ExportToString()
         {
+            string result;
             using (MemoryStream ms = new MemoryStream())
             {
-                ExportToMemoryStream(ms);
+                // Use StreamWriter directly instead of calling ExportToMemoryStream
+                using (StreamWriter writer = new StreamWriter(ms, textEncoding, GetOptimalStreamBufferSize(), true)) // leaveOpen: true
+                {
+                    textWriter = writer;
+                    ExportStart();
+                    textWriter.Flush();
+                    textWriter = null;
+                }
+
+                // Reset position and read the result
                 ms.Position = 0L;
                 using (var thisReader = new StreamReader(ms, textEncoding, false, GetOptimalStreamBufferSize()))
                 {
-                    return thisReader.ReadToEnd();
+                    result = thisReader.ReadToEnd();
                 }
             }
+
+            // Fire event after everything is disposed
+            if (ExportCompleted != null)
+            {
+                ExportCompleteArgs arg = new ExportCompleteArgs(timeStart, timeEnd, processCompletionType, _lastError);
+                ExportCompleted(this, arg);
+            }
+
+            return result;
         }
 
         public void ExportToFile(string filePath)
@@ -183,12 +202,39 @@ namespace MySqlConnector
                 ExportStart();
                 textWriter = null;
             }
+
+            if (ExportCompleted != null)
+            {
+                ExportCompleteArgs arg = new ExportCompleteArgs(timeStart, timeEnd, processCompletionType, _lastError);
+                ExportCompleted(this, arg);
+            }
         }
 
         public void ExportToTextWriter(TextWriter tw)
         {
             textWriter = tw;
             ExportStart();
+
+            if (ExportCompleted != null)
+            {
+                ExportCompleteArgs arg = new ExportCompleteArgs(timeStart, timeEnd, processCompletionType, _lastError);
+                ExportCompleted(this, arg);
+            }
+        }
+
+        public void ExportToStream(Stream sm)
+        {
+            if (sm.CanSeek)
+                sm.Seek(0, SeekOrigin.Begin);
+
+            textWriter = new StreamWriter(sm, textEncoding, GetOptimalStreamBufferSize());
+            ExportStart();
+
+            if (ExportCompleted != null)
+            {
+                ExportCompleteArgs arg = new ExportCompleteArgs(timeStart, timeEnd, processCompletionType, _lastError);
+                ExportCompleted(this, arg);
+            }
         }
 
         public void ExportToMemoryStream(MemoryStream ms)
@@ -219,15 +265,12 @@ namespace MySqlConnector
                 writer.Dispose(); // This disposes the writer but leaves ms open
                 textWriter = null;
             }
-        }
 
-        public void ExportToStream(Stream sm)
-        {
-            if (sm.CanSeek)
-                sm.Seek(0, SeekOrigin.Begin);
-
-            textWriter = new StreamWriter(sm, textEncoding, GetOptimalStreamBufferSize());
-            ExportStart();
+            if (ExportCompleted != null)
+            {
+                ExportCompleteArgs arg = new ExportCompleteArgs(timeStart, timeEnd, processCompletionType, _lastError);
+                ExportCompleted(this, arg);
+            }
         }
 
         private int GetOptimalStreamBufferSize()
@@ -952,7 +995,7 @@ namespace MySqlConnector
                     ob = adjustFunc(ob);
                 }
 
-                QueryExpress.ConvertToSqlValueFormat(sb, ob, col, true, true);
+                QueryExpress.ConvertToSqlFormat(sb, ob, col, true, true);
             }
 
             sb.AppendFormat(")");
@@ -986,7 +1029,7 @@ namespace MySqlConnector
                         ob = adjustFunc(ob);
                     }
 
-                    QueryExpress.ConvertToSqlValueFormat(sb, ob, col, true, true);
+                    QueryExpress.ConvertToSqlFormat(sb, ob, col, true, true);
                 }
             }
         }
@@ -1019,7 +1062,7 @@ namespace MySqlConnector
                         ob = adjustFunc(ob);
                     }
 
-                    QueryExpress.ConvertToSqlValueFormat(sb, ob, col, true, true);
+                    QueryExpress.ConvertToSqlFormat(sb, ob, col, true, true);
                 }
             }
         }
@@ -1261,9 +1304,13 @@ namespace MySqlConnector
 
                     ms.Position = 0L;
 
-                    ImportFromMemoryStream(ms);
+                    _totalBytes = ms.Length;
+                    textReader = new StreamReader(ms);
+                    Import_Start();
                 }
             }
+
+            Import_FireCompletionEvent();
         }
 
         public void ImportFromFile(string filePath)
@@ -1274,11 +1321,15 @@ namespace MySqlConnector
             {
                 ImportFromTextReaderStream(tr, fi);
             }
+
+            Import_FireCompletionEvent();
         }
 
         public void ImportFromTextReader(TextReader tr)
         {
             ImportFromTextReaderStream(tr, null);
+
+            Import_FireCompletionEvent();
         }
 
         public void ImportFromMemoryStream(MemoryStream ms)
@@ -1287,6 +1338,8 @@ namespace MySqlConnector
             _totalBytes = ms.Length;
             textReader = new StreamReader(ms);
             Import_Start();
+
+            Import_FireCompletionEvent();
         }
 
         public void ImportFromStream(Stream sm)
@@ -1296,6 +1349,8 @@ namespace MySqlConnector
 
             textReader = new StreamReader(sm);
             Import_Start();
+
+            Import_FireCompletionEvent();
         }
 
         void ImportFromTextReaderStream(TextReader tr, FileInfo fileInfo)
@@ -1308,6 +1363,8 @@ namespace MySqlConnector
             textReader = tr;
 
             Import_Start();
+
+            Import_FireCompletionEvent();
         }
 
         void Import_Start()
@@ -1521,6 +1578,30 @@ namespace MySqlConnector
             return false;
         }
 
+        void Import_FireCompletionEvent()
+        {
+            if (ImportCompleted != null)
+            {
+                MySqlBackup.ProcessEndType completedType = ProcessEndType.UnknownStatus;
+
+                switch (processCompletionType)
+                {
+                    case ProcessEndType.Complete:
+                        completedType = MySqlBackup.ProcessEndType.Complete;
+                        break;
+                    case ProcessEndType.Error:
+                        completedType = MySqlBackup.ProcessEndType.Error;
+                        break;
+                    case ProcessEndType.Cancelled:
+                        completedType = MySqlBackup.ProcessEndType.Cancelled;
+                        break;
+                }
+
+                ImportCompleteArgs arg = new ImportCompleteArgs(completedType, timeStart, timeEnd, _lastError);
+                ImportCompleted(this, arg);
+            }
+        }
+
         #endregion
 
         void ReportEndProcess()
@@ -1532,36 +1613,38 @@ namespace MySqlConnector
             if (currentProcess == ProcessType.Export)
             {
                 ReportProgress();
-                if (ExportCompleted != null)
-                {
-                    ExportCompleteArgs arg = new ExportCompleteArgs(timeStart, timeEnd, processCompletionType, _lastError);
-                    ExportCompleted(this, arg);
-                }
+                //if (ExportCompleted != null)
+                //{
+                //    ExportCompleteArgs arg = new ExportCompleteArgs(timeStart, timeEnd, processCompletionType, _lastError);
+                //    ExportCompleted(this, arg);
+                //}
             }
             else if (currentProcess == ProcessType.Import)
             {
                 _currentBytes = _totalBytes;
 
                 ReportProgress();
-                if (ImportCompleted != null)
-                {
-                    MySqlBackup.ProcessEndType completedType = ProcessEndType.UnknownStatus;
-                    switch (processCompletionType)
-                    {
-                        case ProcessEndType.Complete:
-                            completedType = MySqlBackup.ProcessEndType.Complete;
-                            break;
-                        case ProcessEndType.Error:
-                            completedType = MySqlBackup.ProcessEndType.Error;
-                            break;
-                        case ProcessEndType.Cancelled:
-                            completedType = MySqlBackup.ProcessEndType.Cancelled;
-                            break;
-                    }
 
-                    ImportCompleteArgs arg = new ImportCompleteArgs(completedType, timeStart, timeEnd, _lastError);
-                    ImportCompleted(this, arg);
-                }
+                //if (ImportCompleted != null)
+                //{
+                //    MySqlBackup.ProcessEndType completedType = ProcessEndType.UnknownStatus;
+
+                //    switch (processCompletionType)
+                //    {
+                //        case ProcessEndType.Complete:
+                //            completedType = MySqlBackup.ProcessEndType.Complete;
+                //            break;
+                //        case ProcessEndType.Error:
+                //            completedType = MySqlBackup.ProcessEndType.Error;
+                //            break;
+                //        case ProcessEndType.Cancelled:
+                //            completedType = MySqlBackup.ProcessEndType.Cancelled;
+                //            break;
+                //    }
+
+                //    ImportCompleteArgs arg = new ImportCompleteArgs(completedType, timeStart, timeEnd, _lastError);
+                //    ImportCompleted(this, arg);
+                //}
             }
         }
 
@@ -1600,21 +1683,25 @@ namespace MySqlConnector
         public void Dispose()
         {
             StopAllProcess();
-            timerReport?.Stop();
-            timerReport?.Dispose();
-            timerReport = null;
-            textWriter?.Dispose();
-            textWriter = null;
-            textReader?.Dispose();
-            textReader = null;
-            _database?.Dispose();
-            _database = null;
-            _server = null;
-            _mySqlScript = null;
-            _currentTableColumnValueAdjustment = null;
-            _sb = null;
-            _lastError = null;
-            //GC.SuppressFinalize(this);
+
+            if (timerReport != null)
+            {
+                timerReport.Stop();
+                timerReport.Dispose();
+                timerReport = null;
+            }
+
+            if (textWriter != null)
+            {
+                textWriter.Dispose();
+                textWriter = null;
+            }
+
+            if (textReader != null)
+            {
+                textReader.Dispose();
+                textReader = null;
+            }
         }
     }
 }

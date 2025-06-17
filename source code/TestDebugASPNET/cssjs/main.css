@@ -24,7 +24,7 @@ form {
     padding: 10px;
     font-size: 12pt;
     font-weight: bold;
-    background: #4b4b4b;
+    background: #404040;
     color: #e2e2e2;
 }
 
@@ -36,13 +36,13 @@ form {
         background: none;
         color: #bdbdbd;
         text-decoration: none;
-        padding: 8px 10px;
+        padding: 10px;
         display: inline-block;
     }
 
         .menubar a:hover {
-            color: #eaeaea;
-            background: #757575;
+            color: white;
+            background: #404040;
         }
 
 .main-content {
@@ -71,6 +71,7 @@ input[type=submit], button, .buttonmain {
     cursor: pointer;
     border: none;
     border-radius: 10px;
+    transition: all 0.3s;
 }
 
     input[type=submit]:hover, button:hover, .buttonmain:hover {
@@ -93,18 +94,26 @@ input[type=number] {
     width: 60px;
 }
 
+input[type=date] {
+    padding: 8px;
+    border: 1px solid #8e8e8e;
+    outline: none;
+    width: 100px;
+}
+
 input[type=checkbox] {
-    height: 20px;
-    width: 20px;
+    height: 25px;
+    width: 25px;
     margin: 0;
+    cursor: pointer;
 }
 
 textarea {
     padding: 10px;
     border: 1px solid #8e8e8e;
     outline: none;
-    width: 700px;
-    height: 350px;
+    width: 600px;
+    height: 200px;
     white-space: pre;
     overflow-x: auto;
 }
@@ -200,10 +209,12 @@ pre {
     font-weight: bold;
     margin-bottom: 5px;
     font-size: 16px;
+    color: inherit;
 }
 
 .sp-message-text {
     font-size: 14px;
+    color: inherit;
 }
 
 /* Dialog Action Box */
@@ -218,7 +229,7 @@ pre {
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    z-index: 9999;
+    z-index: 99999;
     opacity: 0;
     transition: all 0.3s ease-in-out;
     background-color: #eef6fa; /* Light soft blue background */
@@ -276,3 +287,37 @@ pre {
     .sp-dialog-no:hover {
         background-color: #cce5ff;
     }
+
+/* Big Loading Animation */
+
+#bigLoadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+#loadingSpinner {
+    width: 150px;
+    height: 150px;
+    border: 10px solid #fff;
+    border-top: 10px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

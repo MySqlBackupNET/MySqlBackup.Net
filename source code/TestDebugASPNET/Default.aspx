@@ -2,7 +2,10 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <style type="text/css">
-        
+        .div-checklist-box {
+            border: 1px solid #8f8f8f;
+            margin-bottom: 20px;
+        }
     </style>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
@@ -23,6 +26,7 @@
 
         <asp:Button ID="btSaveConnStr" runat="server" Text="Save and Test Connection" OnClick="btSaveConnStr_Click" />
         <asp:Button ID="btCreateSampleData" runat="server" Text="Create Sample Data" OnClick="btCreateSampleData_Click" />
+        <a href="/DatabaseRecordList" class="buttonmain">View Backup File List</a>
 
         <br />
         <br />
@@ -85,6 +89,9 @@
                             <asp:CheckBox ID="cbEnableComments" runat="server" Checked="true" />
                             Enable Comments<br />
 
+                            <asp:CheckBox ID="cbRecordDumpTime" runat="server" Checked="true" />
+                            Record Dump Time <br />
+
                             <asp:CheckBox ID="cbInsertLineBreakBetweenInserts" runat="server" Checked="false" />
                             Insert Line Break Between Inserts<br />
                             (false = faster import process)<br />
@@ -119,18 +126,18 @@
                             <asp:TextBox ID="txtDocumentFooters" runat="server" TextMode="MultiLine" Height="170px" Width="360px"></asp:TextBox>
                             <br />
 
-                            Include Tables:<br />
-                            <asp:CheckBoxList ID="cbListIncludeTables" runat="server"></asp:CheckBoxList>
-                            <br />
-                            <br />
+                            Include Tables (White List): 
+                           
+                            <button type="button" onclick="clearCheckBox('cbListIncludeTables')">Clear</button><br />
+                            <asp:CheckBoxList ID="cbListIncludeTables" runat="server" CssClass="div-checklist-box" ClientIDMode="Static"></asp:CheckBoxList>
 
-                            Exclude Tables:<br />
-                            <asp:CheckBoxList ID="cbListExcludeTables" runat="server"></asp:CheckBoxList>
-                            <br />
-                            <br />
+                            Exclude Tables (Black List):
+                            <button type="button" onclick="clearCheckBox('cbListExcludeTables')">Clear</button><br />
+                            <asp:CheckBoxList ID="cbListExcludeTables" runat="server" CssClass="div-checklist-box" ClientIDMode="Static"></asp:CheckBoxList>
 
-                            Exclude Rows For Tables:<br />
-                            <asp:CheckBoxList ID="cbListExcludeRowsForTables" runat="server"></asp:CheckBoxList>
+                            Exclude Rows For Tables:
+                            <button type="button" onclick="clearCheckBox('cbListExcludeRowsForTables')">Clear</button><br />
+                            <asp:CheckBoxList ID="cbListExcludeRowsForTables" runat="server" CssClass="div-checklist-box" ClientIDMode="Static"></asp:CheckBoxList>
 
                         </div>
                     </div>
@@ -149,7 +156,7 @@
                             <asp:Button ID="btRunRestore" runat="server" Text="Run Restore" OnClick="btRunRestore_Click" />
 
                             Upload File:
-                                <input type="file" id="fileRestore" name="fileRestore" />
+                            <asp:FileUpload ID="fileUploadRestore" runat="server" />
                             <br />
 
                             <asp:CheckBox ID="cbIgnoreSqlError" runat="server" />
@@ -165,5 +172,11 @@
             </tr>
         </table>
     </div>
+
+    <script type="text/javascript">
+        function clearCheckBox(divid) {
+            document.querySelectorAll(`#${divid} input[type="checkbox"]`).forEach(cb => cb.checked = false);
+        }
+    </script>
 
 </asp:Content>

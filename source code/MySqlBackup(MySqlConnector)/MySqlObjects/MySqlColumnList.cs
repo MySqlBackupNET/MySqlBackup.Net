@@ -5,7 +5,7 @@ using System.Data;
 
 namespace MySqlConnector
 {
-    public class MySqlColumnList : IDisposable, IEnumerable<MySqlColumn>
+    public class MySqlColumnList : IEnumerable<MySqlColumn>
     {
         string _tableName;
         string _sqlShowFullColumns = string.Empty;
@@ -71,15 +71,6 @@ namespace MySqlConnector
         public bool Contains(string columnName)
         {
             return _lst.ContainsKey(columnName);
-        }
-
-        public void Dispose()
-        {
-            foreach (var key in _lst.Keys)
-            {
-                _lst[key] = null;
-            }
-            _lst = null;
         }
 
         public IEnumerator<MySqlColumn> GetEnumerator() =>

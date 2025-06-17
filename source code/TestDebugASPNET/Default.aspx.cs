@@ -9,6 +9,7 @@ using System.Web.UI.WebControls;
 using MySqlConnector;
 using System.Data.SQLite;
 using static System.Net.WebRequestMethods;
+using System.Security.Cryptography;
 
 namespace System
 {
@@ -18,7 +19,7 @@ namespace System
         {
             get
             {
-                return EngineSQLite.folder;
+                return BackupFilesManager.folder;
             }
         }
 
@@ -73,24 +74,22 @@ namespace System
             cbListIncludeTables.DataSource = dtTable;
             cbListIncludeTables.DataValueField = dtTable.Columns[0].ColumnName;
             cbListIncludeTables.DataTextField = dtTable.Columns[0].ColumnName;
+            cbListIncludeTables.DataBind();
 
             cbListExcludeTables.DataSource = dtTable;
             cbListExcludeTables.DataValueField = dtTable.Columns[0].ColumnName;
             cbListExcludeTables.DataTextField = dtTable.Columns[0].ColumnName;
+            cbListExcludeTables.DataBind();
 
             cbListExcludeRowsForTables.DataSource = dtTable;
             cbListExcludeRowsForTables.DataValueField = dtTable.Columns[0].ColumnName;
             cbListExcludeRowsForTables.DataTextField = dtTable.Columns[0].ColumnName;
+            cbListExcludeRowsForTables.DataBind();
 
             txtDocumentHeaders.Text = string.Join(Environment.NewLine, lstDocHeaders);
             txtDocumentFooters.Text = string.Join(Environment.NewLine, lstDocFooters);
 
             return (true, "");
-        }
-
-        void LoadDatabaseList()
-        {
-
         }
 
         protected void btSaveConnStr_Click(object sender, EventArgs e)
@@ -113,12 +112,12 @@ namespace System
                     }
                 }
 
-                ((masterPage1)this.Master).ShowGoodMessage("Connection Success");
-                ((masterPage1)this.Master).WriteMessageBar($"Connection string saved and the connection test is success. {timenow}", true);
+                ((masterPage1)this.Master).ShowMessage("Ok", "Connection Success", true);
+                ((masterPage1)this.Master).WriteTopMessageBar($"Connection string saved and the connection test is success. {timenow}", true);
             }
             catch (Exception ex)
             {
-                ((masterPage1)this.Master).ShowErrorMessage($"Connection Failed. Error: {ex.Message}");
+                ((masterPage1)this.Master).ShowMessage("Error", $"Connection Failed. Error: {ex.Message}", false);
             }
         }
 
@@ -344,11 +343,12 @@ namespace System
                     }
                 }
 
-                ((masterPage1)this.Master).ShowGoodMessage("Success! Sample table and data rows are created.");
+                ((masterPage1)this.Master).ShowMessage("Ok", "Success! Sample table and data rows are created.", true);
             }
             catch (Exception ex)
             {
-                ((masterPage1)this.Master).ShowErrorMessage($"Error: {ex.Message}");
+                ((masterPage1)this.Master).WriteTopMessageBar($"Error: {ex.Message}", false);
+                ((masterPage1)this.Master).ShowMessage("Error", ex.Message, false);
             }
         }
 
@@ -359,16 +359,18 @@ namespace System
                 var r = LoadDatabaseInfo();
                 if (r.Item1)
                 {
-                    ((masterPage1)this.Master).ShowGoodMessage("Database info successfully obtained");
+                    ((masterPage1)this.Master).ShowMessage("Ok", "Database info successfully obtained", true);
                 }
                 else
                 {
-                    ((masterPage1)this.Master).ShowErrorMessage(r.Item2);
+                    ((masterPage1)this.Master).WriteTopMessageBar($"Error: {r.Item2}", false);
+                    ((masterPage1)this.Master).ShowMessage("Error", r.Item2, false);
                 }
             }
             catch (Exception ex)
             {
-                ((masterPage1)this.Master).ShowErrorMessage($"Error: {ex.Message}");
+                ((masterPage1)this.Master).WriteTopMessageBar($"Error: {ex.Message}", false);
+                ((masterPage1)this.Master).ShowMessage("Error", ex.Message, false);
             }
         }
 
@@ -376,8 +378,8 @@ namespace System
         {
             // Variables to store backup metadata
             DatabaseFileRecord dbFile = new DatabaseFileRecord();
-            dbFile.Operation = "Basic Demo";
-            dbFile.Filename = $"BasicDemo-{DateTime.Now:yyyy-MM-dd_HHmmss}.sql";
+            dbFile.Operation = "Basic Backup";
+            dbFile.Filename = $"Basic Backup-{DateTime.Now:yyyy-MM-dd_HHmmss}.sql";
             dbFile.OriginalFilename = dbFile.Filename;
             dbFile.DateCreated = DateTime.Now;
             dbFile.Remarks = "Backup";
@@ -396,6 +398,9 @@ namespace System
                     using (MySqlBackup mb = new MySqlBackup(cmd))
                     {
                         #region Setup Export Info
+
+                        // Gathering Export Info =====================
+
                         mb.ExportInfo.AddDropDatabase = cbAddDropDatabase.Checked;
                         mb.ExportInfo.AddCreateDatabase = cbAddCreateDatabase.Checked;
                         mb.ExportInfo.AddDropTable = cbAddDropTable.Checked;
@@ -409,6 +414,7 @@ namespace System
                         mb.ExportInfo.ResetAutoIncrement = cbResetAutoIncrement.Checked;
                         mb.ExportInfo.WrapWithinTransaction = cbWrapWithinTransaction.Checked;
                         mb.ExportInfo.EnableComment = cbEnableComments.Checked;
+                        mb.ExportInfo.RecordDumpTime = cbRecordDumpTime.Checked;
                         mb.ExportInfo.InsertLineBreakBetweenInserts = cbInsertLineBreakBetweenInserts.Checked;
 
                         if (!string.IsNullOrWhiteSpace(txtScriptDelimiter.Text))
@@ -472,6 +478,9 @@ namespace System
                                 mb.ExportInfo.ExcludeRowsForTables.Add(item.Value);
                             }
                         }
+
+                        // End of Gathering Export Info =====================
+
                         #endregion
 
                         mb.ExportToFile(dumpFile);
@@ -479,23 +488,54 @@ namespace System
                 }
             }
 
-            // get the file size
             dbFile.Filesize = new FileInfo(dumpFile).Length;
+            dbFile.Sha256 = BackupFilesManager.ComputeSha256File(dumpFile);
 
-            // calculate the SHA256 hash
-            using (var sha256 = System.Security.Cryptography.SHA256.Create())
-            using (var stream = System.IO.File.OpenRead(dumpFile))
-            {
-                byte[] hash = sha256.ComputeHash(stream);
-                dbFile.Sha256 = BitConverter.ToString(hash).Replace("-", "").ToLower();
-            }
+            int newFileId = BackupFilesManager.SaveRecord(dbFile);
 
-            EngineSQLite.SaveRecord(dbFile);
+            ((masterPage1)this.Master).WriteTopMessageBar($"Database backup successful.<br />View file content at [<a href='/DisplayFileContent?id={newFileId}' target='_blank'>here</a>] or<br /> view the list of backup files at [<a href='/DatabaseRecordlist' target='_blank'>here</a>]", true);
+            ((masterPage1)this.Master).ShowMessage("Ok", "Database backup success", true);
         }
 
         protected void btRunRestore_Click(object sender, EventArgs e)
         {
-            string dumpFile = Path.Combine(folder, $"{DateTime.Now}");
+            string Filename = $"Basic Restore-{DateTime.Now:yyyy-MM-dd_HHmmss}.sql";
+            string LogFilename = $"log-{Filename}";
+
+            string dumpFile = Path.Combine(folder, Filename);
+            string logFile = Path.Combine(folder, LogFilename);
+
+            fileUploadRestore.SaveAs(dumpFile);
+
+            DatabaseFileRecord dbFile = new DatabaseFileRecord();
+            dbFile.Filename = Path.GetFileName(dumpFile);
+            dbFile.LogFilename = LogFilename;
+            dbFile.Sha256 = BackupFilesManager.ComputeSha256File(dumpFile);
+            dbFile.Filesize = new FileInfo(dumpFile).Length;
+            dbFile.DateCreated = DateTime.Now;
+            dbFile.OriginalFilename = fileUploadRestore.FileName;
+            dbFile.Operation = "Basic Restore";
+            dbFile.Remarks = "Basic Restore - File Upload";
+
+            using (MySqlConnection conn = config.GetNewConnection())
+            {
+                using (MySqlCommand cmd = new MySqlCommand())
+                {
+                    conn.Open();
+                    cmd.Connection = conn;
+
+                    dbFile.DatabaseName = QueryExpress.ExecuteScalarStr(cmd, "select database();");
+
+                    using (MySqlBackup mb = new MySqlBackup(cmd))
+                    {
+                        mb.ImportInfo.IgnoreSqlError = cbIgnoreSqlError.Checked;
+                        mb.ImportInfo.ErrorLogFile = logFile;
+                        mb.ExportToFile(dumpFile);
+                    }
+                }
+            }
+
+
         }
     }
 }

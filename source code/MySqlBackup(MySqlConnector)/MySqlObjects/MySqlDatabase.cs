@@ -5,7 +5,7 @@ using System.Timers;
 
 namespace MySqlConnector
 {
-    public class MySqlDatabase : IDisposable
+    public class MySqlDatabase
     {
         string _name = string.Empty;
         string _createDatabaseSql = string.Empty;
@@ -102,16 +102,6 @@ namespace MySqlConnector
                 timer.Stop();
                 GetTotalRowsProgressChanged?.Invoke(this, new GetTotalRowsArgs(_listTable.Count, _listTable.Count));
             }
-        }
-
-        public void Dispose()
-        {
-            _listTable.Dispose();
-            _listProcedure.Dispose();
-            _listFunction.Dispose();
-            _listEvent.Dispose();
-            _listTrigger.Dispose();
-            _listView.Dispose();
         }
     }
 }

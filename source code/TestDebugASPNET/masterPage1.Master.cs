@@ -9,29 +9,26 @@ namespace System
 {
     public partial class masterPage1 : System.Web.UI.MasterPage
     {
+        protected override void OnInit(EventArgs e)
+        {
+            if (!config.VariablesInitialized)
+            {
+                config.InitializeVariables();
+            }
+
+            base.OnInit(e);
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
 
         }
 
-        public void WriteMessageBar(string message, bool isGoodMsg)
+        public void WriteTopMessageBar(string message, bool isGoodMsg)
         {
             string css = isGoodMsg ? "divGoodMsgBar" : "divErrorMsgBar";
-
             string htmlMsgBar = $"<div class='{css}'>{message}</div>";
-
             phMessageBar.Controls.Add(new LiteralControl(htmlMsgBar));
-        }
-
-        public void ShowGoodMessage(string message)
-        {
-            ShowMessage("Ok", message, true);
-        }
-
-        public void ShowErrorMessage(string message)
-        {
-            ShowMessage("Error", message, false);
-            WriteMessageBar(message, false);
         }
 
         public void ShowMessage(string title, string msg, bool isGoodMsg)
@@ -39,9 +36,7 @@ namespace System
             string escapedTitle = title.Replace("'", "\\'");
             string escapedMsg = msg.Replace("'", "\\'");
             string isGood = isGoodMsg ? "true" : "false";
-
             string s = $"<script>showMessage('{escapedTitle}', '{escapedMsg}', {isGood});</script>";
-
             phBottomScript.Controls.Add(new LiteralControl(s));
         }
     }

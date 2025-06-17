@@ -4,6 +4,14 @@
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
 
+    <div class="divGoodMsgBar">
+        Ok. Some good message
+    </div>
+
+    <div class="divErrorMsgBar">
+        Error: Some error message
+    </div>
+
     <div class="main-content">
 
         <h1>H1 Title</h1>
@@ -14,15 +22,7 @@
 
         <h2>Good Message Bar</h2>
 
-        <div class="divGoodMsgBar">
-            Ok. Some good message
-        </div>
-
         <h2>Error Message Bar</h2>
-
-        <div class="divErrorMsgBar">
-            Error: Some error message
-        </div>
 
         <input type="submit" value="Input Submit" />
         <button type="button" value="Button">Button</button>
@@ -107,6 +107,12 @@
                 <td>Text</td>
                 <td>
                     <input type="text" />
+                </td>
+            </tr>
+            <tr>
+                <td>Number</td>
+                <td>
+                    <input type="number" />
                 </td>
             </tr>
             <tr>
