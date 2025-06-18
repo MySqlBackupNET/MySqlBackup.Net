@@ -19,9 +19,9 @@ namespace MySqlConnector
         public MySqlColumnList(MySqlCommand cmd, string tableName)
         {
             _tableName = tableName;
-            DataTable dtDataType = QueryExpress.GetTable(cmd, string.Format("SELECT * FROM  `{0}` where 1 = 2;", tableName));
+            DataTable dtDataType = QueryExpress.GetTable(cmd, string.Format("SELECT * FROM  `{0}` where 1 = 2;", QueryExpress.EscapeIdentifier(tableName)));
             
-            _sqlShowFullColumns = string.Format("SHOW FULL COLUMNS FROM `{0}`;", tableName);
+            _sqlShowFullColumns = string.Format("SHOW FULL COLUMNS FROM `{0}`;", QueryExpress.EscapeIdentifier(tableName));
             DataTable dtColInfo = QueryExpress.GetTable(cmd, _sqlShowFullColumns);
 
             for (int i = 0; i < dtDataType.Columns.Count; i++)

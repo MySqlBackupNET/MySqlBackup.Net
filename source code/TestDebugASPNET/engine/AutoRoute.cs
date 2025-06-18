@@ -62,7 +62,7 @@ namespace adriancs
 
             foreach (var file in files)
             {
-                if (file.EndsWith(".aspx") || file.EndsWith(".ashx"))
+                if (file.EndsWith(".aspx"))
                 {
                     string webPath = file.Replace(rootFolder, "~/").Replace("\\", "/");
 

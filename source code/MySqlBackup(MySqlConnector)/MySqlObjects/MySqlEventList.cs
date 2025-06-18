@@ -23,7 +23,7 @@ namespace MySqlConnector
             try
             {
                 string dbname = QueryExpress.ExecuteScalarStr(cmd, "SELECT DATABASE();");
-                _sqlShowEvents = string.Format("SHOW EVENTS WHERE UPPER(TRIM(Db))=UPPER(TRIM('{0}'));", dbname);
+                _sqlShowEvents = string.Format("SHOW EVENTS WHERE UPPER(TRIM(Db))=UPPER(TRIM('{0}'));", QueryExpress.EscapeIdentifier(dbname));
                 DataTable dt = QueryExpress.GetTable(cmd, _sqlShowEvents);
 
                 foreach (DataRow dr in dt.Rows)

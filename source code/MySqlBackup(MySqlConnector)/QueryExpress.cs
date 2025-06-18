@@ -174,6 +174,15 @@ namespace MySqlConnector
             return input.Replace(sb.ToString(), string.Empty);
         }
 
+        /// <summary>
+        /// This method is left here for legacy purpose, just not to break any old project that depends on this method
+        /// </summary>
+        /// <param name="ob"></param>
+        /// <param name="escapeStringSequence"></param>
+        /// <param name="wrapStringWithSingleQuote"></param>
+        /// <param name="col"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static string ConvertToSqlFormat(object ob, bool escapeStringSequence, bool wrapStringWithSingleQuote, MySqlColumn col)
         {
             StringBuilder sb = new StringBuilder();
@@ -585,5 +594,9 @@ namespace MySqlConnector
             }
         }
 
+        public static string EscapeIdentifier(string identifierName)
+        {
+            return identifierName.Replace("`", "``");
+        }
     }
 }

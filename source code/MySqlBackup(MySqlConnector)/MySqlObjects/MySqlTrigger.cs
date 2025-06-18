@@ -14,7 +14,7 @@
         {
             _name = triggerName;
 
-            _createTriggerSQL = QueryExpress.ExecuteScalarStr(cmd, string.Format("SHOW CREATE TRIGGER `{0}`;", triggerName), 2);
+            _createTriggerSQL = QueryExpress.ExecuteScalarStr(cmd, string.Format("SHOW CREATE TRIGGER `{0}`;", QueryExpress.EscapeIdentifier(triggerName)), 2);
 
             _createTriggerSQL = _createTriggerSQL.Replace("\r\n", "^~~~~~~~~~~~~~~^");
             _createTriggerSQL = _createTriggerSQL.Replace("\n", "^~~~~~~~~~~~~~~^");

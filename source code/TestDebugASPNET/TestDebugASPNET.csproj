@@ -137,7 +137,9 @@
     <Content Include="pages\DisplayFileContent.aspx" />
     <Content Include="pages\QueryBrowser.aspx" />
     <Content Include="pages\QueryBrowserSQLite.aspx" />
+    <Content Include="pages\QuickTestWithAllDataType.aspx" />
     <Content Include="pages\ReportProgress.aspx" />
+    <Content Include="pages\ReportProgressRestoreFileUpload.aspx" />
     <Content Include="pages\Typography.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -155,6 +157,12 @@
     <Compile Include="engine\BackupFilesManager.cs" />
     <Compile Include="engine\ProgressReportInfo.cs" />
     <Compile Include="engine\ProgressReportManager.cs" />
+    <Compile Include="engine\ServiceBackup.cs" />
+    <Compile Include="engine\ServiceRestore.cs" />
+    <Compile Include="engine\SQLiteHelper.NET\SQLiteColumn.cs" />
+    <Compile Include="engine\SQLiteHelper.NET\SQLiteColumnList.cs" />
+    <Compile Include="engine\SQLiteHelper.NET\SQLiteHelper.cs" />
+    <Compile Include="engine\SQLiteHelper.NET\SQLiteTable.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -200,12 +208,26 @@
     <Compile Include="pages\QueryBrowserSQLite.aspx.designer.cs">
       <DependentUpon>QueryBrowserSQLite.aspx</DependentUpon>
     </Compile>
+    <Compile Include="pages\QuickTestWithAllDataType.aspx.cs">
+      <DependentUpon>QuickTestWithAllDataType.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\QuickTestWithAllDataType.aspx.designer.cs">
+      <DependentUpon>QuickTestWithAllDataType.aspx</DependentUpon>
+    </Compile>
     <Compile Include="pages\ReportProgress.aspx.cs">
       <DependentUpon>ReportProgress.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="pages\ReportProgress.aspx.designer.cs">
       <DependentUpon>ReportProgress.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\ReportProgressRestoreFileUpload.aspx.cs">
+      <DependentUpon>ReportProgressRestoreFileUpload.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\ReportProgressRestoreFileUpload.aspx.designer.cs">
+      <DependentUpon>ReportProgressRestoreFileUpload.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\Typography.aspx.cs">
       <DependentUpon>Typography.aspx</DependentUpon>

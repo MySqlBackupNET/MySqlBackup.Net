@@ -15,44 +15,35 @@ namespace System
     {
         public static int CreateNewTask(ProgressReportInfo pr)
         {
+            Dictionary<string, object> dic = new Dictionary<string, object>();
+            dic["operation"] = pr.operation;
+            dic["start_time"] = pr.start_time;
+            dic["end_time"] = pr.end_time;
+            dic["is_completed"] = pr.is_completed ? 1 : 0;
+            dic["has_error"] = pr.has_error ? 1 : 0;
+            dic["is_cancelled"] = pr.is_cancelled ? 1 : 0;
+            dic["filename"] = pr.filename ?? "";
+            dic["total_tables"] = pr.total_tables;
+            dic["total_rows"] = pr.total_rows;
+            dic["total_rows_current_table"] = pr.total_rows_current_table;
+            dic["current_table"] = pr.current_table ?? "";
+            dic["current_table_index"] = pr.current_table_index;
+            dic["current_row"] = pr.current_row;
+            dic["current_row_in_current_table"] = pr.current_row_in_current_table;
+            dic["total_bytes"] = pr.total_bytes;
+            dic["current_bytes"] = pr.current_bytes;
+            dic["percent_complete"] = pr.percent_complete;
+            dic["remarks"] = pr.remarks;
+            dic["last_update_time"] = DateTime.Now;
+
             using (var connection = new SQLiteConnection(BackupFilesManager.sqliteConnectionString))
             {
                 connection.Open();
                 using (var cmd = new SQLiteCommand(connection))
                 {
-                    cmd.CommandText = @"INSERT INTO progress_report 
-                        (operation, start_time, end_time, is_completed, has_error, is_cancelled, filename, 
-                         total_tables, total_rows, total_rows_current_table, current_table, 
-                         current_table_index, current_row, current_row_in_current_table, 
-                         total_bytes, current_bytes, percent_complete, remarks, last_update_time) 
-                        VALUES 
-                        (@operation, @start_time, @end_time, @is_completed, @has_error, @is_cancelled, @filename, 
-                         @total_tables, @total_rows, @total_rows_current_table, @current_table, 
-                         @current_table_index, @current_row, @current_row_in_current_table, 
-                         @total_bytes, @current_bytes, @percent_complete, @remarks, @last_update_time);
-                        SELECT last_insert_rowid();";
+                    SQLiteHelper h = new SQLiteHelper(cmd);
 
-                    cmd.Parameters.AddWithValue("@operation", pr.operation);
-                    cmd.Parameters.AddWithValue("@start_time", pr.start_time);
-                    cmd.Parameters.AddWithValue("@end_time", pr.end_time);
-                    cmd.Parameters.AddWithValue("@is_completed", pr.is_completed ? 1 : 0);
-                    cmd.Parameters.AddWithValue("@has_error", pr.has_error ? 1 : 0);
-                    cmd.Parameters.AddWithValue("@is_cancelled", pr.is_cancelled ? 1 : 0);
-                    cmd.Parameters.AddWithValue("@filename", pr.filename ?? "");
-                    cmd.Parameters.AddWithValue("@total_tables", pr.total_tables);
-                    cmd.Parameters.AddWithValue("@total_rows", pr.total_rows);
-                    cmd.Parameters.AddWithValue("@total_rows_current_table", pr.total_rows_current_table);
-                    cmd.Parameters.AddWithValue("@current_table", pr.current_table ?? "");
-                    cmd.Parameters.AddWithValue("@current_table_index", pr.current_table_index);
-                    cmd.Parameters.AddWithValue("@current_row", pr.current_row);
-                    cmd.Parameters.AddWithValue("@current_row_in_current_table", pr.current_row_in_current_table);
-                    cmd.Parameters.AddWithValue("@total_bytes", pr.total_bytes);
-                    cmd.Parameters.AddWithValue("@current_bytes", pr.current_bytes);
-                    cmd.Parameters.AddWithValue("@percent_complete", pr.percent_complete);
-                    cmd.Parameters.AddWithValue("@remarks", pr.remarks);
-                    cmd.Parameters.AddWithValue("@last_update_time", DateTime.Now);
-
-                    cmd.ExecuteNonQuery();
+                    h.Insert("progress_report", dic);
 
                     return Convert.ToInt32(connection.LastInsertRowId);
                 }
@@ -143,52 +134,20 @@ namespace System
                 connection.Open();
                 using (var cmd = new SQLiteCommand(connection))
                 {
-                    cmd.CommandText = sql;
+                    SQLiteHelper h = new SQLiteHelper(cmd);
 
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            ProgressReportInfo pr = new ProgressReportInfo();
-
-                            pr.id = SafeConvertToInt(reader["id"]);
-                            pr.operation = SafeConvertToInt(reader["operation"]);
-                            pr.start_time = SafeConvertToDateTime(reader["start_time"]);
-                            pr.end_time = SafeConvertToDateTime(reader["end_time"]);
-                            pr.is_completed = SafeConvertToInt(reader["is_completed"]) == 1;
-                            pr.has_error = SafeConvertToInt(reader["has_error"]) == 1;
-                            pr.is_cancelled = SafeConvertToInt(reader["is_cancelled"]) == 1;
-                            pr.filename = reader["filename"]?.ToString() ?? "";
-                            pr.total_tables = SafeConvertToLong(reader["total_tables"]);
-                            pr.total_rows = SafeConvertToLong(reader["total_rows"]);
-                            pr.total_rows_current_table = SafeConvertToLong(reader["total_rows_current_table"]);
-                            pr.current_table = reader["current_table"]?.ToString() ?? "";
-                            pr.current_table_index = SafeConvertToLong(reader["current_table_index"]);
-                            pr.current_row = SafeConvertToLong(reader["current_row"]);
-                            pr.current_row_in_current_table = SafeConvertToLong(reader["current_row_in_current_table"]);
-                            pr.total_bytes = SafeConvertToLong(reader["total_bytes"]);
-                            pr.current_bytes = SafeConvertToLong(reader["current_bytes"]);
-                            pr.percent_complete = SafeConvertToLong(reader["percent_complete"]);
-                            pr.dbfile_id = SafeConvertToInt(reader["dbfile_id"]);
-                            pr.last_update_time = SafeConvertToDateTime(reader["last_update_time"]);
-                            pr.remarks = reader["remarks"] + "";
-                            pr.client_request_cancel_task = reader["client_request_cancel_task"] + "" == "1";
-
-                            lst.Add(pr);
-                        }
-                    }
+                    lst = h.GetObjectList<ProgressReportInfo>(sql);
 
                     foreach (var pr in lst)
                     {
-                        if ((DateTime.Now - pr.last_update_time).TotalSeconds > 30 && !pr.is_completed)
+                        if ((DateTime.Now - pr.last_update_time).TotalSeconds > 10 && !pr.is_completed)
                         {
                             // some error has occur, the update is scheduled to be executed every 500ms
-                            // if after 10000ms (30 seconds), there isn't any update and the task is not completed
+                            // if after 10000ms (10 seconds), there isn't any update and the task is not completed
                             // this indicates that the process (ASP.NET) has been terminated by IIS App Pool
                             // the task will never complete
 
-                            cmd.CommandText = $"update progress_report set is_completed=1, is_cancelled=1, has_error=1, remarks='Terminated by system. Unknown error.' where id={pr.id};";
-                            cmd.ExecuteNonQuery();
+                            h.Execute($"update progress_report set is_completed=1, is_cancelled=1, has_error=1, remarks='Terminated by system. Unknown error.' where id={pr.id};");
 
                             pr.is_completed = true;
                             pr.has_error = true;
@@ -202,46 +161,53 @@ namespace System
 
         public static void UpdateProgress(ProgressReportInfo pr)
         {
+            Dictionary<string, object> dic = new Dictionary<string, object>();
+
+            if (pr.has_error)
+            {
+                dic["has_error"] = 1;
+                dic["is_completed"] = 1;
+                dic["is_cancelled"] = 1;
+                dic["remarks"] = pr.remarks;
+            }
+            else
+            {
+                dic["total_tables"] = pr.total_tables;
+                dic["total_rows"] = pr.total_rows;
+                dic["total_rows_current_table"] = pr.total_rows_current_table;
+                dic["current_table"] = pr.current_table ?? "";
+                dic["current_table_index"] = pr.current_table_index;
+                dic["current_row"] = pr.current_row;
+                dic["current_row_in_current_table"] = pr.current_row_in_current_table;
+                dic["percent_complete"] = pr.percent_complete;
+                dic["last_update_time"] = DateTime.Now;
+                dic["total_bytes"] = pr.total_bytes;
+                dic["current_bytes"] = pr.current_bytes;
+            }
+
             using (var connection = new SQLiteConnection(BackupFilesManager.sqliteConnectionString))
             {
                 connection.Open();
                 using (var cmd = new SQLiteCommand(connection))
                 {
-                    cmd.CommandText = @"UPDATE progress_report SET 
-                has_error = @has_error,
-                total_tables = @total_tables,
-                total_rows = @total_rows,
-                total_rows_current_table = @total_rows_current_table,
-                current_table = @current_table,
-                current_table_index = @current_table_index,
-                current_row = @current_row,
-                current_row_in_current_table = @current_row_in_current_table,
-                percent_complete = @percent_complete,
-                last_update_time = @last_update_time
-            WHERE id = @id";
+                    SQLiteHelper h = new SQLiteHelper(cmd);
 
-                    cmd.Parameters.AddWithValue("@id", pr.id);
-                    cmd.Parameters.AddWithValue("@has_error", pr.has_error ? 1 : 0);
-                    cmd.Parameters.AddWithValue("@total_tables", pr.total_tables);
-                    cmd.Parameters.AddWithValue("@total_rows", pr.total_rows);
-                    cmd.Parameters.AddWithValue("@total_rows_current_table", pr.total_rows_current_table);
-                    cmd.Parameters.AddWithValue("@current_table", pr.current_table ?? "");
-                    cmd.Parameters.AddWithValue("@current_table_index", pr.current_table_index);
-                    cmd.Parameters.AddWithValue("@current_row", pr.current_row);
-                    cmd.Parameters.AddWithValue("@current_row_in_current_table", pr.current_row_in_current_table);
-                    cmd.Parameters.AddWithValue("@percent_complete", pr.percent_complete);
-                    cmd.Parameters.AddWithValue("@last_update_time", DateTime.Now);
-
-                    cmd.ExecuteNonQuery();
+                    h.Update("progress_report", dic, "id", pr.id);
                 }
             }
         }
 
         public static void CompleteProgress(ProgressReportInfo pr)
         {
-            string remarks = "";
+            Dictionary<string, object> dic = new Dictionary<string, object>();
+            dic["end_time"] = pr.end_time;
+            dic["is_completed"] = 1;
+            dic["has_error"] = pr.has_error ? 1 : 0;
+            dic["is_cancelled"] = pr.is_cancelled ? 1 : 0;
+            dic["last_update_time"] = DateTime.Now;
+
             if (pr.has_error)
-                remarks = ", remarks = @remarks";
+                dic["remarks"] = pr.remarks;
 
             string filename = "";
 
@@ -251,29 +217,12 @@ namespace System
 
                 using (var cmd = new SQLiteCommand(connection))
                 {
+                    SQLiteHelper h = new SQLiteHelper(cmd);
+
                     // First, get the filename BEFORE updating
-                    cmd.CommandText = $"select filename from progress_report where id={pr.id}";
-                    filename = cmd.ExecuteScalar() + "";
+                    filename = h.ExecuteScalar<string>($"select filename from progress_report where id={pr.id}");
 
-                    // Now update the record
-                    cmd.CommandText = $@"UPDATE progress_report SET 
-                end_time = @end_time,
-                is_completed = @is_completed,
-                has_error = @has_error,
-                is_cancelled = @is_cancelled,
-                last_update_time = @last_update_time
-                {remarks}
-            WHERE id = @id";
-
-                    cmd.Parameters.AddWithValue("@id", pr.id);
-                    cmd.Parameters.AddWithValue("@end_time", pr.end_time);
-                    cmd.Parameters.AddWithValue("@is_completed", pr.is_completed ? 1 : 0);
-                    cmd.Parameters.AddWithValue("@has_error", pr.has_error ? 1 : 0);
-                    cmd.Parameters.AddWithValue("@is_cancelled", pr.is_cancelled ? 1 : 0);
-                    cmd.Parameters.AddWithValue("@last_update_time", DateTime.Now);
-
-                    if (pr.has_error)
-                        cmd.Parameters.AddWithValue("@remarks", pr.remarks ?? "");
+                    h.Update("progress_report", dic, "id", pr.id);
 
                     cmd.ExecuteNonQuery();
                 }
@@ -310,6 +259,7 @@ namespace System
             dbFile.DateCreated = fileInfo.CreationTime;
             dbFile.Remarks = "";
             dbFile.Sha256 = BackupFilesManager.ComputeSha256File(filePath);
+            dbFile.TaskId = pr.id;
 
             int dbfileid = BackupFilesManager.SaveRecord(dbFile);
 
@@ -338,35 +288,6 @@ namespace System
                     }
                 });
             }
-        }
-
-        private static int SafeConvertToInt(object value)
-        {
-            if (value == null || value == DBNull.Value)
-                return 0;
-            return Convert.ToInt32(value);
-        }
-
-        private static long SafeConvertToLong(object value)
-        {
-            if (value == null || value == DBNull.Value)
-                return 0L;
-            return Convert.ToInt64(value);
-        }
-
-        private static DateTime SafeConvertToDateTime(object value)
-        {
-            if (value is DateTime)
-            {
-                return (DateTime)value;
-            }
-
-            if (value == null || value == DBNull.Value)
-                return DateTime.MinValue;
-
-            DateTime.TryParseExact(value + "", "yyyy-MM-dd HH:mm:ss", QueryExpress.MySqlDateTimeFormat, Globalization.DateTimeStyles.AssumeUniversal, out DateTime date);
-
-            return date;
         }
     }
 }

@@ -24,9 +24,9 @@
 
         <h2>Error Message Bar</h2>
 
-        <input type="submit" value="Input Submit" />
-        <button type="button" value="Button">Button</button>
-        <a href="#" class="buttonmain">A Link Button</a>
+        <input type="submit" value="Input Submit" onclick="return false;" />
+        <button type="button" value="Button" onclick="return false;">Button</button>
+        <a href="#" class="buttonmain" onclick="return false;">A Link Button</a>
 
         <h2>Message Box</h2>
 

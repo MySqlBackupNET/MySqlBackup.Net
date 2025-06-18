@@ -203,7 +203,8 @@
         <div class="controls">
             <button type="button" onclick="getAllTask();">Refresh All Tasks</button>
             <button type="button" onclick="getActiveTasks();">Show Active Only</button>
-            <button type="button" onclick="startNewBackup();">Start New Backup</button>
+            <button type="button" onclick="startNewBackup();" id="btBackup">Start New Backup</button>
+            <button type="button" onclick="startNewRestore();">Start New Restore</button>
         </div>
 
         <div id="progressContainer" class="progress-container">
@@ -330,10 +331,11 @@
                 if (task.dbfile_id && task.dbfile_id > 0) {
                     actionButtons = `
                 <a class='buttonmain view' target='_blank' href='/DisplayFileContent?id=${task.dbfile_id}'>View</a>
-                <a class='buttonmain download' target='frame1' href='/DisplayFileContent?id=${task.dbfile_id}&action=download'>Download</a>
+                <a class='buttonmain download' target='frame1' href='/DisplayFileContent?id=${task.dbfile_id}&action=download' onclick='showBigLoading();'>Download</a>
             `;
                 } else {
-                    actionButtons = "<i>Preparing file... please come back later...</i>";
+                    actionButtons = "<i>Preparing file... hold on...</i>";
+                    setTimeout(() => { getAllTask(); }, 2000);
                 }
             }
 
@@ -371,22 +373,26 @@
             <div class="detail-item">
                 <span class="detail-label">Duration:</span> ${duration}
             </div>
-            ${!task.is_completed && !task.is_cancelled ? `
+            ${task.operation === 1 && !task.is_completed && !task.is_cancelled ? `
                 <div class="detail-item">
-                    <span class="detail-label">Current Table:</span><br /><span id='span-current-table-${task.id}'>${task.current_table || 'N/A'} (${task.current_table_index}/${task.total_tables})</span>
+                    <span class="detail-label">Current Table:</span><br />
+                    <span id='span-current-table-${task.id}'>${task.current_table || 'N/A'} (${task.current_table_index}/${task.total_tables})</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">Current Row:</span><br /><span id='span-current-row-${task.id}'>${task.current_row.toLocaleString()}/${task.total_rows.toLocaleString()}</span>
+                    <span class="detail-label">Current Row:</span><br />
+                    <span id='span-current-row-${task.id}'>${task.current_row.toLocaleString()}/${task.total_rows.toLocaleString()}</span>
                 </div>
             ` : ''}
-            ${task.has_error && task.remarks ? `
-                <div class="detail-item" style="grid-column: 1 / -1;">
-                    <span class="detail-label">Error:</span><br /><span id='span-error-${task.id}'>${task.remarks}</span>
+            ${task.operation === 2 && !task.is_completed && !task.is_cancelled ? `
+                <div class="detail-item">
+                    <span class="detail-label">Current Bytes:</span><br />
+                    <span id='span-current-bytes-${task.id}'>${task.current_bytes.toLocaleString()}/${task.total_bytes.toLocaleString()}</span>
                 </div>
             ` : ''}
-            ${task.is_cancelled && task.remarks ? `
+            ${task.remarks && task.remarks.length > 0 ? `
                 <div class="detail-item" style="grid-column: 1 / -1;">
-                    <span class="detail-label">Cancellation Reason:</span><br /><span id='span-cancel-${task.id}'>${task.remarks}</span>
+                    <span class="detail-label">Remarks:</span><br />
+                    <span id='span-error-${task.id}'>${task.remarks}</span>
                 </div>
             ` : ''}
         </div>
@@ -588,20 +594,38 @@
                 progressBar.textContent = task.percent_complete + '%';
             }
 
-            // Update current table info
-            const currentTableInfo = taskElement.querySelector(`#span-current-table-${task.id}`);
-            if (currentTableInfo) {
-                currentTableInfo.textContent = `${task.current_table || 'N/A'} (${task.current_table_index}/${task.total_tables})`;
+            // Update current table info (for Backup)
+            if (task.operation === 1) {
+                const currentTableInfo = taskElement.querySelector(`#span-current-table-${task.id}`);
+                if (currentTableInfo) {
+                    currentTableInfo.textContent = `${task.current_table || 'N/A'} (${task.current_table_index}/${task.total_tables})`;
+                }
+
+                // Update current row info
+                const currentRowInfo = taskElement.querySelector(`#span-current-row-${task.id}`);
+                if (currentRowInfo) {
+                    currentRowInfo.textContent = `${task.current_row.toLocaleString()}/${task.total_rows.toLocaleString()}`;
+                }
             }
 
-            // Update current row info
-            const currentRowInfo = taskElement.querySelector(`#span-current-row-${task.id}`);
-            if (currentRowInfo) {
-                currentRowInfo.textContent = `${task.current_row.toLocaleString()}/${task.total_rows.toLocaleString()}`;
+            // Update current bytes info (for Restore)
+            if (task.operation === 2) {
+                const currentBytesInfo = taskElement.querySelector(`#span-current-bytes-${task.id}`);
+                if (currentBytesInfo) {
+                    currentBytesInfo.textContent = `${task.current_bytes.toLocaleString()}/${task.total_bytes.toLocaleString()}`;
+                }
             }
         }
 
+        function startNewRestore() {
+            window.location = "/ReportProgressRestoreFileUpload";
+        }
+
         function startNewBackup() {
+
+            let btBackup = document.getElementById("btBackup");
+            btBackup.disabled = true;
+
             fetch('/apiProgressReport?action=backup', {
                 method: 'POST'
             })
@@ -622,6 +646,10 @@
                     console.error('Error starting backup:', error);
                     showErrorMessage('Error', 'Failed to start backup');
                 });
+
+            setTimeout(() => {
+                btBackup.disabled = false;
+            }, 1000);
         }
 
         function formatDateTime(dateString) {

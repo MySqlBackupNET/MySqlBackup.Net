@@ -17,6 +17,7 @@ namespace System
         public long Filesize { get; set; }
         public string DatabaseName { get; set; }
         public DateTime DateCreated { get; set; }
+        public int TaskId { get; set; }
         public string Remarks { get; set; }
     }
 }

@@ -64,11 +64,16 @@ namespace MySqlConnector
         int _currentTableIndex = 0;
         Timer timerReport = null;
 
+        // for used of import
         long _currentBytes = 0L;
         long _totalBytes = 0L;
         StringBuilder _sb = null;
         MySqlScript _mySqlScript = null;
         string _delimiter = string.Empty;
+        bool _isInRoutineDefinition = false;
+        int _beginCount = 0;
+        int _endCount = 0;
+        bool _isCustomDelimiterMode = false; // Track if we're using custom delimiter
 
         // for used of AdjustedColumnValue
         bool _hasAdjustedValueRule = false;
@@ -389,11 +394,15 @@ namespace MySqlConnector
             textWriter.WriteLine();
             textWriter.WriteLine();
             if (ExportInfo.AddDropDatabase)
-                Export_WriteLine(String.Format("DROP DATABASE `{0}`;", _database.Name));
+            {
+                //Export_WriteLine(String.Format("DROP DATABASE `{0}`;", _database.Name));
+                Export_WriteLine(String.Format("DROP DATABASE `{0}`;", QueryExpress.EscapeIdentifier(_database.Name)));
+            }
             if (ExportInfo.AddCreateDatabase)
             {
                 Export_WriteLine(_database.CreateDatabaseSQL);
-                Export_WriteLine(string.Format("USE `{0}`;", _database.Name));
+                //Export_WriteLine(string.Format("USE `{0}`;", _database.Name));
+                Export_WriteLine(string.Format("USE `{0}`;", QueryExpress.EscapeIdentifier(_database.Name)));
             }
             textWriter.WriteLine();
             textWriter.WriteLine();
@@ -493,7 +502,10 @@ namespace MySqlConnector
             textWriter.WriteLine();
 
             if (ExportInfo.AddDropTable)
-                Export_WriteLine(string.Format("DROP TABLE IF EXISTS `{0}`;", tableName));
+            {
+                //Export_WriteLine(string.Format("DROP TABLE IF EXISTS `{0}`;", tableName));
+                Export_WriteLine(string.Format("DROP TABLE IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(tableName)));
+            }
 
             if (ExportInfo.ResetAutoIncrement)
                 Export_WriteLine(_database.Tables[tableName].CreateTableSqlWithoutAutoIncrement);
@@ -528,7 +540,9 @@ namespace MySqlConnector
                 return _database.Tables
                     .ToDictionary(
                         table => table.Name,
-                        table => string.Format("SELECT * FROM `{0}`;", table.Name));
+                        //table => string.Format("SELECT * FROM `{0}`;", table.Name));
+                        table => string.Format("SELECT * FROM `{0}`;", QueryExpress.EscapeIdentifier(table.Name)));
+
             }
 
             return ExportInfo.TablesToBeExportedDic
@@ -579,7 +593,8 @@ namespace MySqlConnector
                         if (index.Contains(kv2.Key))
                             continue;
 
-                        string _thisTBname = string.Format("{0}{1}{0}", keyNameWrapper, kv2.Key.ToLower());
+                        //string _thisTBname = string.Format("{0}{1}{0}", keyNameWrapper, kv2.Key.ToLower());
+                        string _thisTBname = string.Format("{0}{1}{0}", keyNameWrapper, QueryExpress.EscapeIdentifier(kv2.Key.ToLower()));
 
                         if (referenceInfo.Contains(_thisTBname))
                         {
@@ -619,7 +634,8 @@ namespace MySqlConnector
             Export_WriteComment(string.Format("Dumping data for table {0}", tableName));
             Export_WriteComment(string.Empty);
             textWriter.WriteLine();
-            Export_WriteLine(string.Format("/*!40000 ALTER TABLE `{0}` DISABLE KEYS */;", tableName));
+            //Export_WriteLine(string.Format("/*!40000 ALTER TABLE `{0}` DISABLE KEYS */;", tableName));
+            Export_WriteLine(string.Format("/*!40000 ALTER TABLE `{0}` DISABLE KEYS */;", QueryExpress.EscapeIdentifier(tableName)));
 
             if (ExportInfo.WrapWithinTransaction)
                 Export_WriteLine("START TRANSACTION;");
@@ -629,7 +645,9 @@ namespace MySqlConnector
             if (ExportInfo.WrapWithinTransaction)
                 Export_WriteLine("COMMIT;");
 
-            Export_WriteLine(string.Format("/*!40000 ALTER TABLE `{0}` ENABLE KEYS */;", tableName));
+            //Export_WriteLine(string.Format("/*!40000 ALTER TABLE `{0}` ENABLE KEYS */;", tableName));
+            Export_WriteLine(string.Format("/*!40000 ALTER TABLE `{0}` ENABLE KEYS */;", QueryExpress.EscapeIdentifier(tableName)));
+
             textWriter.WriteLine();
             textWriter.Flush();
         }
@@ -915,7 +933,8 @@ namespace MySqlConnector
                     _sb.Clear();
 
                     _sb.Append("UPDATE `");
-                    _sb.Append(tableName);
+                    //_sb.Append(tableName);
+                    _sb.Append(QueryExpress.EscapeIdentifier(tableName));
                     _sb.Append("` SET ");
 
                     Export_GetUpdateString(rdr, table, _sb);
@@ -944,7 +963,9 @@ namespace MySqlConnector
             else if (rowsExportMode == RowsDataExportMode.Replace)
                 sb.Append("REPLACE INTO `");
 
-            sb.Append(tableName);
+            //sb.Append(tableName);
+            sb.Append(QueryExpress.EscapeIdentifier(tableName));
+
             sb.Append("`(");
 
             for (int i = 0; i < rdr.FieldCount; i++)
@@ -957,7 +978,10 @@ namespace MySqlConnector
                 if (i > 0)
                     sb.Append(",");
                 sb.Append("`");
-                sb.Append(rdr.GetName(i));
+
+                //sb.Append(rdr.GetName(i));
+                sb.Append(QueryExpress.EscapeIdentifier(rdr.GetName(i)));
+
                 sb.Append("`");
             }
 
@@ -1019,7 +1043,10 @@ namespace MySqlConnector
                         sb.Append(",");
 
                     sb.Append("`");
-                    sb.Append(columnName);
+
+                    //sb.Append(columnName);
+                    sb.Append(QueryExpress.EscapeIdentifier(columnName));
+
                     sb.Append("`=");
 
                     var ob = rdr[i];
@@ -1052,7 +1079,10 @@ namespace MySqlConnector
                         sb.Append(" and ");
 
                     sb.Append("`");
-                    sb.Append(columnName);
+
+                    //sb.Append(columnName);
+                    sb.Append(QueryExpress.EscapeIdentifier(columnName));
+
                     sb.Append("`=");
 
                     var ob = rdr[i];
@@ -1086,7 +1116,9 @@ namespace MySqlConnector
                     procedure.CreateProcedureSQL.Trim().Length == 0)
                     continue;
 
-                Export_WriteLine(string.Format("DROP PROCEDURE IF EXISTS `{0}`;", procedure.Name));
+                //Export_WriteLine(string.Format("DROP PROCEDURE IF EXISTS `{0}`;", procedure.Name));
+                Export_WriteLine(string.Format("DROP PROCEDURE IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(procedure.Name)));
+
                 Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
 
                 if (ExportInfo.ExportRoutinesWithoutDefiner)
@@ -1119,7 +1151,9 @@ namespace MySqlConnector
                     function.CreateFunctionSQLWithoutDefiner.Trim().Length == 0)
                     continue;
 
-                Export_WriteLine(string.Format("DROP FUNCTION IF EXISTS `{0}`;", function.Name));
+                //Export_WriteLine(string.Format("DROP FUNCTION IF EXISTS `{0}`;", function.Name));
+                Export_WriteLine(string.Format("DROP FUNCTION IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(function.Name)));
+
                 Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
 
                 if (ExportInfo.ExportRoutinesWithoutDefiner)
@@ -1164,8 +1198,11 @@ namespace MySqlConnector
                     view.CreateViewSQLWithoutDefiner.Trim().Length == 0)
                     continue;
 
-                Export_WriteLine(string.Format("DROP TABLE IF EXISTS `{0}`;", view.Name));
-                Export_WriteLine(string.Format("DROP VIEW IF EXISTS `{0}`;", view.Name));
+                //Export_WriteLine(string.Format("DROP TABLE IF EXISTS `{0}`;", view.Name));
+                //Export_WriteLine(string.Format("DROP VIEW IF EXISTS `{0}`;", view.Name));
+
+                Export_WriteLine(string.Format("DROP TABLE IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(view.Name)));
+                Export_WriteLine(string.Format("DROP VIEW IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(view.Name)));
 
                 if (ExportInfo.ExportRoutinesWithoutDefiner)
                     Export_WriteLine(view.CreateViewSQLWithoutDefiner);
@@ -1198,7 +1235,9 @@ namespace MySqlConnector
                     e.CreateEventSqlWithoutDefiner.Trim().Length == 0)
                     continue;
 
-                Export_WriteLine(string.Format("DROP EVENT IF EXISTS `{0}`;", e.Name));
+                //Export_WriteLine(string.Format("DROP EVENT IF EXISTS `{0}`;", e.Name));
+                Export_WriteLine(string.Format("DROP EVENT IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(e.Name)));
+
                 Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
 
                 if (ExportInfo.ExportRoutinesWithoutDefiner)
@@ -1235,7 +1274,9 @@ namespace MySqlConnector
                     createTriggerSQLWithoutDefiner.Length == 0)
                     continue;
 
-                Export_WriteLine(string.Format("DROP TRIGGER /*!50030 IF EXISTS */ `{0}`;", trigger.Name));
+                //Export_WriteLine(string.Format("DROP TRIGGER /*!50030 IF EXISTS */ `{0}`;", trigger.Name));
+                Export_WriteLine(string.Format("DROP TRIGGER /*!50030 IF EXISTS */ `{0}`;", QueryExpress.EscapeIdentifier(trigger.Name)));
+
                 Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
 
                 if (ExportInfo.ExportRoutinesWithoutDefiner)
@@ -1495,7 +1536,6 @@ namespace MySqlConnector
                     break;
                 case NextImportAction.ChangeDelimiter:
                     Import_ChangeDelimiter(line);
-                    Import_AppendLine(line);
                     break;
                 case NextImportAction.AppendLineAndExecute:
                     Import_AppendLineAndExecute(line);
@@ -1539,17 +1579,27 @@ namespace MySqlConnector
 
             string _query = _sb.ToString();
 
-            if (_query.StartsWith("DELIMITER ", StringComparison.OrdinalIgnoreCase))
+            if (_delimiter != ";")
             {
-                _mySqlScript.Query = _sb.ToString();
-                _mySqlScript.Delimiter = _delimiter;
-                _mySqlScript.Execute();
+                string trimmed = _query.TrimEnd();
+                int lastIndex = trimmed.LastIndexOf(_delimiter);
+                _query = lastIndex != -1 ? trimmed.Remove(lastIndex, _delimiter.Length) : trimmed;
             }
-            else
-            {
-                Command.CommandText = _query;
-                Command.ExecuteNonQuery();
-            }
+
+            Command.CommandText = _query;
+            Command.ExecuteNonQuery();
+
+            //if (_delimiter != ";")
+            //{
+            //    _mySqlScript.Query = $"DELIMITER {_delimiter}{Environment.NewLine}{_query}";
+            //    _mySqlScript.Delimiter = _delimiter;
+            //    _mySqlScript.Execute();
+            //}
+            //else
+            //{
+            //    Command.CommandText = _query;
+            //    Command.ExecuteNonQuery();
+            //}
 
             _sb.Clear();
 
@@ -1613,38 +1663,12 @@ namespace MySqlConnector
             if (currentProcess == ProcessType.Export)
             {
                 ReportProgress();
-                //if (ExportCompleted != null)
-                //{
-                //    ExportCompleteArgs arg = new ExportCompleteArgs(timeStart, timeEnd, processCompletionType, _lastError);
-                //    ExportCompleted(this, arg);
-                //}
             }
             else if (currentProcess == ProcessType.Import)
             {
                 _currentBytes = _totalBytes;
 
                 ReportProgress();
-
-                //if (ImportCompleted != null)
-                //{
-                //    MySqlBackup.ProcessEndType completedType = ProcessEndType.UnknownStatus;
-
-                //    switch (processCompletionType)
-                //    {
-                //        case ProcessEndType.Complete:
-                //            completedType = MySqlBackup.ProcessEndType.Complete;
-                //            break;
-                //        case ProcessEndType.Error:
-                //            completedType = MySqlBackup.ProcessEndType.Error;
-                //            break;
-                //        case ProcessEndType.Cancelled:
-                //            completedType = MySqlBackup.ProcessEndType.Cancelled;
-                //            break;
-                //    }
-
-                //    ImportCompleteArgs arg = new ImportCompleteArgs(completedType, timeStart, timeEnd, _lastError);
-                //    ImportCompleted(this, arg);
-                //}
             }
         }
 

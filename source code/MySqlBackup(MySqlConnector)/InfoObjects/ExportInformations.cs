@@ -102,41 +102,17 @@ namespace MySqlConnector
             if (_documentFooters == null)
             {
                 _documentFooters = new List<string>();
-
-                // Restore unique checks to original state
-                _documentFooters.Add("/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;");
-                // Restore foreign key checks to original state
-                _documentFooters.Add("/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;");
-                // Restore character set for client to original state
-                _documentFooters.Add("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;");
-                // Restore character set for results to original state
-                _documentFooters.Add("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;");
-                // Restore collation to original state
-                _documentFooters.Add("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;");
-                // Restore time zone to original state
-                _documentFooters.Add("/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;");
-                // Restore SQL mode to original state
+                //_documentFooters.Add("/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;");
                 _documentFooters.Add("/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;");
-                // Restore SQL notes to original state
+                _documentFooters.Add("/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;");
+                _documentFooters.Add("/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;");
+                _documentFooters.Add("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;");
+                _documentFooters.Add("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;");
+                _documentFooters.Add("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;");
                 _documentFooters.Add("/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;");
             }
 
             return _documentFooters;
-
-            //if (_documentFooters == null)
-            //{
-            //    _documentFooters = new List<string>();
-            //    //_documentFooters.Add("/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;");
-            //    _documentFooters.Add("/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;");
-            //    _documentFooters.Add("/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;");
-            //    _documentFooters.Add("/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;");
-            //    _documentFooters.Add("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;");
-            //    _documentFooters.Add("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;");
-            //    _documentFooters.Add("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;");
-            //    _documentFooters.Add("/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;");
-            //}
-
-            //return _documentFooters;
         }
 
         /// <summary>

@@ -23,7 +23,7 @@ namespace MySqlConnector
             try
             {
                 string dbname = QueryExpress.ExecuteScalarStr(cmd, "SELECT DATABASE();");
-                _sqlShowProcedures = string.Format("SHOW PROCEDURE STATUS WHERE UPPER(TRIM(Db))= UPPER(TRIM('{0}'));", dbname);
+                _sqlShowProcedures = string.Format("SHOW PROCEDURE STATUS WHERE UPPER(TRIM(Db))= UPPER(TRIM('{0}'));", QueryExpress.EscapeIdentifier(dbname));
                 DataTable dt = QueryExpress.GetTable(cmd, _sqlShowProcedures);
 
                 foreach (DataRow dr in dt.Rows)

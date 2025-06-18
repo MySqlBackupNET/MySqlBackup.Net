@@ -87,7 +87,9 @@ namespace System
 
                         using (var cmd = new SQLiteCommand(connection))
                         {
-                            string createTableSql = @"
+                            SQLiteHelper h = new SQLiteHelper(cmd);
+
+                            h.Execute(@"
                             CREATE TABLE IF NOT EXISTS DatabaseFile (
                                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 Operation TEXT,
@@ -98,61 +100,49 @@ namespace System
                                 Filesize INTEGER,
                                 DatabaseName TEXT,
                                 DateCreated DATETIME,
+                                TaskId INTEGER,
                                 Remarks TEXT
-                            )";
+                            )");
 
-                            cmd.CommandText = createTableSql;
-                            cmd.ExecuteNonQuery();
-
-                            createTableSql = @"
+                            h.Execute(@"
                             CREATE TABLE IF NOT EXISTS Log (
                                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 DatabaseFileId INTEGER,
                                 Content TEXT
-                            )";
+                            )");
 
-                            cmd.CommandText = createTableSql;
-                            cmd.ExecuteNonQuery();
+                            h.Execute(@"CREATE TABLE IF NOT EXISTS progress_report (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                                operation int,
+                                start_time DATETIME,
+                                end_time DATETIME,
+                                is_completed INTEGER,
+                                has_error INTEGER,
+                                is_cancelled INTEGER,
+                                filename TEXT,
+                                total_tables INTEGER,
+                                total_rows INTEGER,
+                                total_rows_current_table INTEGER,
+                                current_table TEXT,
+                                current_table_index INTEGER,
+                                current_row INTEGER,
+                                current_row_in_current_table INTEGER,
+                                total_bytes INTEGER,
+                                current_bytes INTEGER,
+                                percent_complete INTEGER,
+                                remarks TEXT,
+                                dbfile_id INTEGER,
+                                last_update_time DATETIME,
+                                client_request_cancel_task INTEGER
+                            );");
 
-                            createTableSql = @"CREATE TABLE progress_report (
-    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    operation int,
-    start_time DATETIME,
-    end_time DATETIME,
-    is_completed INTEGER,
-    has_error INTEGER,
-    is_cancelled INTEGER,
-    filename TEXT,
-    total_tables INTEGER,
-    total_rows INTEGER,
-    total_rows_current_table INTEGER,
-    current_table TEXT,
-    current_table_index INTEGER,
-    current_row INTEGER,
-    current_row_in_current_table INTEGER,
-    total_bytes INTEGER,
-    current_bytes INTEGER,
-    percent_complete INTEGER,
-    remarks TEXT,
-    dbfile_id INTEGER,
-    last_update_time DATETIME,
-    client_request_cancel_task INTEGER
-);";
-
-                            cmd.CommandText = createTableSql;
-                            cmd.ExecuteNonQuery();
-
-                            createTableSql = @"
+                            h.Execute(@"
                             CREATE TABLE IF NOT EXISTS Config (
                                 `Key` TEXT PRIMARY KEY,
                                 `Value` TEXT
-                            )";
+                            )");
 
-                            cmd.CommandText = createTableSql;
-                            cmd.ExecuteNonQuery();
-
-                            cmd.CommandText = "INSERT INTO Config (`Key`, `Value`) VALUES ('DataVersion','1');";
-                            cmd.ExecuteNonQuery();
+                            h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('DataVersion','1');");
                         }
                     }
                 }
@@ -309,29 +299,29 @@ namespace System
 
         public static int SaveRecord(DatabaseFileRecord dbFile)
         {
+            Dictionary<string, object> dic = new Dictionary<string, object>();
+            dic["Operation"] = dbFile.Operation;
+            dic["Filename"] = dbFile.Filename;
+            dic["OriginalFilename"] = dbFile.OriginalFilename;
+            dic["LogFilename"] = dbFile.LogFilename;
+            dic["Sha256"] = dbFile.Sha256;
+            dic["Filesize"] = dbFile.Filesize;
+            dic["DatabaseName"] = dbFile.DatabaseName;
+            dic["DateCreated"] = dbFile.DateCreated;
+            dic["Remarks"] = dbFile.Remarks;
+            dic["TaskId"] = dbFile.TaskId;
+
             int newid = 0;
 
             using (var connection = new SQLiteConnection(sqliteConnectionString))
             {
                 connection.Open();
 
-                string sql = @"
-                    INSERT INTO DatabaseFile (Operation, Filename, OriginalFilename, LogFilename, Sha256, Filesize, DatabaseName, DateCreated, Remarks)
-                    VALUES (@Operation, @Filename, @OriginalFilename, @LogFilename, @Sha256, @Filesize, @DatabaseName, @DateCreated, @Remarks)";
-
-                using (var cmd = new SQLiteCommand(sql, connection))
+                using (var cmd = connection.CreateCommand())
                 {
-                    cmd.Parameters.AddWithValue("@Operation", dbFile.Operation);
-                    cmd.Parameters.AddWithValue("@Filename", dbFile.Filename);
-                    cmd.Parameters.AddWithValue("@OriginalFilename", dbFile.OriginalFilename);
-                    cmd.Parameters.AddWithValue("@LogFilename", dbFile.LogFilename);
-                    cmd.Parameters.AddWithValue("@Sha256", dbFile.Sha256);
-                    cmd.Parameters.AddWithValue("@Filesize", dbFile.Filesize);
-                    cmd.Parameters.AddWithValue("@DatabaseName", dbFile.DatabaseName);
-                    cmd.Parameters.AddWithValue("@DateCreated", dbFile.DateCreated);
-                    cmd.Parameters.AddWithValue("@Remarks", dbFile.Remarks);
+                    SQLiteHelper h = new SQLiteHelper(cmd);
 
-                    cmd.ExecuteNonQuery();
+                    h.Insert("DatabaseFile", dic);
 
                     newid = (int)connection.LastInsertRowId;
                 }
@@ -487,32 +477,9 @@ namespace System
 
                 using (var cmd = new SQLiteCommand(connection))
                 {
-                    cmd.CommandText = sb.ToString();
+                    SQLiteHelper h = new SQLiteHelper(cmd);
 
-                    foreach (var kv in dicParam)
-                    {
-                        cmd.Parameters.AddWithValue(kv.Key, kv.Value);
-                    }
-
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            DatabaseFileRecord dbFile = new DatabaseFileRecord();
-                            dbFile.Id = Convert.ToInt32(reader["Id"]);
-                            dbFile.Operation = reader["Operation"] + "";
-                            dbFile.Filename = reader["Filename"] + "";
-                            dbFile.OriginalFilename = reader["OriginalFilename"] + "";
-                            dbFile.LogFilename = reader["LogFilename"] + "";
-                            dbFile.Sha256 = reader["Sha256"] + "";
-                            dbFile.Filesize = Convert.ToInt64(reader["Filesize"]);
-                            dbFile.DatabaseName = reader["DatabaseName"] + "";
-                            dbFile.DateCreated = Convert.ToDateTime(reader["DateCreated"]);
-                            dbFile.Remarks = reader["Remarks"] + "";
-
-                            lst.Add(dbFile);
-                        }
-                    }
+                    lst = h.GetObjectList<DatabaseFileRecord>(sb.ToString(), dicParam);
                 }
             }
 
@@ -567,27 +534,21 @@ namespace System
                     }
                 }
 
-                using (var transaction = connection.BeginTransaction())
+                using (var cmd = connection.CreateCommand())
                 {
-                    try
-                    {
-                        using (var cmd = new SQLiteCommand("DELETE FROM DatabaseFile WHERE Id = @Id", connection, transaction))
-                        {
-                            foreach (var file in filesToDelete)
-                            {
-                                cmd.Parameters.Clear();
-                                cmd.Parameters.AddWithValue("@Id", file.Id);
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
+                    SQLiteHelper h = new SQLiteHelper(cmd);
 
-                        transaction.Commit();
-                    }
-                    catch
+                    h.BeginTransaction();
+
+                    Dictionary<string, object> dicParam = new Dictionary<string, object>();
+
+                    foreach (var file in filesToDelete)
                     {
-                        transaction.Rollback();
-                        throw;
+                        dicParam["@Id"] = file.Id;
+                        h.Execute("DELETE FROM DatabaseFile WHERE Id = @Id", dicParam);
                     }
+
+                    h.Commit();
                 }
 
                 // Delete physical files after database commit

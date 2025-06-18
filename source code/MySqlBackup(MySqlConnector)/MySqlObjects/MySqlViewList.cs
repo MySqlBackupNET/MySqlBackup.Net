@@ -23,7 +23,7 @@ namespace MySqlConnector
             try
             {
                 string dbname = QueryExpress.ExecuteScalarStr(cmd, "SELECT DATABASE();");
-                _sqlShowViewList = string.Format("SHOW FULL TABLES FROM `{0}` WHERE Table_type = 'VIEW';", dbname);
+                _sqlShowViewList = string.Format("SHOW FULL TABLES FROM `{0}` WHERE Table_type = 'VIEW';", QueryExpress.EscapeIdentifier(dbname));
                 DataTable dt = QueryExpress.GetTable(cmd, _sqlShowViewList);
 
                 foreach (DataRow dr in dt.Rows)

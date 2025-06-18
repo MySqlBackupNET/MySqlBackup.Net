@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.IO.Compression;
+using System.Threading;
 
 namespace System.pages
 {
@@ -38,21 +39,60 @@ namespace System.pages
                 {
                     try
                     {
-                        // Get or create the zip file using BackupFilesManager
-                        string zipFilePath = BackupFilesManager.GetOrCreateZipFile(filepath);
+                        int attemptCount = 0;
 
-                        // Get original filename for download
-                        string orifilename = Path.GetFileNameWithoutExtension(filepath);
+                        while (attemptCount < 10)
+                        {
+                            attemptCount++;
 
-                        // Transmit the file
-                        long fileSize = new FileInfo(zipFilePath).Length;
-                        Response.Clear();
-                        Response.ContentType = "application/octet-stream";
-                        Response.AddHeader("Content-Disposition", $"attachment; filename=\"{orifilename}.zip\"");
-                        Response.AddHeader("Content-Length", fileSize.ToString());
+                            try
+                            {
+                                // Get or create the zip file using BackupFilesManager
+                                string zipFilePath = BackupFilesManager.GetOrCreateZipFile(filepath);
 
-                        await Task.Run(() => Response.TransmitFile(zipFilePath));
-                        Response.End();
+                                // Get original filename for download
+                                string orifilename = Path.GetFileNameWithoutExtension(filepath);
+
+                                // Transmit the file
+                                long fileSize = new FileInfo(zipFilePath).Length;
+                                Response.Clear();
+                                Response.ContentType = "application/octet-stream";
+                                Response.AddHeader("Content-Disposition", $"attachment; filename=\"{orifilename}.zip\"");
+                                Response.AddHeader("Content-Length", fileSize.ToString());
+
+                                await Task.Run(() => Response.TransmitFile(zipFilePath));
+                                Response.End();
+                            }
+                            catch (Exception ex)
+                            {
+                                if (attemptCount >= 10)
+                                {
+                                    throw ex;
+                                }
+                                else
+                                {
+                                    Thread.Sleep(1000); 
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is IOException && ex.Message.Contains("being used by another process"))
+                        {
+                            Response.Clear();
+                            Response.ContentType = "text/html";
+                            Response.Write("<!DOCTYPE html><html><head><script>alert('Hold on, the file is being prepared, please try again later.');</script></head><body></body></html>");
+                            Response.End();
+                        }
+                        else
+                        {
+                            Response.Clear();
+                            Response.ContentType = "text/html";
+                            string escapedMessage = System.Web.HttpUtility.HtmlEncode(ex.Message);
+                            Response.Write($"<!DOCTYPE html><html><head><script>alert('{escapedMessage}');</script></head><body></body></html>");
+                            Response.End();
+                        }
                     }
                     finally
                     {

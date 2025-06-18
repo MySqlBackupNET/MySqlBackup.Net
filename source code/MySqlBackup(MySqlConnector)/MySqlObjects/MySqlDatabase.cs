@@ -49,7 +49,7 @@ namespace MySqlConnector
         {
             _name = QueryExpress.ExecuteScalarStr(cmd, "SELECT DATABASE();");
             _defaultCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW VARIABLES LIKE 'character_set_database';", 1);
-            _createDatabaseSql = QueryExpress.ExecuteScalarStr(cmd, string.Format("SHOW CREATE DATABASE `{0}`;", _name), 1).Replace("CREATE DATABASE", "CREATE DATABASE IF NOT EXISTS") + ";";
+            _createDatabaseSql = QueryExpress.ExecuteScalarStr(cmd, string.Format("SHOW CREATE DATABASE `{0}`;", QueryExpress.EscapeIdentifier(_name)), 1).Replace("CREATE DATABASE", "CREATE DATABASE IF NOT EXISTS") + ";";
             _dropDatabaseSql = string.Format("DROP DATABASE IF EXISTS `{0}`;", _name);
 
             _listTable = new MySqlTableList(cmd);
@@ -77,7 +77,7 @@ namespace MySqlConnector
 
             if (enumGetTotalRowsMode == GetTotalRowsMethod.InformationSchema)
             {
-                DataTable dtTotalRows = QueryExpress.GetTable(cmd, string.Format("SELECT TABLE_NAME, TABLE_ROWS FROM `information_schema`.`tables` WHERE `table_schema` = '{0}';", _name));
+                DataTable dtTotalRows = QueryExpress.GetTable(cmd, string.Format("SELECT TABLE_NAME, TABLE_ROWS FROM `information_schema`.`tables` WHERE `table_schema` = '{0}';", QueryExpress.EscapeIdentifier(_name)));
                 timer.Start();
                 foreach (DataRow dr in dtTotalRows.Rows)
                 {
