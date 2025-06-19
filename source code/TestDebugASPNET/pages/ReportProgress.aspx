@@ -331,7 +331,7 @@
                 if (task.dbfile_id && task.dbfile_id > 0) {
                     actionButtons = `
                 <a class='buttonmain view' target='_blank' href='/DisplayFileContent?id=${task.dbfile_id}'>View</a>
-                <a class='buttonmain download' target='frame1' href='/DisplayFileContent?id=${task.dbfile_id}&action=download' onclick='showBigLoading();'>Download</a>
+                <a class='buttonmain download' target='frame1' href='/DisplayFileContent?id=${task.dbfile_id}&action=download' onclick='showBigLoading(3000);'>Download</a>
             `;
                 } else {
                     actionButtons = "<i>Preparing file... hold on...</i>";
@@ -342,7 +342,7 @@
             // Show cancel button only for active (non-completed, non-cancelled) tasks
             if (!task.is_completed && !task.is_cancelled) {
                 actionButtons += `
-            <button type='button' class='buttonmain cancel' onclick='cancelTask(${task.id})'>Stop/Cancel Task</button>
+            <button type='button' class='buttonmain cancel' onclick='cancelTask(${task.id});'>Stop/Cancel Task</button>
         `;
             }
 
@@ -399,7 +399,7 @@
         
         <div class="task-actions">
             ${actionButtons}
-            <button type='button' class='buttonmain delete' onclick="deleteTask(${task.id})">Delete Task</button>
+            ${task.is_completed ? `<button type='button' class='buttonmain delete' onclick="deleteTask(${task.id})">Delete Task</button>`:""}
         </div>
     `;
 
@@ -682,6 +682,10 @@
             } else {
                 return `${seconds}s`;
             }
+        }
+
+        function notifyCancel() {
+            spShowMessage("Cancelling", "Task is being requested to cancel", true);
         }
     </script>
 </asp:Content>

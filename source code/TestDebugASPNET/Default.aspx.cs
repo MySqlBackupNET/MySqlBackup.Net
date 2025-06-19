@@ -374,17 +374,99 @@ namespace System
             }
         }
 
+        ExportInformations GetExportInfo()
+        {
+            MySqlConnector.ExportInformations ExportInfo = new MySqlConnector.ExportInformations();
+            ExportInfo.AddDropDatabase = cbAddDropDatabase.Checked;
+            ExportInfo.AddCreateDatabase = cbAddCreateDatabase.Checked;
+            ExportInfo.AddDropTable = cbAddDropTable.Checked;
+            ExportInfo.ExportTableStructure = cbExportTableStructure.Checked;
+            ExportInfo.ExportRows = cbExportRows.Checked;
+            ExportInfo.ExportProcedures = cbExportProcedures.Checked;
+            ExportInfo.ExportFunctions = cbExportFunctions.Checked;
+            ExportInfo.ExportTriggers = cbExportTriggers.Checked;
+            ExportInfo.ExportViews = cbExportViews.Checked;
+            ExportInfo.ExportRoutinesWithoutDefiner = cbExportRoutinesWithoutDefiner.Checked;
+            ExportInfo.ResetAutoIncrement = cbResetAutoIncrement.Checked;
+            ExportInfo.WrapWithinTransaction = cbWrapWithinTransaction.Checked;
+            ExportInfo.EnableComment = cbEnableComments.Checked;
+            ExportInfo.RecordDumpTime = cbRecordDumpTime.Checked;
+            ExportInfo.InsertLineBreakBetweenInserts = cbInsertLineBreakBetweenInserts.Checked;
+
+            if (!string.IsNullOrWhiteSpace(txtScriptDelimiter.Text))
+            {
+                ExportInfo.ScriptsDelimiter = txtScriptDelimiter.Text;
+            }
+            else
+            {
+                ExportInfo.ScriptsDelimiter = "|";
+            }
+
+            if (!string.IsNullOrWhiteSpace(txtMaxSqlLength.Text) && int.TryParse(txtMaxSqlLength.Text, out int maxLength))
+            {
+                ExportInfo.MaxSqlLength = maxLength;
+            }
+            else
+            {
+                ExportInfo.MaxSqlLength = 16 * 1024 * 1024;
+            }
+
+            ExportInfo.RowsExportMode = (RowsDataExportMode)int.Parse(dropRowsExportMode.SelectedValue);
+            ExportInfo.GetTotalRowsMode = (GetTotalRowsMethod)int.Parse(dropGetTotalRowsMode.SelectedValue);
+
+            if (!string.IsNullOrWhiteSpace(txtDocumentHeaders.Text))
+            {
+                var headers = txtDocumentHeaders.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                ExportInfo.SetDocumentHeaders(headers.ToList());
+            }
+
+            if (!string.IsNullOrWhiteSpace(txtDocumentFooters.Text))
+            {
+                var footers = txtDocumentFooters.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                ExportInfo.SetDocumentFooters(footers.ToList());
+            }
+
+            List<string> includeTables = new List<string>();
+            foreach (ListItem item in cbListIncludeTables.Items)
+            {
+                if (item.Selected)
+                {
+                    includeTables.Add(item.Value);
+                }
+            }
+            if (includeTables.Count > 0)
+            {
+                ExportInfo.TablesToBeExportedList = includeTables;
+            }
+
+            foreach (ListItem item in cbListExcludeTables.Items)
+            {
+                if (item.Selected)
+                {
+                    ExportInfo.ExcludeTables.Add(item.Value);
+                }
+            }
+
+            foreach (ListItem item in cbListExcludeRowsForTables.Items)
+            {
+                if (item.Selected)
+                {
+                    ExportInfo.ExcludeRowsForTables.Add(item.Value);
+                }
+            }
+
+            return ExportInfo;
+        }
+
         protected void btRunBackup_Click(object sender, EventArgs e)
         {
-            // Variables to store backup metadata
-            DatabaseFileRecord dbFile = new DatabaseFileRecord();
-            dbFile.Operation = "Basic Backup";
-            dbFile.Filename = $"Basic Backup-{DateTime.Now:yyyy-MM-dd_HHmmss}.sql";
-            dbFile.OriginalFilename = dbFile.Filename;
-            dbFile.DateCreated = DateTime.Now;
-            dbFile.Remarks = "Backup";
+            var exportInfo = GetExportInfo();
 
-            string dumpFile = Path.Combine(folder, dbFile.Filename);
+            string filename = $"Simple-Backup-{DateTime.Now:yyyy-MM-dd HHmmss}.sql";
+            string folder = Server.MapPath("~/temp");
+            Directory.CreateDirectory(folder);
+
+            string dumpFile = Path.Combine(folder, filename);
 
             using (MySqlConnection conn = config.GetNewConnection())
             {
@@ -393,138 +475,45 @@ namespace System
                     conn.Open();
                     cmd.Connection = conn;
 
-                    dbFile.DatabaseName = QueryExpress.ExecuteScalarStr(cmd, "select database();");
-
                     using (MySqlBackup mb = new MySqlBackup(cmd))
                     {
-                        #region Setup Export Info
-
-                        // Gathering Export Info =====================
-
-                        mb.ExportInfo.AddDropDatabase = cbAddDropDatabase.Checked;
-                        mb.ExportInfo.AddCreateDatabase = cbAddCreateDatabase.Checked;
-                        mb.ExportInfo.AddDropTable = cbAddDropTable.Checked;
-                        mb.ExportInfo.ExportTableStructure = cbExportTableStructure.Checked;
-                        mb.ExportInfo.ExportRows = cbExportRows.Checked;
-                        mb.ExportInfo.ExportProcedures = cbExportProcedures.Checked;
-                        mb.ExportInfo.ExportFunctions = cbExportFunctions.Checked;
-                        mb.ExportInfo.ExportTriggers = cbExportTriggers.Checked;
-                        mb.ExportInfo.ExportViews = cbExportViews.Checked;
-                        mb.ExportInfo.ExportRoutinesWithoutDefiner = cbExportRoutinesWithoutDefiner.Checked;
-                        mb.ExportInfo.ResetAutoIncrement = cbResetAutoIncrement.Checked;
-                        mb.ExportInfo.WrapWithinTransaction = cbWrapWithinTransaction.Checked;
-                        mb.ExportInfo.EnableComment = cbEnableComments.Checked;
-                        mb.ExportInfo.RecordDumpTime = cbRecordDumpTime.Checked;
-                        mb.ExportInfo.InsertLineBreakBetweenInserts = cbInsertLineBreakBetweenInserts.Checked;
-
-                        if (!string.IsNullOrWhiteSpace(txtScriptDelimiter.Text))
-                        {
-                            mb.ExportInfo.ScriptsDelimiter = txtScriptDelimiter.Text;
-                        }
-                        else
-                        {
-                            mb.ExportInfo.ScriptsDelimiter = "|";
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(txtMaxSqlLength.Text) && int.TryParse(txtMaxSqlLength.Text, out int maxLength))
-                        {
-                            mb.ExportInfo.MaxSqlLength = maxLength;
-                        }
-                        else
-                        {
-                            mb.ExportInfo.MaxSqlLength = 16 * 1024 * 1024;
-                        }
-
-                        mb.ExportInfo.RowsExportMode = (RowsDataExportMode)int.Parse(dropRowsExportMode.SelectedValue);
-                        mb.ExportInfo.GetTotalRowsMode = (GetTotalRowsMethod)int.Parse(dropGetTotalRowsMode.SelectedValue);
-
-                        if (!string.IsNullOrWhiteSpace(txtDocumentHeaders.Text))
-                        {
-                            var headers = txtDocumentHeaders.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                            mb.ExportInfo.SetDocumentHeaders(headers.ToList());
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(txtDocumentFooters.Text))
-                        {
-                            var footers = txtDocumentFooters.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                            mb.ExportInfo.SetDocumentFooters(footers.ToList());
-                        }
-
-                        List<string> includeTables = new List<string>();
-                        foreach (ListItem item in cbListIncludeTables.Items)
-                        {
-                            if (item.Selected)
-                            {
-                                includeTables.Add(item.Value);
-                            }
-                        }
-                        if (includeTables.Count > 0)
-                        {
-                            mb.ExportInfo.TablesToBeExportedList = includeTables;
-                        }
-
-                        foreach (ListItem item in cbListExcludeTables.Items)
-                        {
-                            if (item.Selected)
-                            {
-                                mb.ExportInfo.ExcludeTables.Add(item.Value);
-                            }
-                        }
-
-                        foreach (ListItem item in cbListExcludeRowsForTables.Items)
-                        {
-                            if (item.Selected)
-                            {
-                                mb.ExportInfo.ExcludeRowsForTables.Add(item.Value);
-                            }
-                        }
-
-                        // End of Gathering Export Info =====================
-
-                        #endregion
-
+                        mb.ExportInfo = exportInfo;
                         mb.ExportToFile(dumpFile);
                     }
                 }
             }
 
-            dbFile.Filesize = new FileInfo(dumpFile).Length;
-            dbFile.Sha256 = BackupFilesManager.ComputeSha256File(dumpFile);
-
-            int newFileId = BackupFilesManager.SaveRecord(dbFile);
-
-            ((masterPage1)this.Master).WriteTopMessageBar($"Database backup successful.<br />View file content at [<a href='/DisplayFileContent?id={newFileId}' target='_blank'>here</a>] or<br /> view the list of backup files at [<a href='/DatabaseRecordlist' target='_blank'>here</a>]", true);
+            ((masterPage1)this.Master).WriteTopMessageBar($"Database backup successful.", true);
             ((masterPage1)this.Master).ShowMessage("Ok", "Database backup success", true);
+        }
+
+        protected async void btRunBackupAsync_Click(object sender, EventArgs e)
+        {
+            var ExportInfo = GetExportInfo();
+
+            ServiceBackup backup = new ServiceBackup();
+            await backup.StartAsync(ExportInfo);
+
+            Header.Controls.Add(new LiteralControl("<script>window.location = '/ReportProgress';</script>"));
         }
 
         protected void btRunRestore_Click(object sender, EventArgs e)
         {
-            string Filename = $"Basic Restore-{DateTime.Now:yyyy-MM-dd_HHmmss}.sql";
-            string LogFilename = $"log-{Filename}";
+            string filename = $"Simple-Restore-{DateTime.Now:yyyy-MM-dd HHmmss}.sql";
+            string filenamelog = $"Simple-Restore-log-{DateTime.Now:yyyy-MM-dd HHmmss}.txt";
+            string folder = Server.MapPath("~/temp");
+            Directory.CreateDirectory(folder);
 
-            string dumpFile = Path.Combine(folder, Filename);
-            string logFile = Path.Combine(folder, LogFilename);
+            string dumpFile = Path.Combine(folder, filename);
+            string logFile = Path.Combine(folder, filenamelog);
 
             fileUploadRestore.SaveAs(dumpFile);
 
-            DatabaseFileRecord dbFile = new DatabaseFileRecord();
-            dbFile.Filename = Path.GetFileName(dumpFile);
-            dbFile.LogFilename = LogFilename;
-            dbFile.Sha256 = BackupFilesManager.ComputeSha256File(dumpFile);
-            dbFile.Filesize = new FileInfo(dumpFile).Length;
-            dbFile.DateCreated = DateTime.Now;
-            dbFile.OriginalFilename = fileUploadRestore.FileName;
-            dbFile.Operation = "Basic Restore";
-            dbFile.Remarks = "Basic Restore - File Upload";
-
             using (MySqlConnection conn = config.GetNewConnection())
             {
-                using (MySqlCommand cmd = new MySqlCommand())
+                using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    cmd.Connection = conn;
-
-                    dbFile.DatabaseName = QueryExpress.ExecuteScalarStr(cmd, "select database();");
 
                     using (MySqlBackup mb = new MySqlBackup(cmd))
                     {
@@ -535,7 +524,8 @@ namespace System
                 }
             }
 
-
+            ((masterPage1)this.Master).WriteTopMessageBar($"Database restore successful.", true);
+            ((masterPage1)this.Master).ShowMessage("Ok", "Database restore success", true);
         }
     }
 }

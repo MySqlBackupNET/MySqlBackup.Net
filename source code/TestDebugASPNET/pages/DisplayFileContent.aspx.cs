@@ -78,21 +78,23 @@ namespace System.pages
                     }
                     catch (Exception ex)
                     {
-                        if (ex is IOException && ex.Message.Contains("being used by another process"))
-                        {
-                            Response.Clear();
-                            Response.ContentType = "text/html";
-                            Response.Write("<!DOCTYPE html><html><head><script>alert('Hold on, the file is being prepared, please try again later.');</script></head><body></body></html>");
-                            Response.End();
-                        }
-                        else
-                        {
-                            Response.Clear();
-                            Response.ContentType = "text/html";
-                            string escapedMessage = System.Web.HttpUtility.HtmlEncode(ex.Message);
-                            Response.Write($"<!DOCTYPE html><html><head><script>alert('{escapedMessage}');</script></head><body></body></html>");
-                            Response.End();
-                        }
+                        //if (ex is IOException && ex.Message.Contains("being used by another process"))
+                        //{
+                        //    Response.Clear();
+                        //    Response.ContentType = "text/html";
+                        //    Response.Write("<!DOCTYPE html><html><head><script>alert('Hold on, the file is being prepared, please try again later.');</script></head><body></body></html>");
+                        //    Response.Flush();
+                        //    Response.End();
+                        //}
+                        //else
+                        //{
+                        //    Response.Clear();
+                        //    Response.ContentType = "text/html";
+                        //    string escapedMessage = System.Web.HttpUtility.HtmlEncode(ex.Message);
+                        //    Response.Write($"<!DOCTYPE html><html><head><script>alert('{escapedMessage}');</script></head><body></body></html>");
+                        //    Response.Flush();
+                        //    Response.End();
+                        //}
                     }
                     finally
                     {

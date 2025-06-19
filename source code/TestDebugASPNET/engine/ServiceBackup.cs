@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -64,6 +65,10 @@ namespace System
 
                         using (var mb = new MySqlBackup(cmd))
                         {
+                            if (exportInfo != null)
+                            {
+                                mb.ExportInfo = exportInfo;
+                            }
                             mb.ExportInfo.IntervalForProgressReport = 500;
                             mb.ExportProgressChanged += (sender, e) => Mb_ExportProgressChanged(sender, e);
                             mb.ExportCompleted += (sender, e) => Mb_ExportCompleted(sender, e);

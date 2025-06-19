@@ -133,6 +133,7 @@
     <Content Include="Default.aspx" />
     <Content Include="Global.asax" />
     <Content Include="pages\apiProgressReport.aspx" />
+    <Content Include="pages\ConditionalTablesExport.aspx" />
     <Content Include="pages\DatabaseRecordList.aspx" />
     <Content Include="pages\DisplayFileContent.aspx" />
     <Content Include="pages\QueryBrowser.aspx" />
@@ -179,6 +180,13 @@
     </Compile>
     <Compile Include="pages\apiProgressReport.aspx.designer.cs">
       <DependentUpon>apiProgressReport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\ConditionalTablesExport.aspx.cs">
+      <DependentUpon>ConditionalTablesExport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\ConditionalTablesExport.aspx.designer.cs">
+      <DependentUpon>ConditionalTablesExport.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\DatabaseRecordList.aspx.cs">
       <DependentUpon>DatabaseRecordList.aspx</DependentUpon>

@@ -9,7 +9,21 @@
         *This test requires MySQL Root user or user with CREATE DATABASE privilege.<br />
         <br />
 
-        <asp:Button ID="btRun" runat="server" Text="Run Test" OnClick="btRun_Click" OnClientClick="showBigLoading(); hideButton(this);" /><br />
+        <asp:Button ID="btRun" runat="server" ClientIDMode="Static" Text="Run Test" OnClick="btRun_Click" OnClientClick="showBigLoading(0); hideButton(this);" />
+        <asp:CheckBox ID="cbNoTryCatch" runat="server" />
+        Run Without Try Catch
+        Rows Export Mode:
+        <asp:CheckBox ID="cbInsert" runat="server" Checked="true" />
+        Insert
+        <asp:CheckBox ID="cbInsertIgnore" runat="server" Checked="false" />
+        Insert Ignore
+        <asp:CheckBox ID="cbReplace" runat="server" Checked="false" />
+        Replace
+        <asp:CheckBox ID="cbUpdate" runat="server" Checked="false" />
+        Update
+        <asp:CheckBox ID="cbInsertUpdate" runat="server" Checked="false" />
+        cbInsert Update
+        <br />
         <br />
 
         <pre class="light-formatted"><asp:PlaceHolder ID="ph1" runat="server"></asp:PlaceHolder></pre>

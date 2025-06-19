@@ -165,7 +165,12 @@ function spShowConfirmDialog(title, message, customData, onYesCallback, onNoCall
 
 // Big Loading Animation
 
-function showBigLoading() {
+function showBigLoading(secondsTimeOut) {
+
+    if (secondsTimeOut == null) {
+        secondsTimeOut = 3000;
+    }
+
     // Close any existing loading first
     closeBigLoading();
 
@@ -186,10 +191,12 @@ function showBigLoading() {
     // Add click event listener to close when clicked
     overlay.addEventListener('click', closeBigLoading);
 
-    // Store timeout ID on the overlay element itself
-    overlay.timeoutId = setTimeout(() => {
-        closeBigLoading();
-    }, 3000);
+    if (secondsTimeOut > 0) {
+        // Store timeout ID on the overlay element itself
+        overlay.timeoutId = setTimeout(() => {
+            closeBigLoading();
+        }, secondsTimeOut);
+    }
 }
 
 function closeBigLoading() {

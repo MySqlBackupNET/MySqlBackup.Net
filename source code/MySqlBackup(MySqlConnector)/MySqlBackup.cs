@@ -1035,6 +1035,9 @@ namespace MySqlConnector
 
                 var col = table.Columns[columnName];
 
+                if (col.IsGeneratedColumn)
+                    continue;
+
                 if (!col.IsPrimaryKey)
                 {
                     if (isFirst)
