@@ -48,8 +48,19 @@ form {
 .main-content {
     padding: 10px;
     height: auto;
-    min-height: calc(100vh - 200px);
+    min-height: calc(100vh - 220px);
 }
+
+.main-content a {
+    text-decoration: none;
+    color: #ff5555;
+    font-weight: bold;
+}
+
+    .main-content a:hover {
+        text-decoration: underline;
+        color: #c63c3c;
+    }
 
 .footer {
     padding: 10px;
@@ -59,7 +70,7 @@ table {
     border-spacing: 10px;
 }
 
-input[type=submit], button, .buttonmain {
+input[type=submit], button, .buttonmain, a.buttonmain {
     display: inline-block;
     text-decoration: none;
     font-style: normal;
@@ -74,7 +85,8 @@ input[type=submit], button, .buttonmain {
     transition: all 0.3s;
 }
 
-    input[type=submit]:hover, button:hover, .buttonmain:hover {
+    input[type=submit]:hover, button:hover, .buttonmain:hover, a.buttonmain:hover {
+        color: white;
         position: relative;
         top: 1px;
         background: #405e9d;

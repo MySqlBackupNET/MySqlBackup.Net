@@ -81,6 +81,7 @@
         <div class="action-buttons">
             <asp:Button ID="btnLoadFiles" runat="server" Text="Load Files" OnClick="btnLoadFiles_Click" />
             <button type="button" onclick="deleteSelected();">Delete Selected Files</button>
+            <button type="button" onclick="newBackup();">Do Backup</button>
             <iframe id="frame1" name="frame1" style="height: 0; width: 0; border: none; display: inline-block;"></iframe>
         </div>
 
@@ -119,6 +120,60 @@
                 (customData) => {
                     // No
                     // do nothing
+                }
+            );
+        }
+
+        function restoreFileId(fileid) {
+            spShowConfirmDialog(
+                "Restore",
+                "Are you sure to restore selected files?",
+                "",
+                () => {
+                    // Yes
+                    fetch(`/apiProgressReport?action=restore&id=${fileid}`)
+                        .then(response => response.text())
+                        .then(result => {
+                            if (result === "1") {
+                                window.location = "/ReportProgress";
+                            } else {
+                                const errMsg = result.split("|")[1] || "Unknown error occurred";
+                                spShowMessage("Error", errMsg, false);
+                            }
+                        })
+                        .catch(error => {
+                            spShowMessage("Error", "Failed to connect to the server", false);
+                        });
+                },
+                () => {
+                    // No, do nothing
+                }
+            );
+        }
+
+        function newBackup() {
+            spShowConfirmDialog(
+                "Backup",
+                "Are you sure you want to backup MySQL database?",
+                "",
+                () => {
+                    // Yes
+                    fetch(`/apiProgressReport?action=backup`)
+                        .then(response => response.text())
+                        .then(result => {
+                            if (result === "1") {
+                                window.location = "/ReportProgress";
+                            } else {
+                                const errMsg = result.split("|")[1] || "Unknown error occurred";
+                                spShowMessage("Error", errMsg, false);
+                            }
+                        })
+                        .catch(error => {
+                            spShowMessage("Error", "Failed to connect to the server", false);
+                        });
+                },
+                () => {
+                    // No, do nothing
                 }
             );
         }

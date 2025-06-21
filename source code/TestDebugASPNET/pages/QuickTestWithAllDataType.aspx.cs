@@ -41,7 +41,10 @@ namespace System.pages
                 }
                 catch (Exception ex)
                 {
-                    result = ex.Message;
+                    result = $@"
+{ex.Message}
+{ex.StackTrace}
+";
                 }
             }
 

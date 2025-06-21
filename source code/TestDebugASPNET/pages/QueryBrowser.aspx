@@ -65,7 +65,7 @@
         <asp:Button ID="btSelectShow" runat="server" Text="Select/Show (Enter)" OnClick="btSelectShow_Click" ClientIDMode="Static" />
         <asp:Button ID="btExecute" runat="server" Text="Execute (Ctrl+Enter)" OnClick="btExecute_Click" ClientIDMode="Static" />
         <asp:Button ID="btShowAllTables" runat="server" Text="Show All Tables" OnClick="btShowAllTables_Click" />
-        [<a href="#" onclick="toggleSettings(); return false;">Settings</a>] Shift+Enter = New Line (Line Break)
+        Shift+Enter = New Line (Line Break) [<a href="#" onclick="toggleSettings(); return false;">Settings</a>]
         <br />
         <br />
         <div id="divSettings" style="display: none;">

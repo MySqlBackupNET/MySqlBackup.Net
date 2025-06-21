@@ -132,15 +132,21 @@
     <Content Include="cssjs\main.js" />
     <Content Include="Default.aspx" />
     <Content Include="Global.asax" />
+    <Content Include="pages\CreateSampleTableRows.aspx" />
+    <Content Include="pages\QuickTestAdjustColumnValue.aspx" />
     <Content Include="pages\apiProgressReport.aspx" />
+    <Content Include="pages\BackupRestoreOptions.aspx" />
     <Content Include="pages\ConditionalTablesExport.aspx" />
     <Content Include="pages\DatabaseRecordList.aspx" />
     <Content Include="pages\DisplayFileContent.aspx" />
+    <Content Include="pages\Maintenance.aspx" />
     <Content Include="pages\QueryBrowser.aspx" />
     <Content Include="pages\QueryBrowserSQLite.aspx" />
+    <Content Include="pages\QuickTestEscapeCharacters.aspx" />
     <Content Include="pages\QuickTestWithAllDataType.aspx" />
     <Content Include="pages\ReportProgress.aspx" />
     <Content Include="pages\ReportProgressRestoreFileUpload.aspx" />
+    <Content Include="pages\ShaFilesCompute.aspx" />
     <Content Include="pages\Typography.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -174,12 +180,33 @@
     <Compile Include="masterPage1.Master.designer.cs">
       <DependentUpon>masterPage1.Master</DependentUpon>
     </Compile>
+    <Compile Include="pages\CreateSampleTableRows.aspx.cs">
+      <DependentUpon>CreateSampleTableRows.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\CreateSampleTableRows.aspx.designer.cs">
+      <DependentUpon>CreateSampleTableRows.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\QuickTestAdjustColumnValue.aspx.cs">
+      <DependentUpon>QuickTestAdjustColumnValue.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\QuickTestAdjustColumnValue.aspx.designer.cs">
+      <DependentUpon>QuickTestAdjustColumnValue.aspx</DependentUpon>
+    </Compile>
     <Compile Include="pages\apiProgressReport.aspx.cs">
       <DependentUpon>apiProgressReport.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="pages\apiProgressReport.aspx.designer.cs">
       <DependentUpon>apiProgressReport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\BackupRestoreOptions.aspx.cs">
+      <DependentUpon>BackupRestoreOptions.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\BackupRestoreOptions.aspx.designer.cs">
+      <DependentUpon>BackupRestoreOptions.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\ConditionalTablesExport.aspx.cs">
       <DependentUpon>ConditionalTablesExport.aspx</DependentUpon>
@@ -202,6 +229,13 @@
     <Compile Include="pages\DisplayFileContent.aspx.designer.cs">
       <DependentUpon>DisplayFileContent.aspx</DependentUpon>
     </Compile>
+    <Compile Include="pages\Maintenance.aspx.cs">
+      <DependentUpon>Maintenance.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\Maintenance.aspx.designer.cs">
+      <DependentUpon>Maintenance.aspx</DependentUpon>
+    </Compile>
     <Compile Include="pages\QueryBrowser.aspx.cs">
       <DependentUpon>QueryBrowser.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -215,6 +249,13 @@
     </Compile>
     <Compile Include="pages\QueryBrowserSQLite.aspx.designer.cs">
       <DependentUpon>QueryBrowserSQLite.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\QuickTestEscapeCharacters.aspx.cs">
+      <DependentUpon>QuickTestEscapeCharacters.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\QuickTestEscapeCharacters.aspx.designer.cs">
+      <DependentUpon>QuickTestEscapeCharacters.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\QuickTestWithAllDataType.aspx.cs">
       <DependentUpon>QuickTestWithAllDataType.aspx</DependentUpon>
@@ -236,6 +277,13 @@
     </Compile>
     <Compile Include="pages\ReportProgressRestoreFileUpload.aspx.designer.cs">
       <DependentUpon>ReportProgressRestoreFileUpload.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\ShaFilesCompute.aspx.cs">
+      <DependentUpon>ShaFilesCompute.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\ShaFilesCompute.aspx.designer.cs">
+      <DependentUpon>ShaFilesCompute.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\Typography.aspx.cs">
       <DependentUpon>Typography.aspx</DependentUpon>

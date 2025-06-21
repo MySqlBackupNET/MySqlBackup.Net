@@ -7,74 +7,56 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace System
+namespace System.pages
 {
 
 
-    public partial class Default
+    public partial class ShaFilesCompute
     {
 
         /// <summary>
-        /// txtConnStr control.
+        /// btCompute control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtConnStr;
+        protected global::System.Web.UI.WebControls.Button btCompute;
 
         /// <summary>
-        /// btSaveConnStr control.
+        /// fileUpload1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btSaveConnStr;
+        protected global::System.Web.UI.WebControls.FileUpload fileUpload1;
 
         /// <summary>
-        /// btBackup control.
+        /// fileUpload2 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btBackup;
+        protected global::System.Web.UI.WebControls.FileUpload fileUpload2;
 
         /// <summary>
-        /// phBackup control.
+        /// fileUpload3 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.PlaceHolder phBackup;
+        protected global::System.Web.UI.WebControls.FileUpload fileUpload3;
 
         /// <summary>
-        /// btRestore control.
+        /// ph1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btRestore;
-
-        /// <summary>
-        /// fileUploadSql control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.FileUpload fileUploadSql;
-
-        /// <summary>
-        /// phRestore control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.PlaceHolder phRestore;
+        protected global::System.Web.UI.WebControls.PlaceHolder ph1;
     }
 }

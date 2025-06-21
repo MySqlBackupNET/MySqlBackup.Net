@@ -205,6 +205,7 @@
             <button type="button" onclick="getActiveTasks();">Show Active Only</button>
             <button type="button" onclick="startNewBackup();" id="btBackup">Start New Backup</button>
             <button type="button" onclick="startNewRestore();">Start New Restore</button>
+            *This will create a record at [<a href="/DatabaseRecordList">Database Record</a>]
         </div>
 
         <div id="progressContainer" class="progress-container">

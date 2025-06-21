@@ -61,10 +61,31 @@ namespace System.pages
         {
             try
             {
-                ServiceRestore restoreService = new ServiceRestore();
-                await restoreService.StartAsync(Request.Files[0]);
-
-                Response.Write("1");
+                if (int.TryParse(Request["id"] + "", out int id))
+                {
+                    if (BackupFilesManager.FileExists(id))
+                    {
+                        ServiceRestore restoreService = new ServiceRestore();
+                        await restoreService.StartAsync(id);
+                        Response.Write("1");
+                    }
+                    else
+                    {
+                        Response.Write("0|File not exists");
+                        return;
+                    }
+                }
+                else if (Request.Files.Count > 0)
+                {
+                    ServiceRestore restoreService = new ServiceRestore();
+                    await restoreService.StartAsync(Request.Files[0]);
+                    Response.Write("1");
+                }
+                else
+                {
+                    Response.Write("0|Not file to restore");
+                    return;
+                }
             }
             catch (Exception ex)
             {

@@ -73,8 +73,10 @@ namespace System.pages
                 <td>{HttpUtility.HtmlEncode(record.DatabaseName)}</td>
                 <td>{record.DateCreated:yyyy-MM-dd HH:mm:ss}<br />{elapsedTime}</td>
                 <td>{HttpUtility.HtmlEncode(record.Remarks)}</td>
-                <td><a href='/DisplayFileContent?id={record.Id}' target='_blank' class='view-link'>View</a><br />
-                    <a href='/DisplayFileContent?id={record.Id}&action=download' target='frame1' class='view-link' onclick='showBigLoading();'>Download</a>
+                <td>
+                    <a class='view-link' href='/DisplayFileContent?id={record.Id}' target='_blank'>View</a><br />
+                    <a class='view-link' href='/DisplayFileContent?id={record.Id}&action=download' target='frame1' onclick='showBigLoading();'>Download</a><br />
+                    <a class='view-link' href='#' onclick='event.preventDefault(); restoreFileId({record.Id});'>Restore</a>
                 </td>
             </tr>");
             }

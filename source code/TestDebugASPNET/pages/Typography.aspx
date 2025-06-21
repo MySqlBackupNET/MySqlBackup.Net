@@ -20,13 +20,13 @@
 
         <h3>H3 Title</h3>
 
-        <h2>Good Message Bar</h2>
-
-        <h2>Error Message Bar</h2>
-
         <input type="submit" value="Input Submit" onclick="return false;" />
         <button type="button" value="Button" onclick="return false;">Button</button>
         <a href="#" class="buttonmain" onclick="return false;">A Link Button</a>
+
+        <h2>Link</h2>
+
+        This is a <a href="#" onclick="return false;">Link to another page</a>.
 
         <h2>Message Box</h2>
 

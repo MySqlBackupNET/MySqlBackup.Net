@@ -48,8 +48,7 @@
         <asp:Button ID="btExport" runat="server" Text="Export" OnClick="btExport_Click" ClientIDMode="Static" OnClientClick="return validateExport();" />
         <asp:Button ID="btFetchTables" runat="server" Text="Fetch Tables" OnClick="btFetchTables_Click" />
         <asp:CheckBox ID="cbRunWithoutTryCatch" runat="server" /> Run Without Try Catch <br />
-        *Note: This page is designed for debug and testing purpose only.
-
+        *This will create a record at [<a href="/DatabaseRecordList">Database Record</a>]
         <div class="maintb" id="maintb">
             <asp:PlaceHolder ID="ph1" runat="server"></asp:PlaceHolder>
         </div>

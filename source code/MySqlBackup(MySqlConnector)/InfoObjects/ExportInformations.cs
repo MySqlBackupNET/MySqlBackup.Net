@@ -66,15 +66,19 @@ namespace MySqlConnector
         {
             if (_documentHeaders == null)
             {
-                _documentHeaders = new List<string>();
-                string databaseCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW variables LIKE 'character_set_database';", 1);
+                string databaseCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW VARIABLES LIKE 'character_set_database';", 1);
+                if (string.IsNullOrEmpty(databaseCharSet))
+                {
+                    databaseCharSet = "utf8mb4"; // Default to modern Unicode character set
+                }
 
+                _documentHeaders = new List<string>();
                 _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;");
                 _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;");
                 _documentHeaders.Add("/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;");
-                _documentHeaders.Add(string.Format("/*!40101 SET NAMES {0} */;", databaseCharSet));
-                //_documentHeaders.Add("/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;");
-                //_documentHeaders.Add("/*!40103 SET TIME_ZONE='+00:00' */;");
+                _documentHeaders.Add($"/*!40101 SET NAMES {databaseCharSet} */;");
+                _documentHeaders.Add("/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;");
+                _documentHeaders.Add("/*!40103 SET TIME_ZONE='+00:00' */;");
                 _documentHeaders.Add("/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;");
                 _documentHeaders.Add("/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;");
                 _documentHeaders.Add("/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;");
@@ -102,7 +106,7 @@ namespace MySqlConnector
             if (_documentFooters == null)
             {
                 _documentFooters = new List<string>();
-                //_documentFooters.Add("/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;");
+                _documentFooters.Add("/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;");
                 _documentFooters.Add("/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;");
                 _documentFooters.Add("/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;");
                 _documentFooters.Add("/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;");
@@ -267,6 +271,12 @@ namespace MySqlConnector
         public bool WrapWithinTransaction { get; set; } = false;
 
         /// <summary>
+        /// Gets or sets a value indicating whether to use LOCK TABLES WRITE during export operations.
+        /// When enabled, tables are locked for writing to ensure data consistency but may block other operations.
+        /// </summary>
+        public bool EnableLockTablesWrite { get; set; } = false;
+
+        /// <summary>
         /// Gets or Sets a value indicates the encoding to be used for exporting the dump. Default = UTF8Coding(false)
         /// </summary>
         public Encoding TextEncoding { get; set; } = new UTF8Encoding(false);
@@ -301,7 +311,7 @@ namespace MySqlConnector
         /// <summary>
         /// Helper method to add column adjustment
         /// </summary>
-        public void SetTableColumnValueAdjustment(string tableName, string columnName, Func<object, object> adjustFunc)
+        public void AddTableColumnValueAdjustment(string tableName, string columnName, Func<object, object> adjustFunc)
         {
             if (_columnAdjustments == null)
                 _columnAdjustments = new Dictionary<string, Dictionary<string, Func<object, object>>>(StringComparer.OrdinalIgnoreCase);

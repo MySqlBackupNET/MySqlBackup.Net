@@ -1,4 +1,6 @@
-﻿namespace MySqlConnector
+﻿using System.Text;
+
+namespace MySqlConnector
 {
     public class ImportInformations
     {
@@ -17,6 +19,11 @@
         /// Gets or Sets the file path used to log error messages.
         /// </summary>
         public string ErrorLogFile { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or Sets a value indicates the encoding to be used for importing the dump. Default = UTF8Coding(false)
+        /// </summary>
+        public Encoding TextEncoding { get; set; } = new UTF8Encoding(false);
 
         public ImportInformations()
         { }

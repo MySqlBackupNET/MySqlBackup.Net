@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Globalization;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -73,58 +74,54 @@ namespace MySqlConnector
             return l;
         }
 
-        public static string EscapeStringSequence(string data)
+        public static void EscapeStringSequence(StringBuilder builder, string data)
         {
-            var builder = new StringBuilder();
-
             foreach (char c in data)
             {
-                escape_string(builder, c);
-            }
+                switch (c)
+                {
+                    case '\\': // Backslash character
+                        builder.Append("\\\\");
+                        break;
+                    case '\0': // Null character (ASCII 0)
+                        builder.Append("\\0");
+                        break;
+                    case '\r': // Carriage return character
+                        builder.Append("\\r");
+                        break;
+                    case '\n': // Newline (line feed) character
+                        builder.Append("\\n");
+                        break;
+                    case '\b': // Backspace character
+                        builder.Append("\\b");
+                        break;
+                    case '\t': // Tab character
+                        builder.Append("\\t");
+                        break;
+                    case '\x1A': // ASCII 26 (Control+Z) - END-OF-FILE on Windows
+                        builder.Append("\\Z");
+                        break;
+                    case '\"': // Double quote character
+                        builder.Append("\\\"");
+                        break;
+                    case '\'': // Single quote character
+                               // mysqldump uses \' instead of ''
+                        builder.Append("\\'");
+                        break;
 
-            return builder.ToString();
-        }
+                    // These characters are not defined in MySQL
+                    // MySQL doesn't know the meaning of these characters
+                    // '\a' will become 'a'
+                    //case '\a': // Alert (bell) character
+                    //case '\f': // Form feed character
+                    //case '\v': // Vertical tab character
+                    //    builder.Append(c); // Pass through as-is
+                    //    break;
 
-        static void escape_string(StringBuilder sb, char c)
-        {
-            switch (c)
-            {
-                case '\\': // Backslash
-                    sb.Append("\\\\");
-                    break;
-                case '\0': // Null
-                    sb.Append("\\0");
-                    break;
-                case '\r': // Carriage return
-                    sb.Append("\\r");
-                    break;
-                case '\n': // New Line
-                    sb.Append("\\n");
-                    break;
-                case '\a': // Vertical tab
-                    sb.Append("\\a");
-                    break;
-                case '\b': // Backspace
-                    sb.Append("\\b");
-                    break;
-                case '\f': // Formfeed
-                    sb.Append("\\f");
-                    break;
-                case '\t': // Horizontal tab
-                    sb.Append("\\t");
-                    break;
-                case '\v': // Vertical tab
-                    sb.Append("\\v");
-                    break;
-                case '\"': // Double quotation mark
-                    sb.Append("\\\"");
-                    break;
-                case '\'': // Single quotation mark
-                    sb.Append("''");
-                    break;
-                default:
-                    sb.Append(c);
-                    break;
+                    default: // Any other character
+                        builder.Append(c);
+                        break;
+                }
             }
         }
 
@@ -196,7 +193,7 @@ namespace MySqlConnector
                 string str = (string)ob;
 
                 if (escapeStringSequence)
-                    str = EscapeStringSequence(str);
+                    EscapeStringSequence(sb, str);
 
                 return wrapStringWithSingleQuote ? $"'{str}'" : str;
             }
@@ -369,13 +366,12 @@ namespace MySqlConnector
             {
                 string str = (string)ob;
 
-                if (escapeStringSequence)
-                    str = EscapeStringSequence(str);
-
                 if (wrapStringWithSingleQuote)
                     sb.AppendFormat("'");
 
-                sb.Append(str);
+                //sb.Append(str);
+                if (escapeStringSequence)
+                    EscapeStringSequence(sb, str);
 
                 if (wrapStringWithSingleQuote)
                     sb.AppendFormat("'");
@@ -597,6 +593,29 @@ namespace MySqlConnector
         public static string EscapeIdentifier(string identifierName)
         {
             return identifierName.Replace("`", "``");
+        }
+
+        public static long EstimateByteCount(string str, System.Text.Encoding textEncoding)
+        {
+            if (string.IsNullOrEmpty(str))
+                return 0;
+
+            // Quick check - if all ASCII, return length
+            bool isAscii = true;
+            foreach (char c in str)
+            {
+                if (c > 127)
+                {
+                    isAscii = false;
+                    break;
+                }
+            }
+
+            if (isAscii)
+                return str.Length;
+
+            // For non-ASCII, use actual calculation
+            return textEncoding.GetByteCount(str);
         }
     }
 }

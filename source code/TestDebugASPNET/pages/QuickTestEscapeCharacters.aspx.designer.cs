@@ -7,74 +7,101 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace System
+namespace System.pages
 {
 
 
-    public partial class Default
+    public partial class QuickTestEscapeCharacters
     {
 
         /// <summary>
-        /// txtConnStr control.
+        /// btRun control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtConnStr;
+        protected global::System.Web.UI.WebControls.Button btRun;
 
         /// <summary>
-        /// btSaveConnStr control.
+        /// cbNoTryCatch control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btSaveConnStr;
+        protected global::System.Web.UI.WebControls.CheckBox cbNoTryCatch;
 
         /// <summary>
-        /// btBackup control.
+        /// cbCleanDatabaseAfterUse control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btBackup;
+        protected global::System.Web.UI.WebControls.CheckBox cbCleanDatabaseAfterUse;
 
         /// <summary>
-        /// phBackup control.
+        /// cbNoBackSlashEscape control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.PlaceHolder phBackup;
+        protected global::System.Web.UI.WebControls.CheckBox cbNoBackSlashEscape;
 
         /// <summary>
-        /// btRestore control.
+        /// cbInsert control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btRestore;
+        protected global::System.Web.UI.WebControls.CheckBox cbInsert;
 
         /// <summary>
-        /// fileUploadSql control.
+        /// cbInsertIgnore control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.FileUpload fileUploadSql;
+        protected global::System.Web.UI.WebControls.CheckBox cbInsertIgnore;
 
         /// <summary>
-        /// phRestore control.
+        /// cbReplace control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.PlaceHolder phRestore;
+        protected global::System.Web.UI.WebControls.CheckBox cbReplace;
+
+        /// <summary>
+        /// cbUpdate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox cbUpdate;
+
+        /// <summary>
+        /// cbInsertUpdate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox cbInsertUpdate;
+
+        /// <summary>
+        /// ph1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder ph1;
     }
 }

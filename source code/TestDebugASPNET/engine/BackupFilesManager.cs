@@ -648,6 +648,32 @@ namespace System
             }
         }
 
+        public static string GetFilePath(int id)
+        {
+            try
+            {
+                var dbFile = GetRecord(id);
+
+                if (dbFile != null && dbFile.Id > 0 && !string.IsNullOrEmpty(dbFile.Filename))
+                {
+                    string filePath = Path.Combine(folder, dbFile.Filename);
+                    if (File.Exists(filePath))
+                    {
+                        return filePath;
+                    }
+                }
+            }
+            catch { }
+
+            return null;
+        }
+
+        public static bool FileExists(int id)
+        {
+            var filePath = GetFilePath(id);
+            return filePath != null;
+        }
+
         #endregion
     }
 }
