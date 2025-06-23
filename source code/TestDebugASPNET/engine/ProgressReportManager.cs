@@ -205,6 +205,7 @@ namespace System
             dic["has_error"] = pr.has_error ? 1 : 0;
             dic["is_cancelled"] = pr.is_cancelled ? 1 : 0;
             dic["last_update_time"] = DateTime.Now;
+            dic["has_file"] = true;
 
             if (pr.has_error)
                 dic["remarks"] = pr.remarks;

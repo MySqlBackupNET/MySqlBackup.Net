@@ -28,6 +28,7 @@
             <a href="/DatabaseRecordList">Database Records</a>
             <a href="/ShaFilesCompute">SHA256 Files Checksum Compute</a>
             <a href="/CreateSampleTableRows">Create Sample Table Rows</a>
+            <a href="Benchmark">Benchmark</a>
             <a href="/Maintenance">Maintenance</a>
             <a href="/Typography">Typography</a>
         </div>

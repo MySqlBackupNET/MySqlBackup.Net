@@ -86,6 +86,7 @@
     <Reference Include="System.IO.Pipelines, Version=9.0.0.6, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IO.Pipelines.9.0.6\lib\net462\System.IO.Pipelines.dll</HintPath>
     </Reference>
+    <Reference Include="System.Management" />
     <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
     </Reference>
@@ -132,6 +133,8 @@
     <Content Include="cssjs\main.js" />
     <Content Include="Default.aspx" />
     <Content Include="Global.asax" />
+    <Content Include="pages\apiBenchmark.aspx" />
+    <Content Include="pages\Benchmark.aspx" />
     <Content Include="pages\CreateSampleTableRows.aspx" />
     <Content Include="pages\QuickTestAdjustColumnValue.aspx" />
     <Content Include="pages\apiProgressReport.aspx" />
@@ -179,6 +182,20 @@
     </Compile>
     <Compile Include="masterPage1.Master.designer.cs">
       <DependentUpon>masterPage1.Master</DependentUpon>
+    </Compile>
+    <Compile Include="pages\apiBenchmark.aspx.cs">
+      <DependentUpon>apiBenchmark.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\apiBenchmark.aspx.designer.cs">
+      <DependentUpon>apiBenchmark.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\Benchmark.aspx.cs">
+      <DependentUpon>Benchmark.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\Benchmark.aspx.designer.cs">
+      <DependentUpon>Benchmark.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\CreateSampleTableRows.aspx.cs">
       <DependentUpon>CreateSampleTableRows.aspx</DependentUpon>

@@ -30,45 +30,47 @@
         Total Rows:
         <asp:TextBox ID="txtTotalRows" runat="server" TextMode="Number" Width="150px" Text="10000"></asp:TextBox>
 
+        Drop and Re-Create the sample table:
+        <asp:CheckBox ID="cbDropRecreateTable" runat="server" Checked="true" />
+
         <br />
         <br />
 
         <table class="maintb">
             <tr>
-                <th>Database Size</th>
                 <th>Total Rows</th>
+                <th>Size (MB)</th>
+                <th>Size (Bytes)</th>
             </tr>
             <tr>
-                <td>1MB</td>
-                <td>1440</td>
+                <td>10000</td>
+                <td>17</td>
+                <td>17825792</td>
             </tr>
             <tr>
-                <td>5MB</td>
-                <td>7201</td>
+                <td>50000</td>
+                <td>56</td>
+                <td>58720256</td>
             </tr>
             <tr>
-                <td>10MB</td>
-                <td>14403</td>
+                <td>70000</td>
+                <td>72</td>
+                <td>75497472</td>
             </tr>
             <tr>
-                <td>100MB</td>
-                <td>14403</td>
+                <td>100000</td>
+                <td>104</td>
+                <td>109051904</td>
             </tr>
             <tr>
-                <td>300MB</td>
-                <td>432105</td>
+                <td>500000</td>
+                <td>476</td>
+                <td>499122176</td>
             </tr>
             <tr>
-                <td>500MB</td>
-                <td>720175</td>
-            </tr>
-            <tr>
-                <td>1GB</td>
-                <td>1474920</td>
-            </tr>
-            <tr>
-                <td>10GB</td>
-                <td>14749200</td>
+                <td>1000000</td>
+                <td>940</td>
+                <td>985661440</td>
             </tr>
         </table>
 

@@ -1,6 +1,8 @@
 ﻿using MySqlConnector;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,7 +16,18 @@ namespace System.pages
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            if (!IsPostBack)
+            {
+                
+            }
+            else
+            {
+                string action = Request["hiddenPostbackAction"] + "";
+                if (action == "dropAllTables")
+                {
+                    DropTables();
+                }
+            }
         }
 
         protected void btDeleteTestDatabase_Click(object sender, EventArgs e)
@@ -81,6 +94,62 @@ namespace System.pages
             }
 
             ph1.Controls.Add(new LiteralControl(sb.ToString()));
+        }
+
+        protected void btDeleteTaskReport_Click(object sender, EventArgs e)
+        {
+            using (SQLiteConnection conn = new SQLiteConnection(BackupFilesManager.sqliteConnectionString))
+            {
+                using (var cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+
+                    cmd.CommandText = "delete from progress_report;";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            ((masterPage1)this.Master).ShowMessage("Done", "All task reports deleted", true);
+        }
+
+        protected void DropTables()
+        {
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("The following tables were dropped:");
+                sb.AppendLine();
+
+                using (MySqlConnection conn = config.GetNewConnection())
+                {
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        conn.Open();
+
+                        DataTable dtTable = QueryExpress.GetTable(cmd, "show tables");
+
+                        foreach (DataRow dr in dtTable.Rows)
+                        {
+                            try
+                            {
+                                string tableName = dr[0] + "";
+                                cmd.CommandText = $"DROP TABLE IF EXISTS `{QueryExpress.EscapeIdentifier(tableName)}`";
+                                cmd.ExecuteNonQuery();
+
+                                sb.AppendLine(tableName);
+                            }
+                            catch { }
+                        }
+                    }
+                }
+
+                ph1.Controls.Add(new LiteralControl(sb.ToString()));
+                ((masterPage1)this.Master).ShowMessage("Done", "All task reports deleted", true);
+            }
+            catch (Exception ex)
+            {
+                ph1.Controls.Add(new LiteralControl($@"Error:<br />{ex.Message}<br />{ex.StackTrace}"));
+            }
         }
     }
 }

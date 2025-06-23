@@ -44,6 +44,7 @@ namespace System
                 percent_complete = 0,
                 remarks = "",
                 dbfile_id = 0,
+                has_file = true
             };
 
             taskid = ProgressReportManager.CreateNewTask(pr);

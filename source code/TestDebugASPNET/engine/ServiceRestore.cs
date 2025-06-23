@@ -50,7 +50,8 @@ namespace System
                 remarks = "",
                 dbfile_id = dbFile.Id,
                 last_update_time = DateTime.Now,
-                client_request_cancel_task = false
+                client_request_cancel_task = false,
+                has_file = true
             };
 
             taskid = ProgressReportManager.CreateNewTask(reportInfo);

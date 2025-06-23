@@ -328,15 +328,17 @@
             let actionButtons = '';
 
             // Only show view/download buttons for successfully completed tasks (not cancelled or error)
-            if (task.is_completed && !task.has_error && !task.is_cancelled) {
-                if (task.dbfile_id && task.dbfile_id > 0) {
-                    actionButtons = `
+            if (task.has_file) {
+                if (task.is_completed && !task.has_error && !task.is_cancelled) {
+                    if (task.dbfile_id && task.dbfile_id > 0) {
+                        actionButtons = `
                 <a class='buttonmain view' target='_blank' href='/DisplayFileContent?id=${task.dbfile_id}'>View</a>
                 <a class='buttonmain download' target='frame1' href='/DisplayFileContent?id=${task.dbfile_id}&action=download' onclick='showBigLoading(3000);'>Download</a>
             `;
-                } else {
-                    actionButtons = "<i>Preparing file... hold on...</i>";
-                    setTimeout(() => { getAllTask(); }, 2000);
+                    } else {
+                        actionButtons = "<i>Preparing file... hold on...</i>";
+                        setTimeout(() => { getAllTask(); }, 3000);
+                    }
                 }
             }
 
@@ -349,7 +351,7 @@
 
             div.innerHTML = `
         <div class="task-header">
-            <div class="task-title">Task #${task.id} - ${task.operation === 1 ? 'Backup' : 'Restore'}</div>
+            <div class="task-title">Task #${task.id} - ${task.operationName}</div>
             <div class="task-status ${statusClass}">${status}</div>
         </div>
         

@@ -29,5 +29,24 @@ namespace System
         public int dbfile_id { get; set; }
         public DateTime last_update_time { get; set; }
         public bool client_request_cancel_task { get; set; }
+        public bool has_file { get; set; }
+
+        public string operationName
+        {
+            get
+            {
+                switch (operation)
+                {
+                    case 1:
+                        return "Backup";
+                    case 2:
+                        return "Retore";
+                    case 3:
+                        return "Generate Sample Data";
+                }
+
+                return "Unknown Operation: " + operation;
+            }
+        }
     }
 }

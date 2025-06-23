@@ -19,6 +19,7 @@ namespace System
         static string _folder = null;
         static string _tempFolder = null;
         static string _tempZipFolder = null;
+        static string _sqlitecstr = null;
 
         public static string folder
         {
@@ -77,19 +78,66 @@ namespace System
         {
             get
             {
-                string f = Path.Combine(folder, "data.sqlite3");
-                string c = $"Data Source={f};Version=3;";
-                if (!File.Exists(f))
+                if (_sqlitecstr == null)
                 {
-                    using (var connection = new SQLiteConnection(c))
+                    string f = Path.Combine(folder, "data.sqlite3");
+                    string c = $"Data Source={f};Version=3;";
+
+                    if (!File.Exists(f))
                     {
-                        connection.Open();
-
-                        using (var cmd = new SQLiteCommand(connection))
+                        RecreateSQLiteFile();
+                    }
+                    else
+                    {
+                        bool recreateDbFile = false;
+                        using (var conn = new SQLiteConnection(c))
                         {
-                            SQLiteHelper h = new SQLiteHelper(cmd);
+                            using (var cmd = conn.CreateCommand())
+                            {
+                                conn.Open();
 
-                            h.Execute(@"
+                                SQLiteHelper h = new SQLiteHelper(cmd);
+
+                                int DataVersion = h.ExecuteScalar<int>("select `value` from Config where `key`='DataVersion'");
+                                int vDatabaseFile = h.ExecuteScalar<int>("select `value` from Config where `key`='DataVersion'");
+                                int vLog = h.ExecuteScalar<int>("select `value` from Config where `key`='DataVersion'");
+                                int vprogress_report = h.ExecuteScalar<int>("select `value` from Config where `key`='DataVersion'");
+
+                                if (DataVersion < 2 || vDatabaseFile < 2 || vLog < 2 || vprogress_report < 2)
+                                {
+                                    recreateDbFile = true;
+                                }
+                            }
+                        }
+
+                        if (recreateDbFile)
+                        {
+                            File.Delete(f);
+                            RecreateSQLiteFile();
+                        }
+                    }
+
+                    _sqlitecstr = c;
+                }
+                return _sqlitecstr;
+            }
+        }
+
+        static void RecreateSQLiteFile()
+        {
+            string f = Path.Combine(folder, "data.sqlite3");
+            string c = $"Data Source={f};Version=3;";
+            if (!File.Exists(f))
+            {
+                using (var connection = new SQLiteConnection(c))
+                {
+                    connection.Open();
+
+                    using (var cmd = new SQLiteCommand(connection))
+                    {
+                        SQLiteHelper h = new SQLiteHelper(cmd);
+
+                        h.Execute(@"
                             CREATE TABLE IF NOT EXISTS DatabaseFile (
                                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 Operation TEXT,
@@ -104,14 +152,14 @@ namespace System
                                 Remarks TEXT
                             )");
 
-                            h.Execute(@"
+                        h.Execute(@"
                             CREATE TABLE IF NOT EXISTS Log (
                                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 DatabaseFileId INTEGER,
                                 Content TEXT
                             )");
 
-                            h.Execute(@"CREATE TABLE IF NOT EXISTS progress_report (
+                        h.Execute(@"CREATE TABLE IF NOT EXISTS progress_report (
                                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                                 operation int,
                                 start_time DATETIME,
@@ -133,169 +181,24 @@ namespace System
                                 remarks TEXT,
                                 dbfile_id INTEGER,
                                 last_update_time DATETIME,
-                                client_request_cancel_task INTEGER
+                                client_request_cancel_task INTEGER,
+                                has_file INTEGER
                             );");
 
-                            h.Execute(@"
+                        h.Execute(@"
                             CREATE TABLE IF NOT EXISTS Config (
                                 `Key` TEXT PRIMARY KEY,
                                 `Value` TEXT
                             )");
 
-                            h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('DataVersion','1');");
-                        }
-                    }
-                }
-                return c;
-            }
-        }
-
-        #region Zip File Management
-
-        /// <summary>
-        /// Gets the cache ID for a file based on its properties
-        /// </summary>
-        public static string GetFileCacheId(string filePath)
-        {
-            if (!File.Exists(filePath))
-                throw new FileNotFoundException($"File not found: {filePath}");
-
-            var fileInfo = new FileInfo(filePath);
-            string orifilename = Path.GetFileNameWithoutExtension(filePath);
-            string cacheKey = $"{orifilename}_{fileInfo.Length}_{fileInfo.LastWriteTimeUtc.Ticks}";
-            return GetMD5Hash(cacheKey);
-        }
-
-        /// <summary>
-        /// Gets the zip file path for a given SQL file. Creates the zip if it doesn't exist.
-        /// </summary>
-        public static string GetOrCreateZipFile(string sqlFilePath)
-        {
-            if (!File.Exists(sqlFilePath))
-                throw new FileNotFoundException($"SQL file not found: {sqlFilePath}");
-
-            string cacheId = GetFileCacheId(sqlFilePath);
-            string zipFilename = $"{cacheId}.zip";
-            string zipFilePath = Path.Combine(tempZipFolder, zipFilename);
-
-            // If zip already exists, update access time and return
-            if (File.Exists(zipFilePath))
-            {
-                File.SetLastAccessTime(zipFilePath, DateTime.Now);
-                return zipFilePath;
-            }
-
-            // Create the zip file
-            CreateZipFile(sqlFilePath, cacheId);
-            return zipFilePath;
-        }
-
-        /// <summary>
-        /// Creates a zip file for the given SQL file
-        /// </summary>
-        private static void CreateZipFile(string sqlFilePath, string cacheId)
-        {
-            string guidFolder = Path.Combine(tempFolder, cacheId);
-            string zipFilePath = Path.Combine(tempZipFolder, $"{cacheId}.zip");
-
-            try
-            {
-                // Create GUID folder
-                Directory.CreateDirectory(guidFolder);
-
-                // Copy SQL file to GUID folder
-                string orifilename = Path.GetFileNameWithoutExtension(sqlFilePath);
-                string tempSqlPath = Path.Combine(guidFolder, $"{orifilename}.sql");
-                File.Copy(sqlFilePath, tempSqlPath);
-
-                // Create zip file
-                ZipFile.CreateFromDirectory(guidFolder, zipFilePath, CompressionLevel.Optimal, false);
-            }
-            finally
-            {
-                // Clean up the temporary GUID folder immediately after zipping
-                try
-                {
-                    if (Directory.Exists(guidFolder))
-                        Directory.Delete(guidFolder, true);
-                }
-                catch { }
-            }
-        }
-
-        /// <summary>
-        /// Pre-generates a zip file for a SQL backup file (useful after backup completion)
-        /// </summary>
-        public static void PreGenerateZipFile(string sqlFilePath)
-        {
-            try
-            {
-                GetOrCreateZipFile(sqlFilePath);
-            }
-            catch (Exception ex)
-            {
-                // Log error but don't throw - pre-generation is optional
-                // You might want to log this to your logging system
-            }
-        }
-
-        /// <summary>
-        /// Cleans up old temporary files
-        /// </summary>
-        public static void CleanupOldTempFiles(int hoursToKeep = 3)
-        {
-            try
-            {
-                var cutoffTime = DateTime.Now.AddHours(-hoursToKeep);
-
-                // Clean old GUID folders in temp folder
-                if (Directory.Exists(tempFolder))
-                {
-                    foreach (var dir in Directory.GetDirectories(tempFolder))
-                    {
-                        try
-                        {
-                            if (Directory.GetCreationTime(dir) < cutoffTime)
-                            {
-                                Directory.Delete(dir, true);
-                            }
-                        }
-                        catch { }
-                    }
-                }
-
-                // Clean old zip files in temp-zip folder (use LastAccessTime)
-                if (Directory.Exists(tempZipFolder))
-                {
-                    foreach (var file in Directory.GetFiles(tempZipFolder, "*.zip"))
-                    {
-                        try
-                        {
-                            if (File.GetLastAccessTime(file) < cutoffTime)
-                            {
-                                File.Delete(file);
-                            }
-                        }
-                        catch { }
+                        h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('DataVersion','2');");
+                        h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('vDatabaseFile','2');");
+                        h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('vLog','2');");
+                        h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('vprogress_report','2');");
                     }
                 }
             }
-            catch { }
         }
-
-        private static string GetMD5Hash(string input)
-        {
-            using (var md5 = MD5.Create())
-            {
-                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-                byte[] hashBytes = md5.ComputeHash(inputBytes);
-                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-            }
-        }
-
-        #endregion
-
-        #region Original Methods
 
         public static int SaveRecord(DatabaseFileRecord dbFile)
         {
@@ -674,6 +577,150 @@ namespace System
             return filePath != null;
         }
 
+        #region Zip File Management
+
+        /// <summary>
+        /// Gets the cache ID for a file based on its properties
+        /// </summary>
+        public static string GetFileCacheId(string filePath)
+        {
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException($"File not found: {filePath}");
+
+            var fileInfo = new FileInfo(filePath);
+            string orifilename = Path.GetFileNameWithoutExtension(filePath);
+            string cacheKey = $"{orifilename}_{fileInfo.Length}_{fileInfo.LastWriteTimeUtc.Ticks}";
+            return GetMD5Hash(cacheKey);
+        }
+
+        /// <summary>
+        /// Gets the zip file path for a given SQL file. Creates the zip if it doesn't exist.
+        /// </summary>
+        public static string GetOrCreateZipFile(string sqlFilePath)
+        {
+            if (!File.Exists(sqlFilePath))
+                throw new FileNotFoundException($"SQL file not found: {sqlFilePath}");
+
+            string cacheId = GetFileCacheId(sqlFilePath);
+            string zipFilename = $"{cacheId}.zip";
+            string zipFilePath = Path.Combine(tempZipFolder, zipFilename);
+
+            // If zip already exists, update access time and return
+            if (File.Exists(zipFilePath))
+            {
+                File.SetLastAccessTime(zipFilePath, DateTime.Now);
+                return zipFilePath;
+            }
+
+            // Create the zip file
+            CreateZipFile(sqlFilePath, cacheId);
+            return zipFilePath;
+        }
+
+        /// <summary>
+        /// Creates a zip file for the given SQL file
+        /// </summary>
+        private static void CreateZipFile(string sqlFilePath, string cacheId)
+        {
+            string guidFolder = Path.Combine(tempFolder, cacheId);
+            string zipFilePath = Path.Combine(tempZipFolder, $"{cacheId}.zip");
+
+            try
+            {
+                // Create GUID folder
+                Directory.CreateDirectory(guidFolder);
+
+                // Copy SQL file to GUID folder
+                string orifilename = Path.GetFileNameWithoutExtension(sqlFilePath);
+                string tempSqlPath = Path.Combine(guidFolder, $"{orifilename}.sql");
+                File.Copy(sqlFilePath, tempSqlPath);
+
+                // Create zip file
+                ZipFile.CreateFromDirectory(guidFolder, zipFilePath, CompressionLevel.Optimal, false);
+            }
+            finally
+            {
+                // Clean up the temporary GUID folder immediately after zipping
+                try
+                {
+                    if (Directory.Exists(guidFolder))
+                        Directory.Delete(guidFolder, true);
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// Pre-generates a zip file for a SQL backup file (useful after backup completion)
+        /// </summary>
+        public static void PreGenerateZipFile(string sqlFilePath)
+        {
+            try
+            {
+                GetOrCreateZipFile(sqlFilePath);
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't throw - pre-generation is optional
+                // You might want to log this to your logging system
+            }
+        }
+
+        /// <summary>
+        /// Cleans up old temporary files
+        /// </summary>
+        public static void CleanupOldTempFiles(int hoursToKeep = 3)
+        {
+            try
+            {
+                var cutoffTime = DateTime.Now.AddHours(-hoursToKeep);
+
+                // Clean old GUID folders in temp folder
+                if (Directory.Exists(tempFolder))
+                {
+                    foreach (var dir in Directory.GetDirectories(tempFolder))
+                    {
+                        try
+                        {
+                            if (Directory.GetCreationTime(dir) < cutoffTime)
+                            {
+                                Directory.Delete(dir, true);
+                            }
+                        }
+                        catch { }
+                    }
+                }
+
+                // Clean old zip files in temp-zip folder (use LastAccessTime)
+                if (Directory.Exists(tempZipFolder))
+                {
+                    foreach (var file in Directory.GetFiles(tempZipFolder, "*.zip"))
+                    {
+                        try
+                        {
+                            if (File.GetLastAccessTime(file) < cutoffTime)
+                            {
+                                File.Delete(file);
+                            }
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private static string GetMD5Hash(string input)
+        {
+            using (var md5 = MD5.Create())
+            {
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            }
+        }
+
         #endregion
+
     }
 }
