@@ -26,7 +26,7 @@ namespace System.pages
             lstFileUpload.Add(fileUpload2);
             lstFileUpload.Add(fileUpload3);
 
-            string folder = Server.MapPath("~/temp");
+            string folder = Server.MapPath("~/App_Data/temp");
             Directory.CreateDirectory(folder);
 
             foreach (FileUpload file in lstFileUpload)

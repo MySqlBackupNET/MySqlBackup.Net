@@ -15,6 +15,15 @@ namespace System.pages
     {
 
         /// <summary>
+        /// panelButton control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel panelButton;
+
+        /// <summary>
         /// btDeleteTestDatabase control.
         /// </summary>
         /// <remarks>
@@ -40,6 +49,33 @@ namespace System.pages
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btDeleteTaskReport;
+
+        /// <summary>
+        /// panelConfirmDelete control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel panelConfirmDelete;
+
+        /// <summary>
+        /// btDeleteDatabaseYes control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btDeleteDatabaseYes;
+
+        /// <summary>
+        /// btDeleteDatabaseNo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btDeleteDatabaseNo;
 
         /// <summary>
         /// ph1 control.

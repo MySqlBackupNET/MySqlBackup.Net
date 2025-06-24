@@ -462,7 +462,7 @@ namespace System.pages
             var exportInfo = GetExportInfo();
 
             string filename = $"Simple-Backup-{DateTime.Now:yyyy-MM-dd HHmmss}.sql";
-            string folder = Server.MapPath("~/temp");
+            string folder = Server.MapPath("~/App_Data/temp");
             Directory.CreateDirectory(folder);
 
             string dumpFile = Path.Combine(folder, filename);
@@ -500,7 +500,7 @@ namespace System.pages
         {
             string filename = $"Simple-Restore-{DateTime.Now:yyyy-MM-dd HHmmss}.sql";
             string filenamelog = $"Simple-Restore-log-{DateTime.Now:yyyy-MM-dd HHmmss}.txt";
-            string folder = Server.MapPath("~/temp");
+            string folder = Server.MapPath("~/App_Data/temp");
             Directory.CreateDirectory(folder);
 
             string dumpFile = Path.Combine(folder, filename);

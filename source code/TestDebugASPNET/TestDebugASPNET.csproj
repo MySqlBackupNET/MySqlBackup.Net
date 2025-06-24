@@ -134,6 +134,7 @@
     <Content Include="Default.aspx" />
     <Content Include="Global.asax" />
     <Content Include="pages\apiBenchmark.aspx" />
+    <Content Include="pages\apiFiles.aspx" />
     <Content Include="pages\Benchmark.aspx" />
     <Content Include="pages\CreateSampleTableRows.aspx" />
     <Content Include="pages\QuickTestAdjustColumnValue.aspx" />
@@ -189,6 +190,13 @@
     </Compile>
     <Compile Include="pages\apiBenchmark.aspx.designer.cs">
       <DependentUpon>apiBenchmark.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\apiFiles.aspx.cs">
+      <DependentUpon>apiFiles.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\apiFiles.aspx.designer.cs">
+      <DependentUpon>apiFiles.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\Benchmark.aspx.cs">
       <DependentUpon>Benchmark.aspx</DependentUpon>

@@ -10,10 +10,18 @@
 
         <h1>Maintenance</h1>
 
-        <asp:Button ID="btDeleteTestDatabase" runat="server" Text="Delete All Test_xxx_... Databases in MySQL Server" OnClick="btDeleteTestDatabase_Click" OnClientClick="showBigLoading(0);" />
-        <asp:Button ID="btDeleteTempDumpFiles" runat="server" Text="Delete All Dump Files in Temp Folder" OnClick="btDeleteTempDumpFiles_Click" OnClientClick="showBigLoading(0);" />
-        <asp:Button ID="btDeleteTaskReport" runat="server" Text="Delete All Task Reports" OnClick="btDeleteTaskReport_Click" OnClientClick="showBigLoading(0);" />
-        <button type="button" onclick="requestConfirmDropTables()">Drop All Tables</button>
+        <asp:Panel ID="panelButton" runat="server">
+            <asp:Button ID="btDeleteTestDatabase" runat="server" Text="Delete All Test_xxx_... Databases in MySQL Server" OnClick="btDeleteTestDatabase_Click" OnClientClick="showBigLoading(0);" />
+            <asp:Button ID="btDeleteTempDumpFiles" runat="server" Text="Delete All Dump Files in Temp Folder" OnClick="btDeleteTempDumpFiles_Click" OnClientClick="showBigLoading(0);" />
+            <asp:Button ID="btDeleteTaskReport" runat="server" Text="Delete All Task Reports" OnClick="btDeleteTaskReport_Click" OnClientClick="showBigLoading(0);" />
+            <button type="button" onclick="requestConfirmDropTables()">Drop All Tables</button>
+        </asp:Panel>
+        <asp:Panel ID="panelConfirmDelete" runat="server">
+            Are you sure to delete the following databases?<br /><br />
+
+            <asp:Button ID="btDeleteDatabaseYes" runat="server" Text="Yes, Confirm Delete" OnClick="btDeleteDatabaseYes_Click" />
+            <asp:Button ID="btDeleteDatabaseNo" runat="server" Text="No, Cancel" OnClick="btDeleteDatabaseNo_Click" />
+        </asp:Panel>
 
         <br />
         <br />

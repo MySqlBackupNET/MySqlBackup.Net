@@ -9,6 +9,7 @@ using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Xml.Linq;
 
 namespace System.pages
 {
@@ -18,7 +19,7 @@ namespace System.pages
         {
             if (!IsPostBack)
             {
-                
+
             }
             else
             {
@@ -30,11 +31,15 @@ namespace System.pages
             }
         }
 
-        protected void btDeleteTestDatabase_Click(object sender, EventArgs e)
+        void DeleteDatabase(bool delete)
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-            sb.AppendLine("The following databases were deleted...");
+            if (delete)
+                sb.AppendLine("The following databases were deleted...");
+            else
+                sb.AppendLine("The following databases are pending for deletion...");
+
             sb.AppendLine();
 
             using (MySqlConnection conn = config.GetNewConnection())
@@ -48,18 +53,23 @@ namespace System.pages
                         List<string> databases = new List<string>();
                         while (reader.Read())
                         {
-                            databases.Add(reader.GetString(0));
+                            string dbName = reader.GetString(0);
+                            databases.Add(dbName);
+                            sb.AppendLine(dbName);
                         }
 
                         reader.Close();
 
-                        foreach (var dbName in databases)
+                        if (delete)
                         {
                             using (var dropCmd = conn.CreateCommand())
                             {
-                                dropCmd.CommandText = $"DROP DATABASE `{dbName}`;";
-                                dropCmd.ExecuteNonQuery();
-                                sb.AppendLine(dbName);
+                                foreach (var dbName in databases)
+                                {
+                                    dropCmd.CommandText = $"DROP DATABASE `{dbName}`;";
+                                    dropCmd.ExecuteNonQuery();
+
+                                }
                             }
                         }
                     }
@@ -69,6 +79,13 @@ namespace System.pages
             ph1.Controls.Add(new LiteralControl(sb.ToString()));
         }
 
+        protected void btDeleteTestDatabase_Click(object sender, EventArgs e)
+        {
+            panelButton.Visible = false;
+            panelConfirmDelete.Visible = true;
+            DeleteDatabase(false);
+        }
+
         protected void btDeleteTempDumpFiles_Click(object sender, EventArgs e)
         {
             StringBuilder sb = new StringBuilder();
@@ -76,7 +93,7 @@ namespace System.pages
             sb.AppendLine("The following files were deleted:");
             sb.AppendLine();
 
-            string folder = Server.MapPath("~/temp");
+            string folder = Server.MapPath("~/App_Data/temp");
             System.IO.Directory.CreateDirectory(folder);
 
             foreach (var file in Directory.EnumerateFiles(folder))
@@ -150,6 +167,19 @@ namespace System.pages
             {
                 ph1.Controls.Add(new LiteralControl($@"Error:<br />{ex.Message}<br />{ex.StackTrace}"));
             }
+        }
+
+        protected void btDeleteDatabaseYes_Click(object sender, EventArgs e)
+        {
+            panelButton.Visible = true;
+            panelConfirmDelete.Visible = false;
+            DeleteDatabase(true);
+        }
+
+        protected void btDeleteDatabaseNo_Click(object sender, EventArgs e)
+        {
+            panelButton.Visible = true;
+            panelConfirmDelete.Visible = false;
         }
     }
 }

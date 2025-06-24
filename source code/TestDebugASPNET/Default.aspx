@@ -67,8 +67,8 @@
                 <td>
                     <asp:Button ID="btRestore" runat="server" OnClick="btRestore_Click" Text="Restore MySQL" OnClientClick="showBigLoading(0);" />
                 </td>
-                <td>Select SQL Dump File (*.sql):
-                    <asp:FileUpload ID="fileUploadSql" runat="server" accept=".sql,.txt" /><br />
+                <td>Select SQL Dump File (Any text file, no ZIP file):
+                    <asp:FileUpload ID="fileUploadSql" runat="server" /><br />
                     <br />
                     <asp:PlaceHolder ID="phRestore" runat="server"></asp:PlaceHolder>
                 </td>

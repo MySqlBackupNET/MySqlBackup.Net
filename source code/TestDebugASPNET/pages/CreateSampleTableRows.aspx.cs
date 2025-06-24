@@ -338,27 +338,11 @@ CREATE TABLE IF NOT EXISTS sample1 (
 
                     Dictionary<string, object> dic = new Dictionary<string, object>();
 
-                    //dic["operation"] = 3;
-                    //dic["start_time"] = DateTime.Now;
                     dic["end_time"] = DateTime.Now;
                     dic["is_completed"] = true;
                     dic["has_error"] = false;
-                    //dic["is_cancelled"] = _stop_process;
-                    //dic["filename"] = "";
-                    //dic["total_tables"] = 1;
-                    //dic["total_rows"] = totalRows;
-                    //dic["total_rows_current_table"] = totalRows;
-                    //dic["current_table"] = "sample1";
-                    //dic["current_table_index"] = 1;
-                    //dic["current_row"] = totalRows;
-                    //dic["current_row_in_current_table"] = totalRows;
-                    //dic["total_bytes"] = 0;
-                    //dic["current_bytes"] = 0;
-                    //dic["percent_complete"] = 100;
-                    //dic["remarks"] = "";
                     dic["dbfile_id"] = 0;
                     dic["last_update_time"] = DateTime.Now;
-                    //dic["client_request_cancel_task"] = _stop_process;
                     dic["has_file"] = false;
 
                     using (var conn = new SQLiteConnection(BackupFilesManager.sqliteConnectionString))
@@ -377,27 +361,11 @@ CREATE TABLE IF NOT EXISTS sample1 (
 
                     Dictionary<string, object> dic = new Dictionary<string, object>();
 
-                    //dic["operation"] = 3;
-                    //dic["start_time"] = DateTime.Now;
                     dic["end_time"] = DateTime.Now;
                     dic["is_completed"] = true;
                     dic["has_error"] = true;
-                    //dic["is_cancelled"] = false;
-                    //dic["filename"] = "";
-                    //dic["total_tables"] = 1;
-                    //dic["total_rows"] = totalRows;
-                    //dic["total_rows_current_table"] = 0;
-                    //dic["current_table"] = "sample1";
-                    //dic["current_table_index"] = 1;
-                    //dic["current_row"] = _currentRows;
-                    //dic["current_row_in_current_table"] = _currentRows;
-                    //dic["total_bytes"] = 0;
-                    //dic["current_bytes"] = 0;
-                    //dic["percent_complete"] = percentage;
                     dic["remarks"] = ex.Message;
-                    //dic["dbfile_id"] = 0;
                     dic["last_update_time"] = DateTime.Now;
-                    //dic["client_request_cancel_task"] = false;
                     dic["has_file"] = false;
 
                     using (var conn = new SQLiteConnection(BackupFilesManager.sqliteConnectionString))

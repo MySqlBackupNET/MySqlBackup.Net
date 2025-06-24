@@ -15,6 +15,15 @@ namespace System.pages
     {
 
         /// <summary>
+        /// btSelectExecute control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btSelectExecute;
+
+        /// <summary>
         /// btSelectShow control.
         /// </summary>
         /// <remarks>

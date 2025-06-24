@@ -166,8 +166,8 @@ default-character-set={dbCharacterSet}";
                 string dbName2 = $"test_benchmark_restore_mysqlbackupnet_2";
                 string dbName3 = $"test_benchmark_restore_mysqlbackupnet_3";
                 string dbName4 = $"test_benchmark_restore_mysql_1";
-                string dbName5 = $"test_benchmark_restore_mysql_1";
-                string dbName6 = $"test_benchmark_restore_mysql_1";
+                string dbName5 = $"test_benchmark_restore_mysql_2";
+                string dbName6 = $"test_benchmark_restore_mysql_3";
 
                 sb.AppendLine();
                 sb.AppendLine($"Initial Source Database: {sourceDbName}");
@@ -222,8 +222,7 @@ default-character-set={dbCharacterSet}";
 
                     try
                     {
-                        sb.AppendLine($"Round {bt.Round}...");
-
+                        sb.AppendLine(bt.ActionInfo);
                         File.WriteAllText(filePathReport, sb.ToString());
                         dicProgress[CurrentTaskId].Remarks = sb.ToString();
 
@@ -283,6 +282,49 @@ default-character-set={dbCharacterSet}";
                 sb.AppendLine($"Time End     : {timeEnd:yyyy-MM-dd HH:mm:ss}");
                 sb.AppendLine($"Time Elapsed : {totalTimeElapsed.Hours} h {totalTimeElapsed.Minutes} m {totalTimeElapsed.Seconds} s");
 
+                sb.AppendLine();
+                sb.AppendLine("SHA256 Checksums:");
+
+                for (int round = 1; round < 13; round++)
+                {
+                    var bt = btProgress[round];
+
+                    if (!string.IsNullOrEmpty(bt.DumpFile) && File.Exists(bt.DumpFile))
+                    {
+                        sb.AppendLine();
+                        sb.AppendLine(bt.FileName);
+                        sb.AppendLine($"SHA256: {bt.Sha256}");
+                    }
+                }
+
+                sb.AppendLine();
+                sb.AppendLine("==================================");
+                sb.AppendLine("Benchmark Results");
+                sb.AppendLine("==================================");
+
+                Dictionary<int, string> dicStageName = new Dictionary<int, string>();
+                dicStageName[1] = "Backup/Export - MySqlBackup.NET";
+                dicStageName[2] = "Backup/Export - mysqldump.exe";
+                dicStageName[3] = "Restore/Import - MySqlBackup.NET";
+                dicStageName[4] = "Restore/Import - mysql.exe";
+
+                foreach(var kv in dicStageName)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine(kv.Value);
+                    sb.AppendLine("-------------------------------");
+                    
+                    foreach(var kv2 in btProgress)
+                    {
+                        var bt = kv2.Value;
+
+                        if (bt.Stage != kv.Key)
+                            continue;
+
+                        sb.AppendLine($"Round {bt.Round}  {bt.TimeUsedDisplay.PadRight(10, ' ')}{bt.FileSizeDisplay}");
+                    }
+                }
+
                 if (cleanUpDatabase)
                 {
                     string[] dropSqls = { dbName1, dbName2, dbName3, dbName4, dbName5, dbName6 };
@@ -290,7 +332,7 @@ default-character-set={dbCharacterSet}";
                     {
                         using (var cmd = conn.CreateCommand())
                         {
-                            foreach(var _dbname in dropSqls)
+                            foreach (var _dbname in dropSqls)
                             {
                                 cmd.CommandText = $"DROP DATABASE IF EXISTS `{_dbname}`";
                                 cmd.ExecuteNonQuery();
@@ -308,8 +350,6 @@ default-character-set={dbCharacterSet}";
                 }
 
                 File.WriteAllText(filePathReport, sb.ToString());
-
-
 
                 dicProgress[CurrentTaskId].Completed = true;
                 dicProgress[CurrentTaskId].Remarks = sb.ToString();
@@ -420,15 +460,10 @@ default-character-set={dbCharacterSet}";
                 }
             }
 
-            //string arguments = $"/c \"{filePathMySql}\" \"{dumpFilePath}\" > {database} --defaults-file=\"{filePathCnf}\"";
-            //string arguments = $"/c \"{filePathMySql}\" -u root -p1234 -h localhost";
-            //string arguments = $"--user=root --port=3306 --default-character-set=utf8mb4 --defaults-extra-file=\"{filePathCnf}\"  --database={database} < \"{dumpFilePath}\"";
-            string arguments = $"-u root -h localhost --database={database} < \"{dumpFilePath}\"";
-
             var processStartInfo = new ProcessStartInfo
             {
-                FileName = filePathMySql,
-                Arguments = arguments,
+                FileName = "cmd.exe",
+                Arguments = "",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
@@ -439,7 +474,7 @@ default-character-set={dbCharacterSet}";
 
             using (var process = Process.Start(processStartInfo))
             {
-                process.StandardInput.WriteLine(password);
+                process.StandardInput.Write($"{filePathMySql} --defaults-file=\"{filePathCnf}\" {database} < \"{dumpFilePath}\"");
                 process.StandardInput.Close();
 
                 // Read both streams asynchronously to prevent deadlock
@@ -451,7 +486,6 @@ default-character-set={dbCharacterSet}";
                 if (process.ExitCode != 0)
                 {
                     throw new Exception($"mysql failed with exit code {process.ExitCode}. Error: {errors}");
-                    //throw new Exception($"mysql failed with exit code {process.ExitCode}");
                 }
             }
         }
@@ -664,6 +698,15 @@ default-character-set={dbCharacterSet}";
         public long FileSize { get; set; } = 0L;
         public bool HasError { get; set; } = false;
         public string Sha256 = "";
+        public string FileName
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(DumpFile))
+                    return "";
+                return Path.GetFileName(DumpFile);
+            }
+        }
 
         [JsonIgnore]
         public Exception LastError = null;
@@ -727,8 +770,8 @@ default-character-set={dbCharacterSet}";
             get
             {
                 const long GB = 1024 * 1024 * 1024;
-                const long MB = 1024 * 1024;       
-                const long KB = 1024;              
+                const long MB = 1024 * 1024;
+                const long KB = 1024;
 
                 if (FileSize >= GB)
                 {
@@ -745,6 +788,22 @@ default-character-set={dbCharacterSet}";
                     double sizeInKB = (double)FileSize / KB;
                     return $"{sizeInKB:0.###} KB";
                 }
+            }
+        }
+
+        public string ActionInfo
+        {
+            get
+            {
+
+                switch (Stage)
+                {
+                    case 1: return $"Round {Round} - MySqlBackup.NET - {DatabaseName} > {FileName}";
+                    case 2: return $"Round {Round} - MySqlDump.exe - {DatabaseName} > {FileName}";
+                    case 3: return $"Round {Round} - MySqlBackup.NET - {DatabaseName} < {FileName}";
+                    case 4: return $"Round {Round} - MySql.exe - {DatabaseName} < {FileName}";
+                }
+                return "";
             }
         }
     }

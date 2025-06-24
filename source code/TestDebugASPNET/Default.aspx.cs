@@ -59,7 +59,7 @@ namespace System
         {
             try
             {
-                string folder = Server.MapPath("~/temp");
+                string folder = Server.MapPath("~/App_Data/temp");
                 Directory.CreateDirectory(folder);
                 string databaseName = "";
                 string filename = "";
@@ -94,7 +94,7 @@ namespace System
 <span style='color: darkgreen;'>
 Backup Success!<br />
 <br />
-Download File: <a href='/temp/{filename}'>{filename}</a><br />
+Download File: <a href='/apiFiles?folder=temp&filename={filename}'>{filename}</a><br />
 <br />
 File saved at: {filePath}</span>";
 
@@ -117,16 +117,12 @@ File saved at: {filePath}</span>";
                     throw new Exception("No file uploaded.");
                 }
 
-                if (fileUploadSql.FileName.ToLower().EndsWith(".sql") || fileUploadSql.FileName.ToLower().EndsWith(".txt"))
+                if (fileUploadSql.FileName.ToLower().EndsWith(".zip"))
                 {
-
-                }
-                else
-                {
-                    throw new Exception("Unsupported file extension, *.sql or *.txt files only.");
+                    throw new Exception("Zip file is not supported in this page. Please go to other pages for zip file.");
                 }
 
-                string folder = Server.MapPath("~/temp");
+                string folder = Server.MapPath("~/App_Data/temp");
                 Directory.CreateDirectory(folder);
                 string databaseName = "";
                 string filename = "";
@@ -162,7 +158,7 @@ File saved at: {filePath}</span>";
 <span style='color: darkgreen;'>
 Restore Success!<br />
 <br />
-Download File: <a href='/temp/{filename}'>{filename}</a><br />
+Download File: <a href='/apiFiles?folder=temp&filename={filename}'>{filename}</a><br />
 <br />
 File saved at: {filePath}</span>";
 

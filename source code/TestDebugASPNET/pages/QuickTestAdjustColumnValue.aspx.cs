@@ -25,7 +25,7 @@ namespace System.pages
             ph1.Controls.Add(new LiteralControl("Results:" + Environment.NewLine + Environment.NewLine));
 
             string result = "";
-            string folder = Server.MapPath("~/temp");
+            string folder = Server.MapPath("~/App_Data/temp");
 
             Directory.CreateDirectory(folder);
 

@@ -63,7 +63,8 @@
 
     <div class="main-content">
         <b style="font-size: 15pt; color: #8f0000">SQLite</b>
-        <asp:Button ID="btSelectShow" runat="server" Text="Select/Show (Enter)" OnClick="btSelectShow_Click" ClientIDMode="Static" />
+        <asp:Button ID="btSelectExecute" runat="server" Text="Select/Execute (Enter)" OnClick="btSelectExecute_Click" ClientIDMode="Static" />
+        <asp:Button ID="btSelectShow" runat="server" Text="Select/Show" OnClick="btSelectShow_Click" ClientIDMode="Static" />
         <asp:Button ID="btExecute" runat="server" Text="Execute (Ctrl+Enter)" OnClick="btExecute_Click" ClientIDMode="Static" />
         <asp:Button ID="btShowAllTables" runat="server" Text="Show All Tables" OnClick="btShowAllTables_Click" />
         Shift+Enter = New Line (Line Break) [<a href="#" onclick="toggleSettings(); return false;">Settings</a>]
@@ -118,6 +119,7 @@
 
         let divSettings = document.getElementById('divSettings');
         let txtSql = document.getElementById('txtSql');
+        let btSelectExecute = document.getElementById('btSelectExecute');
         let btExecute = document.getElementById('btExecute');
         let btSelectShow = document.getElementById('btSelectShow');
 
@@ -216,7 +218,7 @@
                         txtSql.style.backgroundColor = '';
                     }, 200);
                     e.preventDefault(); // Prevent default behavior (new line)
-                    btSelectShow.click(); // Trigger Select/Show button click
+                    btSelectExecute.click();
                     return false;
                 }
 
@@ -229,7 +231,7 @@
                         txtSql.style.backgroundColor = '';
                     }, 200);
                     e.preventDefault(); // Prevent default behavior (new line)
-                    btExecute.click(); // Trigger Execute button click
+                    btExecute.click();
                     return false;
                 }
 

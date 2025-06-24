@@ -1,1 +1,0 @@
-server=localhost;user=root;pwd=1234;convertzerodatetime=true;treattinyasboolean=true;database=exam2;
