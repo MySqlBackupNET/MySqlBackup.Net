@@ -11,8 +11,8 @@
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
-temp/
 App_Data/
+temp/
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -299,4 +299,3 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 !source code/Backup-All-Databases/
-/source code/TestDebugASPNET/App_Data
