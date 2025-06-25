@@ -19,7 +19,7 @@ namespace System.pages
         {
             if (!IsPostBack)
             {
-
+                panelConfirmDelete.Visible = false;
             }
             else
             {
