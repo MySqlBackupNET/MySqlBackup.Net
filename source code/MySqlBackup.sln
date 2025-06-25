@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31612.314
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_ASP.NET", "Test_ASPNET\Test_ASP.NET.csproj", "{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_WinForm_DevartExpress", "Test_WinForm_DevartExpress\Test_WinForm_DevartExpress.csproj", "{2D5FB34D-2552-444C-9AAE-2D01E6438551}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_WinForm_MySqlConnector", "Test_WinForm_MySqlConnector\Test_WinForm_MySqlConnector.csproj", "{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySqlBackup(Devart-Express)", "MySqlBackup(Devart-Express)\MySqlBackup(Devart-Express).csproj", "{7A5D4100-D41E-4887-876A-29406BBD3237}"
@@ -15,13 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySqlBackup(MySql.Data)", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySqlBackup(MySqlConnector)", "MySqlBackup(MySqlConnector)\MySqlBackup(MySqlConnector).csproj", "{280A4426-14CC-4A20-85F7-2F8E863A9977}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_WinForm_MySqlData", "Test_WinForm_MySqlData\Test_WinForm_MySqlData.csproj", "{0C44B679-BC54-4818-9E77-6BE2C14E680B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backup-All-Databases", "Backup-All-Databases\Backup-All-Databases.csproj", "{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDebugASPNET", "TestDebugASPNET\TestDebugASPNET.csproj", "{C3C6E118-652F-4F86-AFD1-387BEEA9AA19}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "TestConsole\TestConsole.csproj", "{5EB0055F-8EB4-4EC8-A8CD-AC1FD8F77914}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,22 +23,6 @@ Global
 		ReleaseNET40_Only|Any CPU = ReleaseNET40_Only|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.NET20|Any CPU.ActiveCfg = Release|Any CPU
-		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.NET20|Any CPU.Build.0 = Release|Any CPU
-		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
-		{0A28DC07-B40C-4E6E-A14B-D5C0AC7E2CEA}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
-		{2D5FB34D-2552-444C-9AAE-2D01E6438551}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2D5FB34D-2552-444C-9AAE-2D01E6438551}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2D5FB34D-2552-444C-9AAE-2D01E6438551}.NET20|Any CPU.ActiveCfg = Release|Any CPU
-		{2D5FB34D-2552-444C-9AAE-2D01E6438551}.NET20|Any CPU.Build.0 = Release|Any CPU
-		{2D5FB34D-2552-444C-9AAE-2D01E6438551}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2D5FB34D-2552-444C-9AAE-2D01E6438551}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2D5FB34D-2552-444C-9AAE-2D01E6438551}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
-		{2D5FB34D-2552-444C-9AAE-2D01E6438551}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
 		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
@@ -79,14 +55,6 @@ Global
 		{280A4426-14CC-4A20-85F7-2F8E863A9977}.Release|Any CPU.Build.0 = Release|Any CPU
 		{280A4426-14CC-4A20-85F7-2F8E863A9977}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
 		{280A4426-14CC-4A20-85F7-2F8E863A9977}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
-		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
-		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.NET20|Any CPU.Build.0 = Debug|Any CPU
-		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
-		{0C44B679-BC54-4818-9E77-6BE2C14E680B}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
 		{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
@@ -103,14 +71,6 @@ Global
 		{C3C6E118-652F-4F86-AFD1-387BEEA9AA19}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C3C6E118-652F-4F86-AFD1-387BEEA9AA19}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
 		{C3C6E118-652F-4F86-AFD1-387BEEA9AA19}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
-		{5EB0055F-8EB4-4EC8-A8CD-AC1FD8F77914}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5EB0055F-8EB4-4EC8-A8CD-AC1FD8F77914}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5EB0055F-8EB4-4EC8-A8CD-AC1FD8F77914}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
-		{5EB0055F-8EB4-4EC8-A8CD-AC1FD8F77914}.NET20|Any CPU.Build.0 = Debug|Any CPU
-		{5EB0055F-8EB4-4EC8-A8CD-AC1FD8F77914}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5EB0055F-8EB4-4EC8-A8CD-AC1FD8F77914}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5EB0055F-8EB4-4EC8-A8CD-AC1FD8F77914}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
-		{5EB0055F-8EB4-4EC8-A8CD-AC1FD8F77914}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
