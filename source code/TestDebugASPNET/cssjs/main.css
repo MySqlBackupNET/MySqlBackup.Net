@@ -83,6 +83,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
     border: none;
     border-radius: 10px;
     transition: all 0.3s;
+    font-weight: normal;
 }
 
     input[type=submit]:hover, button:hover, .buttonmain:hover, a.buttonmain:hover {
@@ -90,6 +91,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
         position: relative;
         top: 1px;
         background: #405e9d;
+        text-decoration: none;
     }
 
 input[type=text] {

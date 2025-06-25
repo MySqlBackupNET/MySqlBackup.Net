@@ -39,50 +39,50 @@
         <table class="maintb">
             <tr>
                 <th>Total Rows</th>
-                <th>Size (MB)</th>
+                <th>Size</th>
                 <th>Size (Bytes)</th>
                 <th>Time</th>
             </tr>
             <tr>
                 <td>10000</td>
-                <td>17</td>
+                <td>17MB</td>
                 <td>17825792</td>
                 <td></td>
             </tr>
             <tr>
                 <td>50000</td>
-                <td>56</td>
+                <td>56MB</td>
                 <td>58720256</td>
                 <td></td>
             </tr>
             <tr>
                 <td>70000</td>
-                <td>72</td>
+                <td>72MB</td>
                 <td>75497472</td>
                 <td></td>
             </tr>
             <tr>
                 <td>100000</td>
-                <td>104</td>
+                <td>104MB</td>
                 <td>109051904</td>
                 <td></td>
             </tr>
             <tr>
                 <td>500000</td>
-                <td>476</td>
+                <td>476MB</td>
                 <td>499122176</td>
                 <td></td>
             </tr>
             <tr>
                 <td>1000000</td>
-                <td>940</td>
+                <td>940MB</td>
                 <td>985661440</td>
                 <td></td>
             </tr>
             <tr>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>5000000</td>
+                <td>4.55GB</td>
+                <td>4886364160</td>
                 <td>22m 2s</td>
             </tr>
         </table>

@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/masterPage1.Master" AutoEventWireup="true" CodeBehind="BackupRestoreOptions.aspx.cs" Inherits="System.pages.BackupRestoreOptions" %>
+﻿<%@ Page Title="" Async="true" Language="C#" MasterPageFile="~/masterPage1.Master" AutoEventWireup="true" CodeBehind="BackupRestoreOptions.aspx.cs" Inherits="System.pages.BackupRestoreOptions" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 </asp:Content>

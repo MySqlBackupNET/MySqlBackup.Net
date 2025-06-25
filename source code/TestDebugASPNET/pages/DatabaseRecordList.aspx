@@ -81,7 +81,8 @@
         <div class="action-buttons">
             <asp:Button ID="btnLoadFiles" runat="server" Text="Load Files" OnClick="btnLoadFiles_Click" />
             <button type="button" onclick="deleteSelected();">Delete Selected Files</button>
-            <button type="button" onclick="newBackup();">Do Backup</button>
+            <button type="button" onclick="newBackup();">Start a New Backup/Export</button>
+            <a href="/ReportProgressRestoreFileUpload" class="buttonmain">Start a New Restore/Import From File</a>
             <iframe id="frame1" name="frame1" style="height: 0; width: 0; border: none; display: inline-block;"></iframe>
         </div>
 

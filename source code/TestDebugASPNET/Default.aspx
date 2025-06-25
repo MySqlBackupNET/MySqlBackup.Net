@@ -37,7 +37,7 @@
 
     <div class="main-content">
 
-        <h1>Basic Demo</h1>
+        <h1>Setup and Simple Basic Demo</h1>
 
         This is a lightweight debugging tool designed exclusively for testing MySqlBackup.NET functionality during development. This project facilitates rapid testing of backup operations and error handling.<br />
         <br />

@@ -51,22 +51,31 @@ namespace System.pages
         protected global::System.Web.UI.WebControls.TextBox txtFilePathMySql;
 
         /// <summary>
-        /// btRun control.
+        /// cbMySqlInstanceExecuteDirect control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btRun;
+        protected global::System.Web.UI.WebControls.CheckBox cbMySqlInstanceExecuteDirect;
 
         /// <summary>
-        /// cbNoTryCatch control.
+        /// cbMySqlInstanceExecuteCmdShell control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox cbNoTryCatch;
+        protected global::System.Web.UI.WebControls.CheckBox cbMySqlInstanceExecuteCmdShell;
+
+        /// <summary>
+        /// cbSkipGetSystemInfo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox cbSkipGetSystemInfo;
 
         /// <summary>
         /// cbCleanDatabaseAfterUse control.
@@ -76,6 +85,51 @@ namespace System.pages
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox cbCleanDatabaseAfterUse;
+
+        /// <summary>
+        /// cbRunStage1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox cbRunStage1;
+
+        /// <summary>
+        /// cbRunStage2 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox cbRunStage2;
+
+        /// <summary>
+        /// cbRunStage3 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox cbRunStage3;
+
+        /// <summary>
+        /// cbRunStage4 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox cbRunStage4;
+
+        /// <summary>
+        /// btRun control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btRun;
 
         /// <summary>
         /// panelResult control.

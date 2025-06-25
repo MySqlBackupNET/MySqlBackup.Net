@@ -2,7 +2,12 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <style>
+        .maintb tr td:first-child {
+            text-align: right;
+        }
+
         #div-benchmark-report {
+            margin: auto;
             margin-top: 20px;
             max-width: 1000px;
             background-color: white;
@@ -236,14 +241,15 @@
 
     <div class="main-content">
 
-        <h1>Benchmark</h1>
-
         <asp:Panel ID="panelSetup" runat="server">
+
+            <h1>Benchmark</h1>
+
             Performance test and comparison of Backup and Restore of using MySqlBackup.NET, MySqlDump and MySql (instance).<br />
             The test requires this ASP.NET application to be run with "LocalSystem" / "System" / "Administrator" privilege.<br />
             <br />
             Please manually enter the file path of the following instance:
-            <table>
+            <table class="maintb">
                 <tr>
                     <td style="padding-top: 10px; padding-bottom: 0; vertical-align: top;">Initial Schema</td>
                     <td>
@@ -252,29 +258,104 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>MySqlDump</td>
+                    <td style="padding-top: 10px; padding-bottom: 0; vertical-align: top;">MySqlDump</td>
                     <td>
-                        <asp:TextBox ID="txtFilePathMySqlDump" runat="server" Width="600px"></asp:TextBox>
+                        <asp:TextBox ID="txtFilePathMySqlDump" runat="server" Width="600px"></asp:TextBox><br />
+                        *The executable file path of mysqldump.exe
                     </td>
                 </tr>
                 <tr>
-                    <td>MySql</td>
+                    <td style="padding-top: 10px; padding-bottom: 0; vertical-align: top;">MySql</td>
                     <td>
-                        <asp:TextBox ID="txtFilePathMySql" runat="server" Width="600px"></asp:TextBox>
+                        <asp:TextBox ID="txtFilePathMySql" runat="server" Width="600px"></asp:TextBox><br />
+                        *The executable file path of mysql.exe
                     </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <div style="border: 1px solid #71c668;">
+
+                            <div style="border-bottom: 1px solid #71c668; padding: 10px; background: #ecf6ff;">
+                                Select mysql.exe Instance Execution Method:
+                            </div>
+
+                            <div style="padding: 10px;">
+                                <asp:CheckBox ID="cbMySqlInstanceExecuteDirect" runat="server" ClientIDMode="Static" Checked="true" Style="vertical-align: middle;" />
+                                <label for="cbMySqlInstanceExecuteDirect" style="vertical-align: middle;">Execute mysql.exe directly with SOURCE command</label>
+                                <br />
+                                <asp:CheckBox ID="cbMySqlInstanceExecuteCmdShell" runat="server" ClientIDMode="Static" Style="vertical-align: middle;" />
+                                <label for="cbMySqlInstanceExecuteCmdShell" style="vertical-align: middle;">Execute mysql.exe through CMD shell with file redirection ( < )</label>
+
+                                <script>
+                                    const directCheckbox = document.getElementById('cbMySqlInstanceExecuteDirect');
+                                    const cmdShellCheckbox = document.getElementById('cbMySqlInstanceExecuteCmdShell');
+
+                                    directCheckbox.addEventListener('change', function () {
+                                        if (this.checked) {
+                                            cmdShellCheckbox.checked = false;
+                                        }
+                                    });
+
+                                    cmdShellCheckbox.addEventListener('change', function () {
+                                        if (this.checked) {
+                                            directCheckbox.checked = false;
+                                        }
+                                    });
+                                </script>
+
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <asp:CheckBox ID="cbSkipGetSystemInfo" runat="server" Checked="true" />
+                        Skip Getting System Info (Save 5-10 seconds of initialization)</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <asp:CheckBox ID="cbCleanDatabaseAfterUse" runat="server" />
+                        Clean Up Database After Use</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <asp:CheckBox ID="cbRunStage1" runat="server" Checked="true" />
+                        Stage 1: Backup/Export - MySqlBackup.NET</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <asp:CheckBox ID="cbRunStage2" runat="server" Checked="true" />
+                        Stage 2: Backup/Export - MySqlDump.exe</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <asp:CheckBox ID="cbRunStage3" runat="server" Checked="true" />
+                        Stage 3: Restore/Import - MySqlBackup.NET</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <asp:CheckBox ID="cbRunStage4" runat="server" Checked="true" />
+                        Stage 4: Restore/Import - mysql.exe</td>
                 </tr>
             </table>
 
-            <asp:Button ID="btRun" runat="server" ClientIDMode="Static" Text="Run Test" OnClick="btRun_Click" OnClientClick="showBigLoading(0); hideButton(this);" />
-
-            <asp:CheckBox ID="cbNoTryCatch" runat="server" />
-            Run Without Try Catch
-            <asp:CheckBox ID="cbCleanDatabaseAfterUse" runat="server" Checked="true" />
-            Clean Up Database After Use 
-
+            <asp:Button ID="btRun" runat="server" ClientIDMode="Static" Text="Begin Performance Benchmark Test" OnClick="btRun_Click" OnClientClick="hideButton(this);" />
         </asp:Panel>
 
-        <asp:Panel ID="panelResult" runat="server">
+        <asp:Panel ID="panelResult" runat="server" Visible="false">
+
+            <style>
+                body {
+                    background: #dcdcdc;
+                }
+            </style>
 
             <div id="div-benchmark-report"></div>
 
@@ -297,6 +378,8 @@
                     const container = document.getElementById('div-benchmark-report');
 
                     let html = `
+        <h1>Benchmark Results</h1>
+
         <div class="progress-container">
             <div class="progress-bar" id="main-progress-bar">0%</div>
         </div>
