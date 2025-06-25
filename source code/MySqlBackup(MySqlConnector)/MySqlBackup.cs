@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Timers;
 
@@ -71,7 +72,7 @@ namespace MySqlConnector
 
         string _delimiter = string.Empty;
 
-        int _initialMaxStringBuilderCapacity = 64 * 1024 * 1024;
+        int _initialMaxStringBuilderCapacity = 16 * 1024 * 1024;
 
         enum NextImportAction
         {
@@ -363,6 +364,13 @@ namespace MySqlConnector
                     stage++;
                 }
 
+                if (ExportInfo.SetTimeZoneUTC)
+                {
+                    string safeTimeZone = _originalTimeZone.Replace("'", "''");
+                    Command.CommandText = $"/*!40103 SET TIME_ZONE='{safeTimeZone}' */;";
+                    Command.ExecuteNonQuery();
+                }
+
                 if (stopProcess) processCompletionType = ProcessEndType.Cancelled;
                 else processCompletionType = ProcessEndType.Complete;
             }
@@ -407,17 +415,20 @@ namespace MySqlConnector
                 throw new Exception("Script delimeter cannot be ';'");
             }
 
-            // Cache the timezone
-            Command.CommandText = "SELECT @@session.time_zone;";
-            _originalTimeZone = Command.ExecuteScalar() + "";
-            if (string.IsNullOrEmpty(_originalTimeZone))
+            if (ExportInfo.SetTimeZoneUTC)
             {
-                _originalTimeZone = "SYSTEM";
+                // Cache the timezone
+                Command.CommandText = "SELECT @@session.time_zone;";
+                _originalTimeZone = Command.ExecuteScalar() + "";
+                if (string.IsNullOrEmpty(_originalTimeZone))
+                {
+                    _originalTimeZone = "SYSTEM";
+                }
+                // Important step, set the timezone to UTC 00:00 to ensure consistent timestamp values export
+                // Without this, the exported timestamp value will be shifted by timezone, resulting inaccurancy during import of data
+                Command.CommandText = "/*!40103 SET TIME_ZONE='+00:00' */;";
+                Command.ExecuteNonQuery();
             }
-            // Important step, set the timezone to UTC 00:00 to ensure consistent timestamp values export
-            // Without this, the exported timestamp value will be shifted by timezone, resulting inaccurancy during import of data
-            Command.CommandText = "/*!40103 SET TIME_ZONE='+00:00' */;";
-            Command.ExecuteNonQuery();
 
             ExportInfo.ScriptsDelimiter = ExportInfo.ScriptsDelimiter.Trim();
 

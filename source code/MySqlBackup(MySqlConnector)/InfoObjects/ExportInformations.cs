@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MySqlConnector
 {
@@ -58,12 +59,30 @@ namespace MySqlConnector
         }
 
         /// <summary>
+        /// Set the Timezone to UTC (+00:00). Default true. Essential for exporting timestamp related values.
+        /// </summary>
+        public bool SetTimeZoneUTC { get; set; } = true;
+
+        /// <summary>
+        /// Get the list of document headers. Set timezone to UTC (+00:00)
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
+        public List<string> GetDocumentHeaders(MySqlCommand cmd)
+        {
+            return GetDocumentHeaders(cmd, true);
+        }
+
+        /// <summary>
         /// Gets the list of document headers.
         /// </summary>
         /// <param name="cmd">The MySqlCommand that will be used to retrieve the database default character set.</param>
         /// <returns>List of document headers.</returns>
-        public List<string> GetDocumentHeaders(MySqlCommand cmd)
+        public List<string> GetDocumentHeaders(MySqlCommand cmd, bool setTimezoneUtc)
         {
+            const string SaveTimeZoneStatement = "/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;";
+            const string SetTimeZoneUtcStatement = "/*!40103 SET TIME_ZONE='+00:00' */;";
+
             if (_documentHeaders == null)
             {
                 string databaseCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW VARIABLES LIKE 'character_set_database';", 1);
@@ -77,12 +96,47 @@ namespace MySqlConnector
                 _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;");
                 _documentHeaders.Add("/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;");
                 _documentHeaders.Add($"/*!40101 SET NAMES {databaseCharSet} */;");
-                _documentHeaders.Add("/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;");
-                _documentHeaders.Add("/*!40103 SET TIME_ZONE='+00:00' */;");
+                if (setTimezoneUtc)
+                {
+                    _documentHeaders.Add(SaveTimeZoneStatement);
+                    _documentHeaders.Add(SetTimeZoneUtcStatement);
+                }
                 _documentHeaders.Add("/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;");
                 _documentHeaders.Add("/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;");
                 _documentHeaders.Add("/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;");
                 _documentHeaders.Add("/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;");
+            }
+            else
+            {
+                Regex SaveTimeZoneRegex = new Regex(@"^/\*!\d{5}\s+SET\s+@OLD_TIME_ZONE\s*=\s*@@TIME_ZONE\s*\*/\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+                Regex SetTimeZoneUtcRegex = new Regex(@"^/\*!\d{5}\s+SET\s+TIME_ZONE\s*=\s*'\+00:00'\s*\*/\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+                if (!setTimezoneUtc)
+                {
+                    for (int i = _documentHeaders.Count - 1; i >= 0; i--)
+                    {
+                        if (SaveTimeZoneRegex.IsMatch(_documentHeaders[i]) || SetTimeZoneUtcRegex.IsMatch(_documentHeaders[i]))
+                            _documentHeaders.RemoveAt(i);
+                    }
+                }
+                else
+                {
+                    bool hasSaveTimeZone = false;
+                    bool hasSetTimeZone = false;
+
+                    foreach (string header in _documentHeaders)
+                    {
+                        if (SaveTimeZoneRegex.IsMatch(header))
+                            hasSaveTimeZone = true;
+                        if (SetTimeZoneUtcRegex.IsMatch(header))
+                            hasSetTimeZone = true;
+                    }
+
+                    if (!hasSaveTimeZone)
+                        _documentHeaders.Add(SaveTimeZoneStatement);
+                    if (!hasSetTimeZone)
+                        _documentHeaders.Add(SetTimeZoneUtcStatement);
+                }
             }
 
             return _documentHeaders;
@@ -98,15 +152,29 @@ namespace MySqlConnector
         }
 
         /// <summary>
+        /// Get the document footers. Reset timezone.
+        /// </summary>
+        /// <returns></returns>
+        public List<string> GetDocumentFooters()
+        {
+            return GetDocumentFooters(true);
+        }
+
+        /// <summary>
         /// Gets the document footers.
         /// </summary>
         /// <returns>List of document footers.</returns>
-        public List<string> GetDocumentFooters()
+        public List<string> GetDocumentFooters(bool resetTimeZone)
         {
+            const string TimeZoneStatement = "/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;";
+
             if (_documentFooters == null)
             {
                 _documentFooters = new List<string>();
-                _documentFooters.Add("/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;");
+                if (resetTimeZone)
+                {
+                    _documentFooters.Add(TimeZoneStatement);
+                }
                 _documentFooters.Add("/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;");
                 _documentFooters.Add("/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;");
                 _documentFooters.Add("/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;");
@@ -114,6 +182,39 @@ namespace MySqlConnector
                 _documentFooters.Add("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;");
                 _documentFooters.Add("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;");
                 _documentFooters.Add("/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;");
+            }
+            else
+            {
+                var timeZoneRegex = new Regex(@"^/\*!\d{5}\s+SET\s+TIME_ZONE\s*=\s*@OLD_TIME_ZONE\s*\*/\s*$", RegexOptions.IgnoreCase);
+
+                if (!resetTimeZone)
+                {
+                    for (int i = _documentFooters.Count - 1; i >= 0; i--)
+                    {
+                        if (timeZoneRegex.IsMatch(_documentFooters[i]))
+                        {
+                            _documentFooters.RemoveAt(i);
+                        }
+                    }
+                }
+                else
+                {
+                    bool hasTimeZoneStatement = false;
+
+                    foreach (string footer in _documentFooters)
+                    {
+                        if (timeZoneRegex.IsMatch(footer))
+                        {
+                            hasTimeZoneStatement = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasTimeZoneStatement)
+                    {
+                        _documentFooters.Insert(0, TimeZoneStatement);
+                    }
+                }
             }
 
             return _documentFooters;
@@ -215,7 +316,7 @@ namespace MySqlConnector
 
                 if (value > 1073741824) // 1GB
                     throw new ArgumentOutOfRangeException(nameof(value), value, "SQL length cannot exceed 1GB (1073741824 bytes).");
-                
+
                 _maxSqlLength = value;
             }
         }
@@ -248,7 +349,7 @@ namespace MySqlConnector
         /// <summary>
         /// Gets or Sets a value indicates the interval of time (in miliseconds) to raise the event of ExportProgressChanged.
         /// </summary>
-        public int IntervalForProgressReport { get { if (_interval == 0) return 100; return _interval; } set { _interval = value; } }
+        public int IntervalForProgressReport { get { if (_interval == 0) return 250; return _interval; } set { _interval = value; } }
 
         /// <summary>
         /// Gets or Sets the delimiter used for exporting Procedures, Functions, Events and Triggers. Default delimiter is "|".

@@ -369,9 +369,9 @@
                 // Stage names mapping
                 const stageNames = {
                     1: "Export/Backup - MySqlBackup.NET",
-                    2: "Export/Backup - MySqlDump",
+                    2: "Export/Backup - MySqlDump (mysqldump.exe)",
                     3: "Import/Restore - MySqlBackup.NET",
-                    4: "Import/Restore - MySql Instance"
+                    4: "Import/Restore - MySql (mysql.exe) Instance"
                 };
 
                 function drawUI() {

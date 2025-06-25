@@ -8,7 +8,7 @@ namespace MySqlConnector
         /// <summary>
         /// Gets or Sets a value indicates the interval of time (in miliseconds) to raise the event of ExportProgressChanged.
         /// </summary>
-        public int IntervalForProgressReport { get { if (_interval == 0) return 100; return _interval; } set { _interval = value; } }
+        public int IntervalForProgressReport { get { if (_interval == 0) return 250; return _interval; } set { _interval = value; } }
 
         /// <summary>
         /// Gets or Sets a value indicates whether SQL errors occurs in import process should be ignored.

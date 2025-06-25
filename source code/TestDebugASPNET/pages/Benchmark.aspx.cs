@@ -335,9 +335,9 @@ var taskid = {newTaskId};
                             continue;
 
                         if (bt.Stage < 3)
-                            sb.AppendLine($"Round {bt.Round}   {bt.TimeUsedDisplay.PadRight(10, ' ')}{bt.FileSizeDisplay}");
+                            sb.AppendLine($"Round {bt.Round}   {bt.TimeUsedDisplay.PadRight(25, ' ')}{bt.FileSizeDisplay}");
                         else
-                            sb.AppendLine($"Round {bt.Round}   {bt.TimeUsedDisplay.PadRight(10, ' ')}");
+                            sb.AppendLine($"Round {bt.Round}   {bt.TimeUsedDisplay}");
                     }
                 }
 
@@ -529,7 +529,7 @@ default-character-set={dbCharacterSet}";
             DropAndCreateDatabase(database);
 
             string filePathCnf = GenerateTempMySqlConfigFile();
-            
+
             string arguments = $"\"--defaults-extra-file={filePathCnf}\" \"{database}\" \"--execute=SOURCE {dumpFilePath}\"";
 
             var processStartInfo = new ProcessStartInfo
@@ -986,14 +986,7 @@ default-character-set={dbCharacterSet}";
         {
             get
             {
-                if (TimeUsed.TotalHours >= 1)
-                {
-                    return $"{TimeUsed.Hours}h {TimeUsed.Minutes}m";
-                }
-                else
-                {
-                    return $"{TimeUsed.Minutes}m {TimeUsed.Seconds}s";
-                }
+                return $"{TimeUsed.Hours}h {TimeUsed.Minutes}m {TimeUsed.Seconds}s {TimeUsed.Milliseconds}ms";
             }
         }
 
