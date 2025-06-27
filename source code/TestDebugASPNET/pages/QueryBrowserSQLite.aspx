@@ -7,6 +7,7 @@
         max-height: calc(100vh - 330px);
         overflow: auto;
         border: 2px solid #767676;
+        background: white;
     }
 
         .div-table-result table {

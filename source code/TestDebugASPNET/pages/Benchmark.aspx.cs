@@ -16,6 +16,7 @@ using System.Security.Cryptography;
 using System.Xml.Linq;
 using System.Data.Entity;
 using System.Text.Json.Serialization;
+using System.Threading;
 
 namespace System.pages
 {
@@ -293,7 +294,7 @@ var taskid = {newTaskId};
                 sb.AppendLine("All processes ended");
                 sb.AppendLine($"Time Start   : {timeStart:yyyy-MM-dd HH:mm:ss}");
                 sb.AppendLine($"Time End     : {timeEnd:yyyy-MM-dd HH:mm:ss}");
-                sb.AppendLine($"Time Elapsed : {totalTimeElapsed.Hours} h {totalTimeElapsed.Minutes} m {totalTimeElapsed.Seconds} s");
+                sb.AppendLine($"Time Elapsed : {totalTimeElapsed.Hours} h {totalTimeElapsed.Minutes} m {totalTimeElapsed.Seconds} s {totalTimeElapsed.Milliseconds} ms");
 
                 sb.AppendLine();
                 sb.AppendLine("SHA256 Checksums:");
@@ -335,9 +336,9 @@ var taskid = {newTaskId};
                             continue;
 
                         if (bt.Stage < 3)
-                            sb.AppendLine($"Round {bt.Round}   {bt.TimeUsedDisplay.PadRight(25, ' ')}{bt.FileSizeDisplay}");
+                            sb.AppendLine($"Round {bt.Round}    {bt.TimeUsedDisplay}    {bt.FileSizeDisplay}");
                         else
-                            sb.AppendLine($"Round {bt.Round}   {bt.TimeUsedDisplay}");
+                            sb.AppendLine($"Round {bt.Round}    {bt.TimeUsedDisplay}");
                     }
                 }
 
@@ -509,19 +510,8 @@ default-character-set={dbCharacterSet}";
                 RedirectStandardError = true    // Capture errors
             };
 
-            try
-            {
-                ExecuteProcess(processStartInfo);
-            }
-            catch (Exception ex)
-            {
-                try
-                {
-                    File.Delete(filePathCnf);
-                }
-                catch { }
-                throw;
-            }
+            _ = Task.Run(() => DeleteMyCnf(filePathCnf));
+            ExecuteProcess(processStartInfo);
         }
 
         void ImportMySqlInstanceDirect(string database, string dumpFilePath)
@@ -543,19 +533,8 @@ default-character-set={dbCharacterSet}";
                 RedirectStandardError = true
             };
 
-            try
-            {
-                ExecuteProcess(processStartInfo);
-            }
-            catch (Exception ex)
-            {
-                try
-                {
-                    File.Delete(filePathCnf);
-                }
-                catch { }
-                throw;
-            }
+            _ = Task.Run(() => DeleteMyCnf(filePathCnf));
+            ExecuteProcess(processStartInfo);
         }
 
         void ImportMySqlInstanceCmdShellRedirect(string database, string dumpFilePath)
@@ -577,19 +556,8 @@ default-character-set={dbCharacterSet}";
                 RedirectStandardError = true
             };
 
-            try
-            {
-                ExecuteProcess(processStartInfo);
-            }
-            catch (Exception ex)
-            {
-                try
-                {
-                    File.Delete(filePathCnf);
-                }
-                catch { }
-                throw;
-            }
+            _ = Task.Run(() => DeleteMyCnf(filePathCnf));
+            ExecuteProcess(processStartInfo);
         }
 
         async void ExecuteProcess(ProcessStartInfo processStartInfo)
@@ -611,6 +579,7 @@ default-character-set={dbCharacterSet}";
 
                 if (!string.IsNullOrEmpty(output))
                 {
+                    sb.AppendLine();
                     sb.AppendLine("Process output:");
                     sb.AppendLine("-------------------------------");
                     sb.AppendLine(output);
@@ -619,6 +588,7 @@ default-character-set={dbCharacterSet}";
 
                 if (process.ExitCode != 0 || !string.IsNullOrEmpty(errors))
                 {
+                    sb.AppendLine();
                     sb.AppendLine("Process error:");
                     sb.AppendLine("-------------------------------");
                     sb.AppendLine($"Exit Code: {process.ExitCode}");
@@ -626,6 +596,26 @@ default-character-set={dbCharacterSet}";
                     sb.AppendLine("-------------------------------");
                     throw new Exception($"Process error: [Exit Code:{process.ExitCode}] {errors}");
                 }
+            }
+        }
+
+        void DeleteMyCnf(string filePathCnf)
+        {
+            const int maxAttempts = 3;
+
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                Thread.Sleep(500);
+
+                if (!File.Exists(filePathCnf))
+                    return;
+
+                try
+                {
+                    File.Delete(filePathCnf);
+                    return;
+                }
+                catch { }
             }
         }
 
@@ -911,6 +901,37 @@ default-character-set={dbCharacterSet}";
         public TimeSpan TimeUsed { get; set; } = TimeSpan.Zero;
         public bool HasError { get; set; } = false;
 
+        [JsonPropertyName("TimeStartDisplay")]
+        public string TimeStartDisplay
+        {
+            get
+            {
+                if (TimeStart != DateTime.MinValue)
+                    return TimeStart.ToString("yyyy-MM-dd, hh:mm:ss tt");
+                return "---";
+            }
+        }
+
+        [JsonPropertyName("TimeEndDisplay")]
+        public string TimeEndDisplay
+        {
+            get
+            {
+                if (TimeStart != DateTime.MinValue)
+                    return TimeStart.ToString("yyyy-MM-dd, hh:mm:ss tt");
+                return "---";
+            }
+        }
+
+        [JsonPropertyName("TimeUsedDisplay")]
+        public string TimeUsedDisplay
+        {
+            get
+            {
+                return $"{TimeUsed.Hours}h {TimeUsed.Minutes}m {TimeUsed.Seconds}s {TimeUsed.Milliseconds}ms";
+            }
+        }
+
         [JsonIgnore]
         public Exception LastError { get; set; } = null;
     }
@@ -982,6 +1003,29 @@ default-character-set={dbCharacterSet}";
             }
         }
 
+        [JsonPropertyName("TimeStartDisplay")]
+        public string TimeStartDisplay
+        {
+            get
+            {
+                if (TimeStart != DateTime.MinValue)
+                    return TimeStart.ToString("yyyy-MM-dd, hh:mm:ss tt");
+                return "---";
+            }
+        }
+
+        [JsonPropertyName("TimeEndDisplay")]
+        public string TimeEndDisplay
+        {
+            get
+            {
+                if (TimeStart != DateTime.MinValue)
+                    return TimeStart.ToString("yyyy-MM-dd, hh:mm:ss tt");
+                return "---";
+            }
+        }
+
+        [JsonPropertyName("TimeUsedDisplay")]
         public string TimeUsedDisplay
         {
             get

@@ -3,6 +3,7 @@
 body {
     padding: 0;
     margin: 0;
+    background: #dcdcdc;
 }
 
 body, input, button, a, textarea, select, option, pre, div, span, table, th, td {
@@ -45,10 +46,22 @@ form {
             background: #404040;
         }
 
+
+.div-center-framed-content {
+    margin: auto;
+    margin-top: 20px;
+    max-width: 1050px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-height: calc(100vh - 260px);
+}
+
 .main-content {
     padding: 10px;
     height: auto;
-    min-height: calc(100vh - 220px);
+    min-height: calc(100vh - 240px);
 }
 
 .main-content a {

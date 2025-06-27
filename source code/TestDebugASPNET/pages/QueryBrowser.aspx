@@ -4,9 +4,8 @@
     <style type="text/css">
         .div-table-result {
             max-width: calc(100vw - 50px);
-            max-height: calc(100vh - 330px);
+            max-height: calc(100vh - 365px);
             overflow: auto;
-            border: 2px solid #767676;
         }
 
             .div-table-result table {
@@ -19,15 +18,30 @@
                 top: 0;
                 border-top: none;
                 border-left: none;
-                border-bottom: 1px solid black;
-                border-right: 1px solid black;
+                border-bottom: 1px solid #836cac;
+                border-right: 1px solid #836cac;
+                background: #383838;
+                color: #2cd2ff;
+                font-weight: normal;
+                padding: 7px;
             }
 
             .div-table-result td {
                 border-top: none;
                 border-left: none;
-                border-bottom: 1px solid #878787;
-                border-right: 1px solid #878787;
+                border-bottom: 1px solid #898989;
+                border-right: 1px solid #898989;
+                color: #d9d9d9;
+                font-weight: normal;
+                padding: 7px;
+            }
+
+            .div-table-result table tr:nth-child(odd) {
+                background: #626262;
+            }
+
+            .div-table-result table tr:nth-child(even) {
+                background: #4f4f4f;
             }
 
             .div-table-result pre {
@@ -35,6 +49,8 @@
                 max-width: 100%;
                 box-sizing: border-box;
                 overflow: auto;
+                color: #d9d9d9;
+                font-weight: normal;
             }
 
         table.table-settings {
@@ -54,6 +70,10 @@
             table.table-settings td {
                 padding: 5px;
                 border: 1px solid #adadad;
+            }
+
+            .footer {
+                display: none;
             }
     </style>
     <style id="style2" type="text/css"></style>
@@ -216,7 +236,7 @@
                         txtSql.style.backgroundColor = '';
                     }, 200);
                     e.preventDefault(); // Prevent default behavior (new line)
-                    btSelectExecute.click(); 
+                    btSelectExecute.click();
                     return false;
                 }
 
@@ -229,7 +249,7 @@
                         txtSql.style.backgroundColor = '';
                     }, 200);
                     e.preventDefault(); // Prevent default behavior (new line)
-                    btExecute.click(); 
+                    btExecute.click();
                     return false;
                 }
 

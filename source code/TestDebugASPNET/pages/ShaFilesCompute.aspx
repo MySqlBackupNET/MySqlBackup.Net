@@ -4,7 +4,7 @@
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
 
-    <div class="main-content">
+    <div class="div-center-framed-content">
 
         <h1>SHA256 Files Checksum Compute</h1>
 

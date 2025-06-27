@@ -17,10 +17,6 @@ namespace System
         {
             get
             {
-                if (_constr == null)
-                {
-                    ReadConnStr();
-                }
                 return _constr;
             }
             set
@@ -31,7 +27,7 @@ namespace System
 
         public static void InitializeVariables()
         {
-            string e = ConnString;
+            ReadConnStr();
             BackupFilesManager.InitializeVariables();
             VariablesInitialized = true;
         }

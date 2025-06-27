@@ -11,27 +11,27 @@
             border-collapse: collapse;
         }
 
-        .main-content tr {
+        .maintb tr {
             height: 50px;
         }
 
-        .main-content th {
+        .maintb th {
             padding: 10px;
             background: #235a82;
             color: white;
             border: 1px solid #a3a3a3;
         }
 
-        .main-content tr th:nth-child(3) {
+        .maintb tr th:nth-child(3) {
             width: 620px;
         }
 
-        .main-content td {
+        .maintb td {
             padding: 0 10px;
             border: 1px solid #c8c8c8;
         }
 
-        .main-content input[type=text] {
+        .maintb input[type=text] {
             width: 600px;
         }
     </style>
@@ -41,7 +41,7 @@
     <!-- Prevent implicit submission of the form -->
     <button type="submit" disabled style="display: none" aria-hidden="true"></button>
 
-    <div class="main-content">
+    <div class="div-center-framed-content">
 
         <h1>Conditional Tables' Rows Export</h1>
 

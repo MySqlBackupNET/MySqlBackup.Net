@@ -22,7 +22,8 @@
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
 
-    <div class="main-content">
+    <div class="div-center-framed-content">
+
         <h1>Create Sample Table Rows</h1>
 
         <asp:Button ID="btGenerateData" runat="server" Text="Generate Sample Data" OnClick="btGenerateData_Click" OnClientClick="showBigLoading(0);" />

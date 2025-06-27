@@ -20,18 +20,12 @@ namespace System
         static string _tempFolder = null;
         static string _tempZipFolder = null;
         static string _sqlitecstr = null;
+        static string _sqliteFilePath = null;
 
         public static string folder
         {
             get
             {
-                if (_folder == null)
-                {
-                    string f = HttpContext.Current.Server.MapPath("~/App_Data/backup");
-                    if (!Directory.Exists(f))
-                        Directory.CreateDirectory(f);
-                    _folder = f;
-                }
                 return _folder;
             }
         }
@@ -40,12 +34,6 @@ namespace System
         {
             get
             {
-                if (_tempFolder == null)
-                {
-                    _tempFolder = Path.Combine(folder, "temp");
-                    if (!Directory.Exists(_tempFolder))
-                        Directory.CreateDirectory(_tempFolder);
-                }
                 return _tempFolder;
             }
         }
@@ -54,149 +42,181 @@ namespace System
         {
             get
             {
-                if (_tempZipFolder == null)
-                {
-                    _tempZipFolder = Path.Combine(folder, "temp-zip");
-                    if (!Directory.Exists(_tempZipFolder))
-                        Directory.CreateDirectory(_tempZipFolder);
-                }
                 return _tempZipFolder;
             }
-        }
-
-        public static void InitializeVariables()
-        {
-            string a = folder;
-            string b = tempFolder;
-            string c = tempZipFolder;
-            string d = sqliteConnectionString;
-
-            VariableInitialized = true;
         }
 
         public static string sqliteConnectionString
         {
             get
             {
-                if (_sqlitecstr == null)
-                {
-                    string f = Path.Combine(folder, "data.sqlite3");
-                    string c = $"Data Source={f};Version=3;";
-
-                    if (!File.Exists(f))
-                    {
-                        RecreateSQLiteFile();
-                    }
-                    else
-                    {
-                        bool recreateDbFile = false;
-                        using (var conn = new SQLiteConnection(c))
-                        {
-                            using (var cmd = conn.CreateCommand())
-                            {
-                                conn.Open();
-
-                                SQLiteHelper h = new SQLiteHelper(cmd);
-
-                                int DataVersion = h.ExecuteScalar<int>("select `value` from Config where `key`='DataVersion'");
-                                int vDatabaseFile = h.ExecuteScalar<int>("select `value` from Config where `key`='DataVersion'");
-                                int vLog = h.ExecuteScalar<int>("select `value` from Config where `key`='DataVersion'");
-                                int vprogress_report = h.ExecuteScalar<int>("select `value` from Config where `key`='DataVersion'");
-
-                                if (DataVersion < 2 || vDatabaseFile < 2 || vLog < 2 || vprogress_report < 2)
-                                {
-                                    recreateDbFile = true;
-                                }
-                            }
-                        }
-
-                        if (recreateDbFile)
-                        {
-                            File.Delete(f);
-                            RecreateSQLiteFile();
-                        }
-                    }
-
-                    _sqlitecstr = c;
-                }
                 return _sqlitecstr;
             }
         }
 
-        static void RecreateSQLiteFile()
+        public static void InitializeVariables()
         {
-            string f = Path.Combine(folder, "data.sqlite3");
-            string c = $"Data Source={f};Version=3;";
-            if (!File.Exists(f))
+            _folder = HttpContext.Current.Server.MapPath("~/App_Data/backup");
+            if (!Directory.Exists(_folder))
+                Directory.CreateDirectory(_folder);
+
+            _tempFolder = Path.Combine(folder, "temp");
+            if (!Directory.Exists(_tempFolder))
+                Directory.CreateDirectory(_tempFolder);
+
+            _tempZipFolder = Path.Combine(folder, "temp-zip");
+            if (!Directory.Exists(_tempZipFolder))
+                Directory.CreateDirectory(_tempZipFolder);
+
+            _sqliteFilePath = Path.Combine(_folder, "data.sqlite3");
+
+            _sqlitecstr = $"Data Source={_sqliteFilePath};Version=3;";
+
+            CreateSQLiteDatabaseFile();
+
+            VariableInitialized = true;
+        }
+
+        static void CreateSQLiteDatabaseFile()
+        {
+            using (var connection = new SQLiteConnection(_sqlitecstr))
             {
-                using (var connection = new SQLiteConnection(c))
+                connection.Open();
+                using (var cmd = new SQLiteCommand(connection))
                 {
-                    connection.Open();
+                    SQLiteHelper h = new SQLiteHelper(cmd);
 
-                    using (var cmd = new SQLiteCommand(connection))
+                    string tableConfig = h.ExecuteScalar<string>("SELECT name FROM sqlite_master WHERE type='table' AND name='Config';");
+
+                    if (string.IsNullOrEmpty(tableConfig))
                     {
-                        SQLiteHelper h = new SQLiteHelper(cmd);
-
                         h.Execute(@"
-                            CREATE TABLE IF NOT EXISTS DatabaseFile (
-                                Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                Operation TEXT,
-                                Filename TEXT,
-                                LogFilename TEXT,
-                                OriginalFilename TEXT,
-                                Sha256 TEXT,
-                                Filesize INTEGER,
-                                DatabaseName TEXT,
-                                DateCreated DATETIME,
-                                TaskId INTEGER,
-                                Remarks TEXT
-                            )");
-
-                        h.Execute(@"
-                            CREATE TABLE IF NOT EXISTS Log (
-                                Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                DatabaseFileId INTEGER,
-                                Content TEXT
-                            )");
-
-                        h.Execute(@"CREATE TABLE IF NOT EXISTS progress_report (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                                operation int,
-                                start_time DATETIME,
-                                end_time DATETIME,
-                                is_completed INTEGER,
-                                has_error INTEGER,
-                                is_cancelled INTEGER,
-                                filename TEXT,
-                                total_tables INTEGER,
-                                total_rows INTEGER,
-                                total_rows_current_table INTEGER,
-                                current_table TEXT,
-                                current_table_index INTEGER,
-                                current_row INTEGER,
-                                current_row_in_current_table INTEGER,
-                                total_bytes INTEGER,
-                                current_bytes INTEGER,
-                                percent_complete INTEGER,
-                                remarks TEXT,
-                                dbfile_id INTEGER,
-                                last_update_time DATETIME,
-                                client_request_cancel_task INTEGER,
-                                has_file INTEGER
-                            );");
-
-                        h.Execute(@"
-                            CREATE TABLE IF NOT EXISTS Config (
-                                `Key` TEXT PRIMARY KEY,
-                                `Value` TEXT
-                            )");
-
-                        h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('DataVersion','2');");
-                        h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('vDatabaseFile','2');");
-                        h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('vLog','2');");
-                        h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('vprogress_report','2');");
+                CREATE TABLE IF NOT EXISTS Config (
+                    `Key` TEXT PRIMARY KEY,
+                    `Value` TEXT
+                )");
+                        h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('DataVersion','3');");
+                        h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('vDatabaseFile','3');");
+                        h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('vLog','3');");
+                        h.Execute("INSERT INTO Config (`Key`, `Value`) VALUES ('vprogress_report','3');");
                     }
+
+                    // Handle DatabaseFile table
+                    HandleTableWithVersioning(h, "DatabaseFile", "vDatabaseFile", 3, @"
+            CREATE TABLE DatabaseFile (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Operation TEXT,
+                Filename TEXT,
+                LogFilename TEXT,
+                OriginalFilename TEXT,
+                Sha256 TEXT,
+                Filesize INTEGER,
+                DatabaseName TEXT,
+                DateCreated DATETIME,
+                TaskId INTEGER,
+                Remarks TEXT
+            )");
+
+                    // Handle Log table
+                    HandleTableWithVersioning(h, "Log", "vLog", 3, @"
+            CREATE TABLE Log (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                DatabaseFileId INTEGER,
+                Content TEXT
+            )");
+
+                    // Handle progress_report table
+                    HandleTableWithVersioning(h, "progress_report", "vprogress_report", 3, @"
+            CREATE TABLE progress_report (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                operation int,
+                start_time DATETIME,
+                end_time DATETIME,
+                is_completed INTEGER,
+                has_error INTEGER,
+                is_cancelled INTEGER,
+                filename TEXT,
+                total_tables INTEGER,
+                total_rows INTEGER,
+                total_rows_current_table INTEGER,
+                current_table TEXT,
+                current_table_index INTEGER,
+                current_row INTEGER,
+                current_row_in_current_table INTEGER,
+                total_bytes INTEGER,
+                current_bytes INTEGER,
+                percent_complete INTEGER,
+                remarks TEXT,
+                dbfile_id INTEGER,
+                last_update_time DATETIME,
+                client_request_cancel_task INTEGER,
+                has_file INTEGER
+            )");
                 }
+            }
+        }
+
+        static void HandleTableWithVersioning(SQLiteHelper h, string tableName, string versionKey, int currentVersion, string createTableSql)
+        {
+            // Check if table exists
+            string tableExists = h.ExecuteScalar<string>($"SELECT name FROM sqlite_master WHERE type='table' AND name='{tableName}';");
+
+            if (string.IsNullOrEmpty(tableExists))
+            {
+                // Table doesn't exist, create it
+                h.Execute(createTableSql);
+
+                // Set version in config
+                h.Execute($"INSERT OR REPLACE INTO Config (`Key`, `Value`) VALUES ('{versionKey}','{currentVersion}');");
+            }
+            else
+            {
+                // Table exists, check version
+                string versionStr = h.ExecuteScalar<string>($"SELECT Value FROM Config WHERE Key = '{versionKey}';");
+
+                if (int.TryParse(versionStr, out int existingVersion))
+                {
+                    if (existingVersion < currentVersion)
+                    {
+                        // Perform upgrade
+                        UpgradeTable(h, tableName, versionKey, currentVersion, createTableSql);
+                    }
+                    // If existingVersion == currentVersion, do nothing
+                }
+                else
+                {
+                    // Version not found or invalid, treat as upgrade needed
+                    UpgradeTable(h, tableName, versionKey, currentVersion, createTableSql);
+                }
+            }
+        }
+
+        static void UpgradeTable(SQLiteHelper h, string tableName, string versionKey, int newVersion, string createTableSql)
+        {
+            string oldTable = tableName;
+            string tempTable = tableName + "_temp";
+
+            try
+            {
+                // Create new table with temp name
+                string tempCreateSql = createTableSql.Replace($"CREATE TABLE {tableName}", $"CREATE TABLE {tempTable}");
+                h.Execute(tempCreateSql);
+
+                // Copy data from old table to temp table
+                h.CopyAllData(oldTable, tempTable);
+
+                // Drop old table
+                h.DropTable(oldTable);
+
+                // Rename temp table to original name
+                h.RenameTable(tempTable, oldTable);
+
+                // Update version in config
+                h.Execute($"INSERT OR REPLACE INTO Config (`Key`, `Value`) VALUES ('{versionKey}','{newVersion}');");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to upgrade table {tableName}: {ex.Message}", ex);
             }
         }
 

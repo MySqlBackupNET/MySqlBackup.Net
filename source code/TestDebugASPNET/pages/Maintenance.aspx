@@ -6,7 +6,7 @@
 
     <input id="hiddenPostbackAction" type="hidden" name="hiddenPostbackAction" />
 
-    <div class="main-content">
+    <div class="div-center-framed-content">
 
         <h1>Maintenance</h1>
 

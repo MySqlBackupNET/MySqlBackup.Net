@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31612.314
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_WinForm_MySqlConnector", "Test_WinForm_MySqlConnector\Test_WinForm_MySqlConnector.csproj", "{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_WinForm", "Test_WinForm_MySqlConnector\Test_WinForm.csproj", "{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySqlBackup(Devart-Express)", "MySqlBackup(Devart-Express)\MySqlBackup(Devart-Express).csproj", "{7A5D4100-D41E-4887-876A-29406BBD3237}"
 EndProject

@@ -12,7 +12,7 @@
         Error: Some error message
     </div>
 
-    <div class="main-content">
+    <div class="div-center-framed-content">
 
         <h1>H1 Title</h1>
 

@@ -83,7 +83,7 @@
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
 
-    <div class="main-content">
+    <div class="div-center-framed-content">
 
         <div style="max-width: 800px;">
             <h1>Restore/Import MySQL Database - Progress Report</h1>

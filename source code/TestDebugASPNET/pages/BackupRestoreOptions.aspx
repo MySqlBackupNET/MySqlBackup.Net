@@ -1,10 +1,18 @@
 ﻿<%@ Page Title="" Async="true" Language="C#" MasterPageFile="~/masterPage1.Master" AutoEventWireup="true" CodeBehind="BackupRestoreOptions.aspx.cs" Inherits="System.pages.BackupRestoreOptions" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+
+    <style>
+        
+        body {
+            background: #dcdcdc;
+        }
+
+    </style>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
 
-    <div class="main-content">
+    <div class="div-center-framed-content">
 
         <h1>Backup and Restore MySQL With Options</h1>
 
