@@ -642,31 +642,12 @@ namespace System
         /// </summary>
         private static void CreateZipFile(string sqlFilePath, string cacheId)
         {
-            string guidFolder = Path.Combine(tempFolder, cacheId);
             string zipFilePath = Path.Combine(tempZipFolder, $"{cacheId}.zip");
 
-            try
+            using (var zip = ZipStorer.Create(zipFilePath, ""))
             {
-                // Create GUID folder
-                Directory.CreateDirectory(guidFolder);
-
-                // Copy SQL file to GUID folder
-                string orifilename = Path.GetFileNameWithoutExtension(sqlFilePath);
-                string tempSqlPath = Path.Combine(guidFolder, $"{orifilename}.sql");
-                File.Copy(sqlFilePath, tempSqlPath);
-
-                // Create zip file
-                ZipFile.CreateFromDirectory(guidFolder, zipFilePath, CompressionLevel.Optimal, false);
-            }
-            finally
-            {
-                // Clean up the temporary GUID folder immediately after zipping
-                try
-                {
-                    if (Directory.Exists(guidFolder))
-                        Directory.Delete(guidFolder, true);
-                }
-                catch { }
+                string entryName = Path.GetFileName(sqlFilePath);
+                zip.AddFile(ZipStorer.Compression.Deflate, sqlFilePath, entryName, "");
             }
         }
 

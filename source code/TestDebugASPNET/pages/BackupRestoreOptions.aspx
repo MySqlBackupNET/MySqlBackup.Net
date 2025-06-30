@@ -49,6 +49,7 @@
 
                             <asp:Button ID="btRunBackup" runat="server" Text="Run Simple Backup" OnClick="btRunBackup_Click" OnClientClick="showBackupLoading(0);" />
                             <asp:Button ID="btRunBackupAsync" runat="server" Text="Run Backup Async (Progress Report)" OnClick="btRunBackupAsync_Click" />
+                            <asp:Button ID="btBackupMemoryStream" runat="server" Text="Backup Memory Stream" OnClick="btBackupMemoryStream_Click" />
                             <asp:Button ID="btGetDatabaseInfo" runat="server" Text="Refresh Info" OnClick="btGetDatabaseInfo_Click" />
                             <br />
                             <asp:CheckBox ID="cbAddDropDatabase" runat="server" />
@@ -175,15 +176,16 @@
                         <div style="padding: 10px; line-height: 320%;">
 
                             <asp:Button ID="btRunRestore" runat="server" Text="Run Simple Restore" OnClick="btRunRestore_Click" OnClientClick="return showRestoreLoading();" />
+                            <asp:Button ID="btRestoreMemoryStream" runat="server" Text="Restore (Memory Stream)" OnClick="btRestoreMemoryStream_Click" OnClientClick="return showRestoreLoading();" />
                             <a href="/ReportProgressRestoreFileUpload" class="buttonmain">Run Restore Async (Progress Report)</a>
 
                             <br />
-                            *If you want to upload zip file, use [Run Restore Async]
                         <br />
 
                             Upload File:
-                        <asp:FileUpload ID="fileUploadRestore" runat="server" ClientIDMode="Static" onchange="checkFile();" accept=".sql" />
+                        <asp:FileUpload ID="fileUploadRestore" runat="server" ClientIDMode="Static" onchange="checkFile();" accept=".sql,.zip" />
                             <br />
+                            *Support .sql and .zip files.<br />
 
                             <asp:CheckBox ID="cbIgnoreSqlError" runat="server" />
                             Ignore SQL Error
@@ -220,7 +222,7 @@
             }
 
             var fileName = fileInput.files[0].name;
-            if (!fileName.toLowerCase().endsWith('.sql')) {
+            if (!fileName.toLowerCase().endsWith('.sql') || !fileName.toLowerCase().endsWith('.sql')) {
                 showMessage("Incorrect file type", "Supports only SQL (*.sql) file. If you want to upload zip file, use [Run Restore Async]", false);
                 fileInput.value = null;
                 return false;

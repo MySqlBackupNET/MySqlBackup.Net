@@ -66,28 +66,27 @@ namespace System
                 string filePath = "";
 
                 using (var conn = config.GetNewConnection())
+                using (var cmd = conn.CreateCommand())
                 {
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        conn.Open();
-                        cmd.CommandText = "select database()";
-                        databaseName = cmd.ExecuteScalar() + "";
-                    }
+                    conn.Open();
+                    cmd.CommandText = "select database()";
+                    databaseName = cmd.ExecuteScalar() + "";
+                }
+
+                if (string.IsNullOrEmpty(databaseName))
+                {
+                    throw new Exception("No database selected");
                 }
 
                 filename = $"{databaseName}_(backup)_{DateTime.Now:yyyy-MM-dd_hhmmss}.txt";
                 filePath = Path.Combine(folder, filename);
 
                 using (var conn = config.GetNewConnection())
+                using (var cmd = conn.CreateCommand())
+                using (var mb = new MySqlBackup(cmd))
                 {
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        using (MySqlBackup mb = new MySqlBackup(cmd))
-                        {
-                            conn.Open();
-                            mb.ExportToFile(filePath);
-                        }
-                    }
+                    conn.Open();
+                    mb.ExportToFile(filePath);
                 }
 
                 string result = $@"
@@ -129,13 +128,16 @@ File saved at: {filePath}</span>";
                 string filePath = "";
 
                 using (var conn = config.GetNewConnection())
+                using (var cmd = conn.CreateCommand())
                 {
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        conn.Open();
-                        cmd.CommandText = "select database()";
-                        databaseName = cmd.ExecuteScalar() + "";
-                    }
+                    conn.Open();
+                    cmd.CommandText = "select database()";
+                    databaseName = cmd.ExecuteScalar() + "";
+                }
+
+                if (string.IsNullOrEmpty(databaseName))
+                {
+                    throw new Exception("No database selected");
                 }
 
                 filename = $"{databaseName}_(restore)_{DateTime.Now:yyyy-MM-dd_hhmmss}.txt";
@@ -143,15 +145,11 @@ File saved at: {filePath}</span>";
                 fileUploadSql.SaveAs(filePath);
 
                 using (var conn = config.GetNewConnection())
+                using (var cmd = conn.CreateCommand())
+                using (var mb = new MySqlBackup(cmd))
                 {
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        using (MySqlBackup mb = new MySqlBackup(cmd))
-                        {
-                            conn.Open();
-                            mb.ImportFromFile(filePath);
-                        }
-                    }
+                    conn.Open();
+                    mb.ImportFromFile(filePath);
                 }
 
                 string result = $@"

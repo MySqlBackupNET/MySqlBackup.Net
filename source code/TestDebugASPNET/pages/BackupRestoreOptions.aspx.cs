@@ -7,6 +7,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.IO.Compression;
 
 namespace System.pages
 {
@@ -525,6 +526,106 @@ namespace System.pages
 
             ((masterPage1)this.Master).WriteTopMessageBar($"Database restore successful.", true);
             ((masterPage1)this.Master).ShowMessage("Ok", "Database restore success", true);
+        }
+
+        protected void btBackupMemoryStream_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var exportInfo = GetExportInfo();
+
+                string fileName = $"backup-{DateTime.Now:yyyy-MM-dd_HHmmss}";
+
+                using (var ms = new MemoryStream())
+                using (var msZip = new MemoryStream())
+                {
+                    // Generate MySQL backup
+                    using (MySqlConnection conn = config.GetNewConnection())
+                    {
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            conn.Open();
+                            using (MySqlBackup mb = new MySqlBackup(cmd))
+                            {
+                                mb.ExportInfo = exportInfo;
+                                mb.ExportToStream(ms);
+                            }
+                        }
+                    }
+
+                    // Create zip file
+                    using (ZipStorer zip = ZipStorer.Create(msZip, ""))
+                    {
+                        ms.Position = 0;
+                        string backupFileName = $"{fileName}.sql";
+                        zip.AddStream(ZipStorer.Compression.Deflate, backupFileName, ms, DateTime.Now, "");
+                    }
+
+                    // Send response
+                    msZip.Position = 0;
+                    Response.Clear();
+                    Response.ContentType = "application/zip";
+                    Response.Headers.Add("Content-Length", msZip.Length.ToString());
+                    Response.Headers.Add("Content-Disposition", $"attachment; filename=\"{fileName}.zip\"");
+
+                    // Stream the data instead of loading all into memory
+                    msZip.CopyTo(Response.OutputStream);
+                    Response.Flush();
+                    Response.End();
+                }
+            }
+            catch (Exception ex)
+            {
+                phOutputLog.Controls.Add(new LiteralControl($"Error during restore: {ex.Message}"));
+            }
+        }
+
+        protected void btRestoreMemoryStream_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                byte[] ba = fileUploadRestore.FileBytes;
+                if (ba == null || ba.Length == 0)
+                {
+                    phOutputLog.Controls.Add(new LiteralControl("Please select a backup file to restore."));
+                    return;
+                }
+
+                Stream sqlStream;
+                string uploadedFileName = fileUploadRestore.FileName;
+
+                if (Path.GetExtension(uploadedFileName)?.ToLower() == ".zip")
+                {
+                    using (var uploadedStream = new MemoryStream(ba))
+                    {
+                        sqlStream = new MemoryStream();
+                        ZipHelper.ExtractToStream(uploadedStream, sqlStream);
+                    }
+                }
+                else
+                {
+                    sqlStream = new MemoryStream(ba);
+                }
+
+                using (sqlStream)
+                using (MySqlConnection conn = config.GetNewConnection())
+                {
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        conn.Open();
+                        using (MySqlBackup mb = new MySqlBackup(cmd))
+                        {
+                            mb.ImportFromStream(sqlStream);
+                        }
+                    }
+                }
+
+                phOutputLog.Controls.Add(new LiteralControl("Database restored successfully!"));
+            }
+            catch (Exception ex)
+            {
+                phOutputLog.Controls.Add(new LiteralControl($"Error during restore: {ex.Message}"));
+            }
         }
     }
 }

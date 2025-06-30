@@ -78,11 +78,6 @@
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.9.0.5\lib\net462\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
     <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.IO.Compression.ZipFile, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.IO.Compression.ZipFile.4.3.0\lib\net46\System.IO.Compression.ZipFile.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.IO.Pipelines, Version=9.0.0.6, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IO.Pipelines.9.0.6\lib\net462\System.IO.Pipelines.dll</HintPath>
     </Reference>
@@ -174,6 +169,11 @@
     <Compile Include="engine\SQLiteHelper.NET\SQLiteColumnList.cs" />
     <Compile Include="engine\SQLiteHelper.NET\SQLiteHelper.cs" />
     <Compile Include="engine\SQLiteHelper.NET\SQLiteTable.cs" />
+    <Compile Include="engine\ZipHelper.cs" />
+    <Compile Include="engine\ZipStorer\ZipCrc32.cs" />
+    <Compile Include="engine\ZipStorer\ZipDate.cs" />
+    <Compile Include="engine\ZipStorer\ZipFileEntry.cs" />
+    <Compile Include="engine\ZipStorer\ZipStorer.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -335,6 +335,7 @@
       <Name>MySqlBackup%28MySqlConnector%29</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

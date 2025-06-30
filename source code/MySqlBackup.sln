@@ -5,10 +5,6 @@ VisualStudioVersion = 17.0.31612.314
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_WinForm", "Test_WinForm_MySqlConnector\Test_WinForm.csproj", "{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySqlBackup(Devart-Express)", "MySqlBackup(Devart-Express)\MySqlBackup(Devart-Express).csproj", "{7A5D4100-D41E-4887-876A-29406BBD3237}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySqlBackup(MySql.Data)", "MySqlBackup(MySql.Data)\MySqlBackup(MySql.Data).csproj", "{90412615-9EDA-43E4-A704-EE08F5B62C5D}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySqlBackup(MySqlConnector)", "MySqlBackup(MySqlConnector)\MySqlBackup(MySqlConnector).csproj", "{280A4426-14CC-4A20-85F7-2F8E863A9977}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backup-All-Databases", "Backup-All-Databases\Backup-All-Databases.csproj", "{50F6C017-2EDD-4C30-B40A-C3B38055A1EB}"
@@ -31,22 +27,6 @@ Global
 		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
 		{96B8C5E6-49D0-48BE-A3D6-DA479AC2409D}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
-		{7A5D4100-D41E-4887-876A-29406BBD3237}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7A5D4100-D41E-4887-876A-29406BBD3237}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7A5D4100-D41E-4887-876A-29406BBD3237}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
-		{7A5D4100-D41E-4887-876A-29406BBD3237}.NET20|Any CPU.Build.0 = Debug|Any CPU
-		{7A5D4100-D41E-4887-876A-29406BBD3237}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7A5D4100-D41E-4887-876A-29406BBD3237}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7A5D4100-D41E-4887-876A-29406BBD3237}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
-		{7A5D4100-D41E-4887-876A-29406BBD3237}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
-		{90412615-9EDA-43E4-A704-EE08F5B62C5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{90412615-9EDA-43E4-A704-EE08F5B62C5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{90412615-9EDA-43E4-A704-EE08F5B62C5D}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
-		{90412615-9EDA-43E4-A704-EE08F5B62C5D}.NET20|Any CPU.Build.0 = Debug|Any CPU
-		{90412615-9EDA-43E4-A704-EE08F5B62C5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{90412615-9EDA-43E4-A704-EE08F5B62C5D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{90412615-9EDA-43E4-A704-EE08F5B62C5D}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
-		{90412615-9EDA-43E4-A704-EE08F5B62C5D}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
 		{280A4426-14CC-4A20-85F7-2F8E863A9977}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{280A4426-14CC-4A20-85F7-2F8E863A9977}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{280A4426-14CC-4A20-85F7-2F8E863A9977}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
