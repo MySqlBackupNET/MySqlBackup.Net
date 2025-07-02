@@ -126,6 +126,7 @@
   <ItemGroup>
     <Content Include="cssjs\main.css" />
     <Content Include="cssjs\main.js" />
+    <Content Include="pages\About.aspx" />
     <Content Include="pages\Default.aspx" />
     <Content Include="Global.asax" />
     <Content Include="pages\apiBenchmark.aspx" />
@@ -153,6 +154,13 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="pages\About.aspx.cs">
+      <DependentUpon>About.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\About.aspx.designer.cs">
+      <DependentUpon>About.aspx</DependentUpon>
+    </Compile>
     <Compile Include="pages\Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

@@ -20,10 +20,12 @@ namespace System.pages
 
         protected void btBackup_Click(object sender, EventArgs e)
         {
-            MemoryStream ms = new MemoryStream();
-
+            MemoryStream ms = null;
             try
             {
+                ms = new MemoryStream();
+
+                // Export database
                 using (var conn = config.GetNewConnection())
                 using (var cmd = conn.CreateCommand())
                 using (var mb = new MySqlBackup(cmd))
@@ -33,13 +35,18 @@ namespace System.pages
                     mb.ExportToStream(ms);
                 }
 
+                // Compression
                 if (cbCompress.Checked)
                 {
-                    byte[] ba = CompressorHelper.Compress(ms.ToArray());
-                    ms.Dispose(); // recylce the memory before reuse the reference
-                    ms = new MemoryStream(ba);
+                    byte[] compressed = CompressorHelper.Compress(ms.ToArray());
+
+                    // important, recycle the memory before reuse the reference
+                    ms.Dispose();
+
+                    ms = new MemoryStream(compressed);
                 }
 
+                // Encryption
                 if (cbEncrypt.Checked)
                 {
                     if (string.IsNullOrWhiteSpace(txtPwd.Text))
@@ -48,28 +55,52 @@ namespace System.pages
                         return;
                     }
 
-                    byte[] baPwd = Encoding.UTF8.GetBytes(txtPwd.Text);
-                    byte[] ba = AesHelper.Encrypt(ms.ToArray(), baPwd);
-                    ms.Dispose(); // recylce the memory before reuse the reference
-                    ms = new MemoryStream(ba);
+                    byte[] password = Encoding.UTF8.GetBytes(txtPwd.Text);
+                    byte[] encrypted = AesHelper.Encrypt(ms.ToArray(), password);
+
+                    // important, recycle the memory before reuse the reference
+                    ms.Dispose();
+
+                    ms = new MemoryStream(encrypted);
                 }
 
-                ms.Position = 0;
+                // Prepare response
+                string suffix = "";
+                if (cbCompress.Checked) suffix += "-compressed";
+                if (cbEncrypt.Checked) suffix += "-encrypted";
 
-                string isEncrypted = cbEncrypt.Checked ? "-encrypted" : "";
-                string isCompressed = cbCompress.Checked ? "-compressed" : "";
+                string extension = "";
+
+                if (cbEncrypt.Checked)
+                {
+                    extension = ".bin";
+                }
+                else if (cbCompress.Checked)
+                {
+                    extension = ".gz";
+                }
+                else
+                {
+                    extension = ".sql";
+                }
+
+                string filename = $"backup{suffix}-{DateTime.Now:yyyy-MM-dd_HHmmss}{extension}";
+
+                ms.Position = 0;
 
                 Response.Clear();
                 Response.ContentType = "application/octet-stream";
                 Response.Headers.Add("Content-Length", ms.Length.ToString());
-                Response.Headers.Add("Content-Disposition", $"attachment; filename=\"backup{isEncrypted}{isCompressed}-{DateTime.Now:yyyy-MM-dd_HHmmss}\"");
+                Response.Headers.Add("Content-Disposition", $"attachment; filename=\"{filename}\"");
+
                 ms.CopyTo(Response.OutputStream);
+
                 Response.Flush();
                 Response.End();
             }
             finally
             {
-                ms?.Dispose(); // recylce the memory
+                ms?.Dispose();
             }
         }
 

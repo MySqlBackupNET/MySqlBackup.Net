@@ -21,6 +21,8 @@ Date: {1}
 MySqlBackup.NET
 A MySQL Database Backup Tool for .NET
 
+*This program is obsoleted. Please use the ASP.NET version for testing
+
 www.mysqlbackup.net
 
 Freeware

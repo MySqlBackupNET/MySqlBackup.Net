@@ -34,9 +34,6 @@
         <asp:Button ID="btBackup" runat="server" Text="Backup" OnClick="btBackup_Click" OnClientClick="showBigLoading(3000);" />
         <asp:Button ID="btRestore" runat="server" Text="Restore" OnClick="btRestore_Click" OnClientClick="showBigLoading(0);" />
 
-        <div style="height: 20px;"></div>
-
-        <pre class="light-formatted"><asp:PlaceHolder ID="phResult" runat="server"></asp:PlaceHolder></pre>
     </div>
 
 </asp:Content>

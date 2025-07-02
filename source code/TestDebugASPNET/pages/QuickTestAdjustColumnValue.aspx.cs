@@ -51,6 +51,9 @@ namespace System.pages
             }
 
             ph1.Controls.Add(new LiteralControl(result));
+
+            panelDemoGuide.Visible = false;
+            panelResult.Visible = true;
         }
     }
 

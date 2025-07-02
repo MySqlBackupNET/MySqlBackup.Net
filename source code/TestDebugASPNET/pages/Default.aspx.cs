@@ -21,6 +21,14 @@ namespace System
             {
                 LoadConstr();
             }
+            else
+            {
+                string action = Request["postbackAction"] + "";
+                if (action == "restore-memory")
+                {
+                    RestoreInMemory();
+                }
+            }
         }
 
         void LoadConstr()
@@ -61,6 +69,7 @@ namespace System
             {
                 string folder = Server.MapPath("~/App_Data/temp");
                 Directory.CreateDirectory(folder);
+
                 string databaseName = "";
                 string filename = "";
                 string filePath = "";
@@ -78,7 +87,7 @@ namespace System
                     throw new Exception("No database selected");
                 }
 
-                filename = $"{databaseName}_(backup)_{DateTime.Now:yyyy-MM-dd_hhmmss}.txt";
+                filename = $"{databaseName}_{DateTime.Now:yyyy-MM-dd_hhmmss}.sql";
                 filePath = Path.Combine(folder, filename);
 
                 using (var conn = config.GetNewConnection())
@@ -160,6 +169,62 @@ Download File: <a href='/apiFiles?folder=temp&filename={filename}'>{filename}</a
 <br />
 File saved at: {filePath}</span>";
 
+                phRestore.Controls.Add(new LiteralControl(result));
+                ((masterPage1)this.Master).ShowMessage("Restore", "Restore Success", true);
+            }
+            catch (Exception ex)
+            {
+                phRestore.Controls.Add(new LiteralControl($"<pre style='color: maroon;'>Task Failed: {ex.Message}</pre>"));
+                ((masterPage1)this.Master).ShowMessage("Error", "Restore Failed", false);
+            }
+        }
+
+        protected void btBackupMemory_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string filename = $"backup-{DateTime.Now:yyyy-MM-dd_HHmmss}.sql";
+
+                using (var conn = config.GetNewConnection())
+                using (var cmd = conn.CreateCommand())
+                using (var mb = new MySqlBackup(cmd))
+                {
+                    conn.Open();
+
+                    Response.Clear();
+                    Response.ContentType = "application/octet-stream";
+                    Response.Headers.Add("Content-Disposition", $"attachment; filename=\"{filename}\"");
+                    Response.BufferOutput = false; // Important for streaming
+
+                    mb.ExportToStream(Response.OutputStream);
+
+                    conn.Close();
+
+                    Response.Flush();
+                    Response.End();
+                }
+            }
+            catch (Exception ex)
+            {
+                phBackup.Controls.Add(new LiteralControl($"<pre style='color: maroon;'>Task Failed: {ex.Message}</pre>"));
+                ((masterPage1)this.Master).ShowMessage("Error", "Backup Failed", false);
+            }
+        }
+
+        void RestoreInMemory()
+        {
+            try
+            {
+                using (var ms = new MemoryStream(fileUploadSql.FileBytes))
+                using (var conn = config.GetNewConnection())
+                using (var cmd = conn.CreateCommand())
+                using (var mb = new MySqlBackup(cmd))
+                {
+                    conn.Open();
+                    mb.ImportFromMemoryStream(ms);
+                }
+
+                string result = $@"<span style='color: darkgreen;'>Restore Success!<br /><br />File processed in memory</span>";
                 phRestore.Controls.Add(new LiteralControl(result));
                 ((masterPage1)this.Master).ShowMessage("Restore", "Restore Success", true);
             }

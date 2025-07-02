@@ -25,12 +25,12 @@ form {
     padding: 10px;
     font-size: 12pt;
     font-weight: bold;
-    background: #404040;
-    color: #e2e2e2;
+    background: #2e2e2e;
+    color: #569cd6;
 }
 
 .menubar {
-    background: #5b5b5b;
+    background: #454545;
 }
 
     .menubar a {
@@ -42,8 +42,8 @@ form {
     }
 
         .menubar a:hover {
-            color: white;
-            background: #404040;
+            color: #87ffa7;
+            background: #2e2e2e;
         }
 
 .div-center-framed-content {
@@ -163,7 +163,7 @@ pre {
 }
 
     pre.light-formatted {
-        background: #606060;
+        background: #484848;
         color: #d8d8d8;
         border-radius: 7px;
         padding: 15px;

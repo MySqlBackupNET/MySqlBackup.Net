@@ -87,6 +87,24 @@ namespace System.pages
         protected global::System.Web.UI.WebControls.CheckBox cbInsertUpdate;
 
         /// <summary>
+        /// panelDemoGuide control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel panelDemoGuide;
+
+        /// <summary>
+        /// panelResult control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel panelResult;
+
+        /// <summary>
         /// ph1 control.
         /// </summary>
         /// <remarks>

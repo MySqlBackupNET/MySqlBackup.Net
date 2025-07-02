@@ -22,7 +22,8 @@
         MySQL Connection String: 
     <br />
         <br />
-        <asp:TextBox ID="txtConnStr" runat="server" Width="800px"></asp:TextBox>
+        <asp:TextBox ID="txtConnStr" runat="server" Width="800px"></asp:TextBox><br />
+        *This connection string will be used for all database operations in this app
         <br />
         <br />
 
