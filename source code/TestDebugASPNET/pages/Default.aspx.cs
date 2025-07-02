@@ -102,7 +102,7 @@ File saved at: {filePath}</span>";
             }
             catch (Exception ex)
             {
-                phBackup.Controls.Add(new LiteralControl($"<pre style='color: maroon;'>Task Failed: {ex.Message}<br />{ex.StackTrace}</pre>"));
+                phBackup.Controls.Add(new LiteralControl($"<pre style='color: maroon;'>Task Failed: {ex.Message}</pre>"));
                 ((masterPage1)this.Master).ShowMessage("Error", "Backup Failed", false);
             }
         }
@@ -165,7 +165,7 @@ File saved at: {filePath}</span>";
             }
             catch (Exception ex)
             {
-                phRestore.Controls.Add(new LiteralControl($"<pre style='color: maroon;'>Task Failed: {ex.Message}<br />{ex.StackTrace}</pre>"));
+                phRestore.Controls.Add(new LiteralControl($"<pre style='color: maroon;'>Task Failed: {ex.Message}</pre>"));
                 ((masterPage1)this.Master).ShowMessage("Error", "Restore Failed", false);
             }
         }

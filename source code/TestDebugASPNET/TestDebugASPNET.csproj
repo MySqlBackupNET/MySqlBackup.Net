@@ -126,12 +126,15 @@
   <ItemGroup>
     <Content Include="cssjs\main.css" />
     <Content Include="cssjs\main.js" />
-    <Content Include="Default.aspx" />
+    <Content Include="pages\Default.aspx" />
     <Content Include="Global.asax" />
     <Content Include="pages\apiBenchmark.aspx" />
     <Content Include="pages\apiFiles.aspx" />
+    <Content Include="pages\apiParallelPipelineExport.aspx" />
     <Content Include="pages\Benchmark.aspx" />
     <Content Include="pages\CreateSampleTableRows.aspx" />
+    <Content Include="pages\MemoryStreamDemo.aspx" />
+    <Content Include="pages\ParallelPipelineExport.aspx" />
     <Content Include="pages\QuickTestAdjustColumnValue.aspx" />
     <Content Include="pages\apiProgressReport.aspx" />
     <Content Include="pages\BackupRestoreOptions.aspx" />
@@ -150,14 +153,16 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Default.aspx.cs">
+    <Compile Include="pages\Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Default.aspx.designer.cs">
+    <Compile Include="pages\Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="engine\AesHelper.cs" />
     <Compile Include="engine\AutoRoute.cs" />
+    <Compile Include="engine\CompressorHelper.cs" />
     <Compile Include="engine\config.cs" />
     <Compile Include="engine\DatabaseFileRecord.cs" />
     <Compile Include="engine\BackupFilesManager.cs" />
@@ -165,6 +170,7 @@
     <Compile Include="engine\ProgressReportManager.cs" />
     <Compile Include="engine\ServiceBackup.cs" />
     <Compile Include="engine\ServiceRestore.cs" />
+    <Compile Include="engine\Sha256.cs" />
     <Compile Include="engine\SQLiteHelper.NET\SQLiteColumn.cs" />
     <Compile Include="engine\SQLiteHelper.NET\SQLiteColumnList.cs" />
     <Compile Include="engine\SQLiteHelper.NET\SQLiteHelper.cs" />
@@ -184,6 +190,35 @@
     <Compile Include="masterPage1.Master.designer.cs">
       <DependentUpon>masterPage1.Master</DependentUpon>
     </Compile>
+    <Compile Include="MySqlBackup.NET\Enums.cs" />
+    <Compile Include="MySqlBackup.NET\EventArgs\ExportCompleteArgs.cs" />
+    <Compile Include="MySqlBackup.NET\EventArgs\ExportProgressArgs.cs" />
+    <Compile Include="MySqlBackup.NET\EventArgs\GetTotalRowsArgs.cs" />
+    <Compile Include="MySqlBackup.NET\EventArgs\ImportCompleteArgs.cs" />
+    <Compile Include="MySqlBackup.NET\EventArgs\ImportProgressArgs.cs" />
+    <Compile Include="MySqlBackup.NET\InfoObjects\enumGetTotalRowsMethod.cs" />
+    <Compile Include="MySqlBackup.NET\InfoObjects\enumRowsDataExportMode.cs" />
+    <Compile Include="MySqlBackup.NET\InfoObjects\ExportInformations.cs" />
+    <Compile Include="MySqlBackup.NET\InfoObjects\ImportInformations.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlBackup_v2.6_ParallelPipelineProcessing.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlBackup_v2.5.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlColumn.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlColumnList.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlDatabase.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlEvent.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlEventList.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlFunction.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlFunctionList.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlProcedure.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlProcedureList.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlServer.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlTable.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlTableList.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlTrigger.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlTriggerList.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlView.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlViewList.cs" />
+    <Compile Include="MySqlBackup.NET\QueryExpress.cs" />
     <Compile Include="pages\apiBenchmark.aspx.cs">
       <DependentUpon>apiBenchmark.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -198,6 +233,13 @@
     <Compile Include="pages\apiFiles.aspx.designer.cs">
       <DependentUpon>apiFiles.aspx</DependentUpon>
     </Compile>
+    <Compile Include="pages\apiParallelPipelineExport.aspx.cs">
+      <DependentUpon>apiParallelPipelineExport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\apiParallelPipelineExport.aspx.designer.cs">
+      <DependentUpon>apiParallelPipelineExport.aspx</DependentUpon>
+    </Compile>
     <Compile Include="pages\Benchmark.aspx.cs">
       <DependentUpon>Benchmark.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -211,6 +253,20 @@
     </Compile>
     <Compile Include="pages\CreateSampleTableRows.aspx.designer.cs">
       <DependentUpon>CreateSampleTableRows.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\MemoryStreamDemo.aspx.cs">
+      <DependentUpon>MemoryStreamDemo.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\MemoryStreamDemo.aspx.designer.cs">
+      <DependentUpon>MemoryStreamDemo.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\ParallelPipelineExport.aspx.cs">
+      <DependentUpon>ParallelPipelineExport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\ParallelPipelineExport.aspx.designer.cs">
+      <DependentUpon>ParallelPipelineExport.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\QuickTestAdjustColumnValue.aspx.cs">
       <DependentUpon>QuickTestAdjustColumnValue.aspx</DependentUpon>
@@ -328,12 +384,6 @@
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MySqlBackup%28MySqlConnector%29\MySqlBackup%28MySqlConnector%29.csproj">
-      <Project>{280a4426-14cc-4a20-85f7-2f8e863a9977}</Project>
-      <Name>MySqlBackup%28MySqlConnector%29</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

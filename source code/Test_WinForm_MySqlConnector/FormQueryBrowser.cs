@@ -57,56 +57,43 @@ namespace MySqlBackupTestApp
                 {
                     string sql = textBox1.Text.Trim();
 
-                    if (q == 2)
+                    if (sql.StartsWith("select", StringComparison.OrdinalIgnoreCase) || sql.StartsWith("show", StringComparison.OrdinalIgnoreCase))
                     {
-                        MySqlScript script = new MySqlScript(conn);
-                        script.Query = sql;
-                        int i = script.Execute();
-                        dt = new DataTable();
-                        dt.Columns.Add("Result");
-                        dt.Rows.Add(i + " statement(s) executed.");
-                        BindData();
+                        if (sql.StartsWith("select", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (!sql.ToLower().Contains(" limit "))
+                            {
+                                if (sql.EndsWith(";"))
+                                {
+                                    sql = sql.Remove(sql.Length - 1);
+
+                                }
+                                sql += " LIMIT 0,3000;";
+                                textBox1.Text = sql;
+                                textBox1.Refresh();
+                            }
+                        }
+
+                        using (MySqlCommand cmd = new MySqlCommand())
+                        {
+                            cmd.Connection = conn;
+                            conn.Open();
+                            dt = QueryExpress.GetTable(cmd, sql);
+                            BindData();
+                        }
                     }
                     else
                     {
-                        if (sql.StartsWith("select", StringComparison.OrdinalIgnoreCase) || sql.StartsWith("show", StringComparison.OrdinalIgnoreCase))
+                        using (MySqlCommand cmd = new MySqlCommand())
                         {
-                            if (sql.StartsWith("select", StringComparison.OrdinalIgnoreCase))
-                            {
-                                if (!sql.ToLower().Contains(" limit "))
-                                {
-                                    if (sql.EndsWith(";"))
-                                    {
-                                        sql = sql.Remove(sql.Length - 1);
-
-                                    }
-                                    sql += " LIMIT 0,3000;";
-                                    textBox1.Text = sql;
-                                    textBox1.Refresh();
-                                }
-                            }
-
-                            using (MySqlCommand cmd = new MySqlCommand())
-                            {
-                                cmd.Connection = conn;
-                                conn.Open();
-                                dt = QueryExpress.GetTable(cmd, sql);
-                                BindData();
-                            }
-                        }
-                        else
-                        {
-                            using (MySqlCommand cmd = new MySqlCommand())
-                            {
-                                cmd.Connection = conn;
-                                conn.Open();
-                                cmd.CommandText = sql;
-                                int i = cmd.ExecuteNonQuery();
-                                dt = new DataTable();
-                                dt.Columns.Add("Results");
-                                dt.Rows.Add(i + " row(s) affected by the last command.");
-                                BindData();
-                            }
+                            cmd.Connection = conn;
+                            conn.Open();
+                            cmd.CommandText = sql;
+                            int i = cmd.ExecuteNonQuery();
+                            dt = new DataTable();
+                            dt.Columns.Add("Results");
+                            dt.Rows.Add(i + " row(s) affected by the last command.");
+                            BindData();
                         }
                     }
                 }

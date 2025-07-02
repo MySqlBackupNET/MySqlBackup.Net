@@ -159,7 +159,7 @@ namespace System.pages
                     {
                         sb.Append("<tr><td colspan='");
                         sb.Append(reader.FieldCount);
-                        sb.Append("' style='font-style: italic; background: silver;'>");
+                        sb.Append("' style='font-style: italic;'>");
                         sb.Append($"Results limited to {maxRowsToDisplay} rows. More rows available...");
                         sb.Append("</td></tr>");
                     }

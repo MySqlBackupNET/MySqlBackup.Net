@@ -51,6 +51,15 @@ namespace System.pages
         protected global::System.Web.UI.WebControls.TextBox txtFilePathMySql;
 
         /// <summary>
+        /// txtOutputFolder control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtOutputFolder;
+
+        /// <summary>
         /// cbMySqlInstanceExecuteDirect control.
         /// </summary>
         /// <remarks>
@@ -69,22 +78,13 @@ namespace System.pages
         protected global::System.Web.UI.WebControls.CheckBox cbMySqlInstanceExecuteCmdShell;
 
         /// <summary>
-        /// cbSkipGetSystemInfo control.
+        /// cbGetSystemInfo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox cbSkipGetSystemInfo;
-
-        /// <summary>
-        /// cbCleanDatabaseAfterUse control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox cbCleanDatabaseAfterUse;
+        protected global::System.Web.UI.WebControls.CheckBox cbGetSystemInfo;
 
         /// <summary>
         /// cbRunStage1 control.
@@ -121,6 +121,33 @@ namespace System.pages
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox cbRunStage4;
+
+        /// <summary>
+        /// cbRunStage5 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox cbRunStage5;
+
+        /// <summary>
+        /// cbCleanDatabaseAfterUse control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox cbCleanDatabaseAfterUse;
+
+        /// <summary>
+        /// cbDeleteDumpFile control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox cbDeleteDumpFile;
 
         /// <summary>
         /// btRun control.

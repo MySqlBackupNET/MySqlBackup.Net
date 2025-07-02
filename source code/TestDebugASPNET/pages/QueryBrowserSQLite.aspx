@@ -4,7 +4,7 @@
     <style type="text/css">
     .div-table-result {
         max-width: calc(100vw - 50px);
-        max-height: calc(100vh - 330px);
+        max-height: 555px;
         overflow: auto;
         border: 2px solid #767676;
         background: white;

@@ -190,10 +190,12 @@ ENGINE = InnoDB;";
             {
                 using (MySqlConnection conn = new MySqlConnection(Program.ConnectionString))
                 {
-                    MySqlScript script = new MySqlScript(conn);
-                    script.Query = sql;
-                    script.Execute();
-                    script = null;
+                    using (MySqlCommand cmd = conn.CreateCommand())
+                    {
+                        conn.Open();
+                        cmd.CommandText = sql;
+                        cmd.ExecuteNonQuery();
+                    }
                 }
                 MessageBox.Show("Done");
             }

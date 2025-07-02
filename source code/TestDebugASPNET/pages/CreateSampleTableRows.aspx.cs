@@ -20,8 +20,16 @@ namespace System.pages
 
         protected async void btGenerateData_Click(object sender, EventArgs e)
         {
-            if (int.TryParse(txtTotalRows.Text, out int totalRows))
+            long.TryParse(txtTotalTables.Text, out long totalTables);
+
+            if (totalTables < 1)
+                totalTables = 1;
+
+            if (long.TryParse(txtTotalRows.Text, out long _initialRows))
             {
+                long totalRowsPerTable = _initialRows;
+                long totalRows = (long)(_initialRows * totalTables);
+
                 Dictionary<string, object> dic = new Dictionary<string, object>();
                 dic["operation"] = 3;
                 dic["start_time"] = DateTime.Now;
@@ -30,7 +38,7 @@ namespace System.pages
                 dic["has_error"] = false;
                 dic["is_cancelled"] = false;
                 dic["filename"] = "";
-                dic["total_tables"] = 1;
+                dic["total_tables"] = totalTables;
                 dic["total_rows"] = totalRows;
                 dic["total_rows_current_table"] = 0;
                 dic["current_table"] = "sample1";
@@ -60,7 +68,7 @@ namespace System.pages
                 }
 
                 // Fire and forget - start the background task
-                _ = Task.Run(() => GenerateData(totalRows, taskid, cbDropRecreateTable.Checked));
+                _ = Task.Run(() => GenerateData(totalTables, totalRowsPerTable, totalRows, taskid, cbDropRecreateTable.Checked));
 
                 // Redirect to progress report page at the client side
                 Header.Controls.Add(new LiteralControl("<script>window.location = '/ReportProgress';</script>"));
@@ -72,12 +80,12 @@ namespace System.pages
             }
         }
 
-        private void GenerateData(int totalRows, int taskid, bool dropRecreateTable)
+        private void GenerateData(long totalTables, long totalRowsPerTable, long totalRows, int taskid, bool dropRecreateTable)
         {
             try
             {
                 var generator = new SampleTableRowsGenerator(config.ConnString, taskid, dropRecreateTable);
-                generator.GenerateTableRows(totalRows);
+                generator.GenerateTableRows((int)totalTables, (int)totalRowsPerTable, totalRows);
 
                 Dictionary<string, object> dic = new Dictionary<string, object>();
 
@@ -160,8 +168,8 @@ namespace System.pages
             int _taskid = 0;
             readonly string _connectionString;
             System.Timers.Timer _progressTimer;
-            int _currentRows;
-            int _totalRows;
+            long _currentRows;
+            long _totalRows;
             bool _stop_process = false;
             bool _dropRecreateTable = false;
 
@@ -178,7 +186,7 @@ namespace System.pages
                 _dropRecreateTable |= dropRecreateTable;
             }
 
-            public void GenerateTableRows(int totalRows)
+            public void GenerateTableRows(int totalTables, int totalRowsPerTable, long totalRows)
             {
                 _totalRows = totalRows;
                 _currentRows = 0;
@@ -193,15 +201,17 @@ namespace System.pages
                         conn.Open();
                         using (var cmd = conn.CreateCommand())
                         {
-                            if (_dropRecreateTable)
+                            for (int i = 1; i <= totalTables; i++)
                             {
-                                cmd.CommandText = "DROP TABLE IF EXISTS sample1;";
-                                cmd.ExecuteNonQuery();
-                            }
+                                if (_dropRecreateTable)
+                                {
+                                    cmd.CommandText = "DROP TABLE IF EXISTS sample1;";
+                                    cmd.ExecuteNonQuery();
+                                }
 
-                            // Create table
-                            cmd.CommandText = @"
-CREATE TABLE IF NOT EXISTS sample1 (
+                                // Create table
+                                cmd.CommandText = $@"
+CREATE TABLE IF NOT EXISTS sample{i} (
     id INT AUTO_INCREMENT PRIMARY KEY,
     col_tinyint TINYINT,
     col_smallint SMALLINT,
@@ -249,20 +259,24 @@ CREATE TABLE IF NOT EXISTS sample1 (
     col_enum ENUM('small', 'medium', 'large'),
     col_set SET('red', 'green', 'blue', 'yellow')
 );";
-                            cmd.ExecuteNonQuery();
+                                cmd.ExecuteNonQuery();
+                            }
 
                             // Bulk insert
                             var batchSize = 1000; // Increased for better performance
                             var values = new List<string>();
-                            for (int i = 1; i <= totalRows; i++)
-                            {
-                                if (_stop_process)
-                                {
-                                    break;
-                                }
 
-                                _currentRows = i;
-                                values.Add($@"
+                            for (int tableCount = 1; tableCount <= totalTables; tableCount++)
+                            {
+                                for (int i = 1; i <= totalRowsPerTable; i++)
+                                {
+                                    if (_stop_process)
+                                    {
+                                        break;
+                                    }
+
+                                    _currentRows++;
+                                    values.Add($@"
 (
     {i % 127}, -- col_tinyint (0 to 255)
     {i % 32768}, -- col_smallint (-32768 to 32767)
@@ -311,12 +325,12 @@ CREATE TABLE IF NOT EXISTS sample1 (
     '{(i % 4 == 0 ? "red,blue" : i % 4 == 1 ? "green" : i % 4 == 2 ? "blue,yellow" : "red,green,blue")}' -- col_set
 )");
 
-                                // Execute batch when size is reached or at the end
-                                if (values.Count >= batchSize || i == totalRows)
-                                {
-                                    if (values.Count > 0)
+                                    // Execute batch when size is reached or at the end
+                                    if (values.Count >= batchSize || i == totalRowsPerTable)
                                     {
-                                        cmd.CommandText = $@"INSERT INTO sample1 (
+                                        if (values.Count > 0)
+                                        {
+                                            cmd.CommandText = $@"INSERT INTO sample{tableCount} (
                             col_tinyint, col_smallint, col_mediumint, col_int, col_bigint,
                             col_decimal, col_numeric, col_float, col_double, col_bit,
                             col_bool, col_real, col_double_precision, col_integer, col_dec,
@@ -328,8 +342,9 @@ CREATE TABLE IF NOT EXISTS sample1 (
                             col_multilinestring, col_multipolygon, col_geometrycollection, col_enum, col_set
                         ) VALUES {string.Join(",", values)};";
 
-                                        cmd.ExecuteNonQuery();
-                                        values.Clear();
+                                            cmd.ExecuteNonQuery();
+                                            values.Clear();
+                                        }
                                     }
                                 }
                             }
@@ -387,13 +402,15 @@ CREATE TABLE IF NOT EXISTS sample1 (
 
             private void OnProgressTimerElapsed(object sender, ElapsedEventArgs e)
             {
-                int percentage = _currentRows * 100 / _totalRows;
+                int percentage = 0;
+
+                if (_currentRows >= _totalRows)
+                    percentage = 100;
+                else
+                    percentage = Convert.ToInt32(_currentRows * 100L / _totalRows);
 
                 if (percentage < 0)
                     percentage = 0;
-
-                if (percentage > 100)
-                    percentage = 100;
 
                 Dictionary<string, object> dic = new Dictionary<string, object>();
 

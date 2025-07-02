@@ -28,8 +28,10 @@
 
         <asp:Button ID="btGenerateData" runat="server" Text="Generate Sample Data" OnClick="btGenerateData_Click" OnClientClick="showBigLoading(0);" />
 
+        Total Tables:
+        <asp:TextBox ID="txtTotalTables" runat="server" TextMode="Number" Width="60px" Text="1"></asp:TextBox> 
         Total Rows:
-        <asp:TextBox ID="txtTotalRows" runat="server" TextMode="Number" Width="150px" Text="10000"></asp:TextBox>
+        <asp:TextBox ID="txtTotalRows" runat="server" TextMode="Number" Width="100px" Text="10000"></asp:TextBox>
 
         Drop and Re-Create the sample table:
         <asp:CheckBox ID="cbDropRecreateTable" runat="server" Checked="true" />
@@ -42,49 +44,41 @@
                 <th>Total Rows</th>
                 <th>Size</th>
                 <th>Size (Bytes)</th>
-                <th>Time</th>
             </tr>
             <tr>
                 <td>10000</td>
                 <td>17MB</td>
                 <td>17825792</td>
-                <td></td>
             </tr>
             <tr>
                 <td>50000</td>
                 <td>56MB</td>
                 <td>58720256</td>
-                <td></td>
             </tr>
             <tr>
                 <td>70000</td>
                 <td>72MB</td>
                 <td>75497472</td>
-                <td></td>
             </tr>
             <tr>
                 <td>100000</td>
                 <td>104MB</td>
                 <td>109051904</td>
-                <td></td>
             </tr>
             <tr>
                 <td>500000</td>
                 <td>476MB</td>
                 <td>499122176</td>
-                <td></td>
             </tr>
             <tr>
                 <td>1000000</td>
                 <td>940MB</td>
                 <td>985661440</td>
-                <td></td>
             </tr>
             <tr>
                 <td>5000000</td>
                 <td>4.55GB</td>
                 <td>4886364160</td>
-                <td>22m 2s</td>
             </tr>
         </table>
 

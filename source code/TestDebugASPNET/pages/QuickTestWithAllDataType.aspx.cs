@@ -1,6 +1,7 @@
 ﻿using MySqlConnector;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -55,12 +56,18 @@ namespace System.pages
     public class Test1Basic
     {
         string _connectionString;
+
         string _dbFile1;
         string _dbFile2;
         string _dbFile3;
+        string _dbFile4;
+        string _dbFile5;
+        string _dbFile6;
+
         string _dbName1;
         string _dbName2;
         string _dbName3;
+
         string basePath;
 
         RowsDataExportMode _currentMode;
@@ -88,8 +95,6 @@ namespace System.pages
 
             if (rowInsertUpdate)
                 lstRowsExportMode.Add(RowsDataExportMode.OnDuplicateKeyUpdate);
-
-            string[] files = { _dbFile1, _dbFile2, _dbFile3 };
 
             foreach (RowsDataExportMode r in Enum.GetValues(typeof(RowsDataExportMode)))
             {
@@ -124,6 +129,11 @@ namespace System.pages
         {
             _currentMode = mode;
 
+            Dictionary<int, Dictionary<int, TimeSpan>> dicCategoryOperationTiming = new Dictionary<int, Dictionary<int, TimeSpan>>();
+            dicCategoryOperationTiming[1] = new Dictionary<int, TimeSpan>();
+            dicCategoryOperationTiming[2] = new Dictionary<int, TimeSpan>();
+            dicCategoryOperationTiming[3] = new Dictionary<int, TimeSpan>();
+
             // Generate random database names
             Random random = new Random();
             int rd = random.Next(1000, 9999); // random 4 digits
@@ -136,6 +146,10 @@ namespace System.pages
             _dbFile1 = Path.Combine(basePath, $"sqldump-{mode}-1.sql");
             _dbFile2 = Path.Combine(basePath, $"sqldump-{mode}-2.sql");
             _dbFile3 = Path.Combine(basePath, $"sqldump-{mode}-3.sql");
+
+            _dbFile4 = Path.Combine(basePath, $"sqldump-{mode}-4-parallel.sql");
+            _dbFile5 = Path.Combine(basePath, $"sqldump-{mode}-5-parallel.sql");
+            _dbFile6 = Path.Combine(basePath, $"sqldump-{mode}-6-parallel.sql");
 
             using (MySqlConnection conn = new MySqlConnection(_connectionString))
             {
@@ -152,9 +166,9 @@ namespace System.pages
                 }
             }
 
-            sb.AppendLine("=========================================");
+            sb.AppendLine("====================================================");
             sb.AppendLine($"Mode: {mode} - Starting basic functionality test...");
-            sb.AppendLine("=========================================");
+            sb.AppendLine("====================================================");
             sb.AppendLine($"Database 1: {_dbName1}");
             sb.AppendLine($"Database 2: {_dbName2}");
             sb.AppendLine($"Database 3: {_dbName3}");
@@ -162,6 +176,7 @@ namespace System.pages
             // Step 1: Drop and create test1 database
             sb.AppendLine();
             sb.AppendLine($"Step 1: Setting up {_dbName1} database");
+
             DropAndCreateDatabase(_dbName1);
 
             using (MySqlConnection conn = new MySqlConnection(_connectionString))
@@ -182,48 +197,114 @@ namespace System.pages
 
             sb.AppendLine($"Imported sample SQL dump to {_dbName1}");
 
+            Stopwatch stopwatch = new Stopwatch();
+
             // Step 2: Export test1 to file1
             sb.AppendLine();
-            sb.AppendLine($"Step 2: Exporting {_dbName1} to file1");
-            ExportToFile(_dbName1, _dbFile1);
+            sb.AppendLine($"Step 2-1: Exporting {_dbName1} to file1 (Single Thread)");
+
+            stopwatch.Restart();
+            ExportToFile(_dbName1, _dbFile1, false);
+            stopwatch.Stop();
+            dicCategoryOperationTiming[1][1] = stopwatch.Elapsed;
+
             sb.AppendLine($"Exported to: {_dbFile1}");
+
+            sb.AppendLine();
+            sb.AppendLine($"Step 2-2: Exporting {_dbName1} to file4 (Parallel Processing)");
+
+            stopwatch.Restart();
+            ExportToFile(_dbName1, _dbFile4, true);
+            stopwatch.Stop();
+            dicCategoryOperationTiming[2][1] = stopwatch.Elapsed;
+
+            sb.AppendLine($"Exported to: {_dbFile4}");
 
             // Step 3: Drop and create test2, import from file1
             sb.AppendLine();
             sb.AppendLine($"Step 3: Setting up {_dbName2} database");
+
             DropAndCreateDatabase(_dbName2);
+
+            stopwatch.Restart();
             ImportFromFile(_dbName2, _dbFile1);
+            stopwatch.Stop();
+            dicCategoryOperationTiming[3][1] = stopwatch.Elapsed;
+
             sb.AppendLine($"Imported file1 to {_dbName2}");
 
             // Step 4: Export test2 to file2
             sb.AppendLine();
-            sb.AppendLine($"Step 4: Exporting {_dbName2} to file2");
-            ExportToFile(_dbName2, _dbFile2);
+            sb.AppendLine($"Step 4-1: Exporting {_dbName2} to file2 (Single Thread)");
+
+            stopwatch.Restart();
+            ExportToFile(_dbName2, _dbFile2, false);
+            stopwatch.Stop();
+            dicCategoryOperationTiming[1][2] = stopwatch.Elapsed;
+
             sb.AppendLine($"Exported to: {_dbFile2}");
+
+            sb.AppendLine();
+            sb.AppendLine($"Step 4-2: Exporting {_dbName2} to file5 (Parallel Processing)");
+
+            stopwatch.Restart();
+            ExportToFile(_dbName2, _dbFile5, true);
+            stopwatch.Stop();
+            dicCategoryOperationTiming[2][2] = stopwatch.Elapsed;
+
+            sb.AppendLine($"Exported to: {_dbFile5}");
 
             // Step 5: Drop and create test3, import from file2
             sb.AppendLine();
             sb.AppendLine($"Step 5: Setting up {_dbName3} database");
+
             DropAndCreateDatabase(_dbName3);
+
+            stopwatch.Restart();
             ImportFromFile(_dbName3, _dbFile2);
+            stopwatch.Stop();
+            dicCategoryOperationTiming[3][2] = stopwatch.Elapsed;
+
             sb.AppendLine($"Imported file2 to {_dbName3}");
 
             // Step 6: Export test3 to file3
             sb.AppendLine();
-            sb.AppendLine($"Step 6: Exporting {_dbName3} to file3");
-            ExportToFile(_dbName3, _dbFile3);
+            sb.AppendLine($"Step 6-1: Exporting {_dbName3} to file3 (Single Thread)");
+
+            stopwatch.Restart();
+            ExportToFile(_dbName3, _dbFile3, false);
+            stopwatch.Stop();
+            dicCategoryOperationTiming[1][3] = stopwatch.Elapsed;
+
             sb.AppendLine($"Exported to: {_dbFile3}");
+
+            sb.AppendLine();
+            sb.AppendLine($"Step 6-2: Exporting {_dbName3} to file6 (Parallel Processing)");
+
+            stopwatch.Restart();
+            ExportToFile(_dbName3, _dbFile6, true);
+            stopwatch.Stop();
+            dicCategoryOperationTiming[2][3] = stopwatch.Elapsed;
+
+            sb.AppendLine($"Exported to: {_dbFile6}");
 
             // Step 7: Calculate SHA256 checksums
             sb.AppendLine();
             sb.AppendLine("Step 7: Calculating SHA256 checksums");
-            string sha1 = CalculateSHA256(_dbFile1);
-            string sha2 = CalculateSHA256(_dbFile2);
-            string sha3 = CalculateSHA256(_dbFile3);
+            string sha1 = Sha256.Compute(_dbFile1);
+            string sha2 = Sha256.Compute(_dbFile2);
+            string sha3 = Sha256.Compute(_dbFile3);
+            string sha4 = Sha256.Compute(_dbFile4);
+            string sha5 = Sha256.Compute(_dbFile5);
+            string sha6 = Sha256.Compute(_dbFile6);
 
-            sb.AppendLine($"SHA256 of file1: {sha1}");
-            sb.AppendLine($"SHA256 of file2: {sha2}");
-            sb.AppendLine($"SHA256 of file3: {sha3}");
+            sb.AppendLine();
+            sb.AppendLine($"file 1: {sha1}");
+            sb.AppendLine($"file 2: {sha2}");
+            sb.AppendLine($"file 3: {sha3}");
+            sb.AppendLine($"file 4: {sha4}");
+            sb.AppendLine($"file 5: {sha5}");
+            sb.AppendLine($"file 6: {sha6}");
 
             // Step 8: Compare checksums
             sb.AppendLine();
@@ -250,10 +331,50 @@ namespace System.pages
 
             // Cleanup databases
             sb.AppendLine();
-            sb.AppendLine("Cleaning up test databases...");
+            sb.AppendLine("Step 9: Cleaning up test databases...");
             CleanupDatabases();
             sb.AppendLine("Cleanup completed");
+
+            sb.AppendLine($@"
+========================
+Time Used
+========================
+
+Export (Single Thread)
+---------------------------
+Dump File 1 - {FormatTimeSpan(dicCategoryOperationTiming[1][1])}
+Dump File 2 - {FormatTimeSpan(dicCategoryOperationTiming[1][2])}
+Dump File 3 - {FormatTimeSpan(dicCategoryOperationTiming[1][3])}
+
+Export (Parallel Processing)
+---------------------------
+Dump File 4 - {FormatTimeSpan(dicCategoryOperationTiming[2][1])}
+Dump File 5 - {FormatTimeSpan(dicCategoryOperationTiming[2][2])}
+Dump File 6 - {FormatTimeSpan(dicCategoryOperationTiming[2][3])}
+
+Import
+---------------------------
+Step 3 - {FormatTimeSpan(dicCategoryOperationTiming[3][1])}
+Step 5 - {FormatTimeSpan(dicCategoryOperationTiming[3][2])}
+");
+
             sb.AppendLine();
+        }
+
+        private string FormatTimeSpan(TimeSpan timeSpan)
+        {
+            if (timeSpan.TotalMinutes >= 1)
+            {
+                return $"{timeSpan.Minutes}m {timeSpan.Seconds}.{timeSpan.Milliseconds:D3}s";
+            }
+            else if (timeSpan.TotalSeconds >= 1)
+            {
+                return $"{timeSpan.Seconds}.{timeSpan.Milliseconds:D3}s";
+            }
+            else
+            {
+                return $"{timeSpan.TotalMilliseconds:F1}ms";
+            }
         }
 
         private void DropAndCreateDatabase(string databaseName)
@@ -292,7 +413,7 @@ namespace System.pages
             }
         }
 
-        private void ExportToFile(string databaseName, string filePath)
+        private void ExportToFile(string databaseName, string filePath, bool parallel)
         {
             using (MySqlConnection conn = new MySqlConnection(_connectionString))
             {
@@ -304,27 +425,11 @@ namespace System.pages
 
                     using (MySqlBackup mb = new MySqlBackup(cmd))
                     {
+                        mb.ExportInfo.EnableParallelProcessing = parallel;
                         mb.ExportInfo.RowsExportMode = _currentMode;
                         mb.ExportInfo.RecordDumpTime = false;
                         mb.ExportToFile(filePath);
                     }
-                }
-            }
-        }
-
-        private string CalculateSHA256(string filePath)
-        {
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                using (FileStream stream = File.OpenRead(filePath))
-                {
-                    byte[] hash = sha256.ComputeHash(stream);
-                    StringBuilder sb = new StringBuilder();
-                    foreach (byte b in hash)
-                    {
-                        sb.Append(b.ToString("x2"));
-                    }
-                    return sb.ToString();
                 }
             }
         }
@@ -1194,15 +1299,15 @@ INSERT INTO test_fulltext_advanced (id, title, content, content_english, content
     (1, 'MySQL Backup and Restore', 
         'This comprehensive guide covers MySQL backup and restore operations including mysqldump, binary logs, and point-in-time recovery.',
         'MySQL database backup restore comprehensive guide operations',
-        '数据库备份恢复操作指南'),
+        'データベースのバックアップとリカバリの操作ガイド'),
     (2, 'Advanced MySQL Features',
         'Exploring advanced MySQL features like JSON support, spatial data, generated columns, and common table expressions.',
         'Advanced MySQL JSON spatial generated columns expressions',
-        '高级功能空间数据生成列表达式'),
+        'उन्नत कार्याणि स्थानिकदत्तांशजनन स्तम्भव्यञ्जनानि'),
     (3, 'Performance Optimization',
         'MySQL performance tuning techniques including indexing strategies, query optimization, and server configuration.',
         'Performance tuning optimization indexing query configuration',
-        '性能优化索引查询配置调优');
+        'אופטימיזציית ביצועים כוונון תצורת שאילתת אינדקס');
 
 -- ----------------------------------------
 -- 16. ADDITIONAL EDGE CASES

@@ -26,36 +26,47 @@ namespace System.pages
         {
             if (!IsPostBack)
             {
-                string currentDB = "";
-                string instancePathMySqlDump = "";
-                string instancePathMySql = "";
-                string basedir = "";
-
-                using (MySqlConnection conn = config.GetNewConnection())
+                try
                 {
-                    conn.Open();
+                    string currentDB = "";
+                    string instancePathMySqlDump = "";
+                    string instancePathMySql = "";
+                    string basedir = "";
 
-                    using (var cmd = conn.CreateCommand())
+                    using (MySqlConnection conn = config.GetNewConnection())
                     {
-                        currentDB = QueryExpress.ExecuteScalarStr(cmd, "SELECT database();");
-                        basedir = QueryExpress.ExecuteScalarStr(cmd, "SHOW VARIABLES LIKE 'basedir';", "Value");
+                        conn.Open();
 
-                        string separator = System.IO.Path.DirectorySeparatorChar.ToString();
-                        string binPath = System.IO.Path.Combine(basedir, "bin");
-                        instancePathMySqlDump = System.IO.Path.Combine(binPath, separator == "/" ? "mysqldump" : "mysqldump.exe");
-                        instancePathMySql = System.IO.Path.Combine(binPath, separator == "/" ? "mysql" : "mysql.exe");
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            currentDB = QueryExpress.ExecuteScalarStr(cmd, "SELECT database();");
+                            basedir = QueryExpress.ExecuteScalarStr(cmd, "SHOW VARIABLES LIKE 'basedir';", "Value");
+
+                            string separator = System.IO.Path.DirectorySeparatorChar.ToString();
+                            string binPath = System.IO.Path.Combine(basedir, "bin");
+                            instancePathMySqlDump = System.IO.Path.Combine(binPath, separator == "/" ? "mysqldump" : "mysqldump.exe");
+                            instancePathMySql = System.IO.Path.Combine(binPath, separator == "/" ? "mysql" : "mysql.exe");
+                        }
                     }
-                }
 
-                txtInitialSchema.Text = currentDB;
-                txtFilePathMySqlDump.Text = instancePathMySqlDump;
-                txtFilePathMySql.Text = instancePathMySql;
+                    txtInitialSchema.Text = currentDB;
+                    txtFilePathMySqlDump.Text = instancePathMySqlDump;
+                    txtFilePathMySql.Text = instancePathMySql;
+                    txtOutputFolder.Text = Server.MapPath("~/App_Data/backup");
+                }
+                catch (Exception ex)
+                {
+                    ((masterPage1)this.Master).ShowMessage("Error", ex.Message, false);
+                    ((masterPage1)this.Master).WriteTopMessageBar("Error<br />" + ex.Message, false);
+                }
             }
         }
 
         protected async void btRun_Click(object sender, EventArgs e)
         {
-            string folder = Server.MapPath("~/App_Data/backup");
+            string folder = txtOutputFolder.Text;
+            Directory.CreateDirectory(folder);
+
             string reportFilePath = Path.Combine(folder, $"benchmark_report_{DateTime.Now:yyyy-MM-dd HHmmss}.txt");
 
             BenchmarkTest.TaskId++;
@@ -71,12 +82,14 @@ namespace System.pages
                 MySqlDumpFilePath = txtFilePathMySqlDump.Text,
                 MySqlFilePath = txtFilePathMySql.Text,
                 MySqlInstanceDirect = cbMySqlInstanceExecuteDirect.Checked,
-                SkipGetSystemInfo = cbSkipGetSystemInfo.Checked,
+                GetSystemInfo = cbGetSystemInfo.Checked,
                 CleanUpDatabase = cbCleanDatabaseAfterUse.Checked,
                 RunStage1 = cbRunStage1.Checked,
                 RunStage2 = cbRunStage2.Checked,
                 RunStage3 = cbRunStage3.Checked,
-                RunStage4 = cbRunStage4.Checked
+                RunStage4 = cbRunStage4.Checked,
+                RunStage5 = cbRunStage5.Checked,
+                DeleteDumpFileAfterProcess = cbDeleteDumpFile.Checked
             };
 
             // Fire and forget, run the task asynchronously in background
@@ -122,9 +135,42 @@ var taskid = {newTaskId};
             {
                 timeStart = DateTime.Now;
 
-                dicProgress[bc.TaskId] = new BenchmarkTestInfo();
-                dicProgress[bc.TaskId].TimeStart = timeStart;
-                dicProgress[bc.TaskId].Started = true;
+                var bti = new BenchmarkTestInfo();
+                bti.TimeStart = timeStart;
+                bti.Started = true;
+                bti.dicStageInfo = new Dictionary<int, StageInfo>();
+                bti.dicStageInfo[1] = new StageInfo()
+                {
+                    RunStage = bc.RunStage1,
+                    StageId = 1,
+                    StageName = "Backup/Export - MySqlBackup.NET"
+                };
+                bti.dicStageInfo[2] = new StageInfo()
+                {
+                    RunStage = bc.RunStage2,
+                    StageId = 2,
+                    StageName = "Backup/Export - MySqlBackup.NET - Parallel Process"
+                };
+                bti.dicStageInfo[3] = new StageInfo()
+                {
+                    RunStage = bc.RunStage3,
+                    StageId = 3,
+                    StageName = "Backup/Export - mysqldump.exe"
+                };
+                bti.dicStageInfo[4] = new StageInfo()
+                {
+                    RunStage = bc.RunStage4,
+                    StageId = 4,
+                    StageName = "Restore/Import - MySqlBackup.NET"
+                };
+                bti.dicStageInfo[5] = new StageInfo()
+                {
+                    RunStage = bc.RunStage5,
+                    StageId = 5,
+                    StageName = "Restore/Import - mysql.exe"
+                };
+
+                dicProgress[bc.TaskId] = bti;
 
                 sb = new StringBuilder();
 
@@ -137,7 +183,7 @@ var taskid = {newTaskId};
                 sb.AppendLine(bc.ReportFilePath);
                 sb.AppendLine();
 
-                if (!bc.SkipGetSystemInfo)
+                if (bc.GetSystemInfo)
                 {
                     GetSystemVariables();
                 }
@@ -149,9 +195,12 @@ var taskid = {newTaskId};
                 string dumpFile1 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-1.txt");
                 string dumpFile2 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-2.txt");
                 string dumpFile3 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-3.txt");
-                string dumpFile4 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqldump-1.txt");
-                string dumpFile5 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqldump-2.txt");
-                string dumpFile6 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqldump-3.txt");
+                string dumpFile4 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-4-parallel.txt");
+                string dumpFile5 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-5-parallel.txt");
+                string dumpFile6 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-6-parallel.txt");
+                string dumpFile7 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqldump-1.txt");
+                string dumpFile8 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqldump-2.txt");
+                string dumpFile9 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqldump-3.txt");
 
                 string dbName1 = $"test_benchmark_restore_mysqlbackupnet_1";
                 string dbName2 = $"test_benchmark_restore_mysqlbackupnet_2";
@@ -163,114 +212,171 @@ var taskid = {newTaskId};
                 sb.AppendLine();
                 sb.AppendLine($"Initial Source Database: {bc.SourceDatabaseName}");
                 sb.AppendLine();
-                sb.AppendLine($"Dump File 1: {dumpFile1}");
-                sb.AppendLine($"Dump File 2: {dumpFile2}");
-                sb.AppendLine($"Dump File 3: {dumpFile3}");
-                sb.AppendLine($"Dump File 4: {dumpFile4}");
-                sb.AppendLine($"Dump File 5: {dumpFile5}");
-                sb.AppendLine($"Dump File 6: {dumpFile6}");
-                sb.AppendLine();
-                sb.AppendLine($"Database 1: {dbName1}");
-                sb.AppendLine($"Database 2: {dbName2}");
-                sb.AppendLine($"Database 3: {dbName3}");
-                sb.AppendLine($"Database 4: {dbName4}");
-                sb.AppendLine($"Database 5: {dbName5}");
-                sb.AppendLine($"Database 6: {dbName6}");
 
-                // backup - MySqlBackup.NET
-                dicProgress[bc.TaskId].dicTask[1] = new BenchmarkTask(1, 1, bc.SourceDatabaseName, dumpFile1);
-                dicProgress[bc.TaskId].dicTask[2] = new BenchmarkTask(1, 2, bc.SourceDatabaseName, dumpFile2);
-                dicProgress[bc.TaskId].dicTask[3] = new BenchmarkTask(1, 3, bc.SourceDatabaseName, dumpFile3);
-
-                // backup - MySqlDump
-                dicProgress[bc.TaskId].dicTask[4] = new BenchmarkTask(2, 1, bc.SourceDatabaseName, dumpFile4);
-                dicProgress[bc.TaskId].dicTask[5] = new BenchmarkTask(2, 2, bc.SourceDatabaseName, dumpFile5);
-                dicProgress[bc.TaskId].dicTask[6] = new BenchmarkTask(2, 3, bc.SourceDatabaseName, dumpFile6);
-
-                // restore - MySqlBackup.NET
-                dicProgress[bc.TaskId].dicTask[7] = new BenchmarkTask(3, 1, dbName1, dumpFile1);
-                dicProgress[bc.TaskId].dicTask[8] = new BenchmarkTask(3, 2, dbName2, dumpFile1);
-                dicProgress[bc.TaskId].dicTask[9] = new BenchmarkTask(3, 3, dbName3, dumpFile1);
-
-                // restore - MySQL Instance
-                dicProgress[bc.TaskId].dicTask[10] = new BenchmarkTask(4, 1, dbName4, dumpFile1);
-                dicProgress[bc.TaskId].dicTask[11] = new BenchmarkTask(4, 2, dbName5, dumpFile1);
-                dicProgress[bc.TaskId].dicTask[12] = new BenchmarkTask(4, 3, dbName6, dumpFile1);
-
-                List<int> lstStage = new List<int>();
-
-                for (int taskId = 1; taskId < 13; taskId++)
+                if (bc.RunStage1)
                 {
-                    var bt = dicProgress[bc.TaskId].dicTask[taskId];
+                    // backup - MySqlBackup.NET
+                    dicProgress[bc.TaskId].dicTask[1] = new BenchmarkTask(1, 1, bc.SourceDatabaseName, dumpFile1, bc.RunStage1);
+                    dicProgress[bc.TaskId].dicTask[2] = new BenchmarkTask(1, 2, bc.SourceDatabaseName, dumpFile2, bc.RunStage1);
+                    dicProgress[bc.TaskId].dicTask[3] = new BenchmarkTask(1, 3, bc.SourceDatabaseName, dumpFile3, bc.RunStage1);
 
-                    if (!RequireRunStage(bt.Stage))
-                    {
+                    sb.AppendLine($"Dump File 1: {dumpFile1}");
+                    sb.AppendLine($"Dump File 2: {dumpFile2}");
+                    sb.AppendLine($"Dump File 3: {dumpFile3}");
+                }
+
+                if (bc.RunStage2)
+                {
+                    // backup - MySqlBackup.NET - Parallel Processing
+                    dicProgress[bc.TaskId].dicTask[4] = new BenchmarkTask(2, 1, bc.SourceDatabaseName, dumpFile4, bc.RunStage2, true);
+                    dicProgress[bc.TaskId].dicTask[5] = new BenchmarkTask(2, 2, bc.SourceDatabaseName, dumpFile5, bc.RunStage2, true);
+                    dicProgress[bc.TaskId].dicTask[6] = new BenchmarkTask(2, 3, bc.SourceDatabaseName, dumpFile6, bc.RunStage2, true);
+
+                    sb.AppendLine($"Dump File 4: {dumpFile4}");
+                    sb.AppendLine($"Dump File 5: {dumpFile5}");
+                    sb.AppendLine($"Dump File 6: {dumpFile6}");
+                }
+
+                if (bc.RunStage3)
+                {
+                    // backup - MySqlDump
+                    dicProgress[bc.TaskId].dicTask[7] = new BenchmarkTask(3, 1, bc.SourceDatabaseName, dumpFile7, bc.RunStage3);
+                    dicProgress[bc.TaskId].dicTask[8] = new BenchmarkTask(3, 2, bc.SourceDatabaseName, dumpFile8, bc.RunStage3);
+                    dicProgress[bc.TaskId].dicTask[9] = new BenchmarkTask(3, 3, bc.SourceDatabaseName, dumpFile9, bc.RunStage3);
+
+                    sb.AppendLine($"Dump File 7: {dumpFile7}");
+                    sb.AppendLine($"Dump File 8: {dumpFile8}");
+                    sb.AppendLine($"Dump File 9: {dumpFile9}");
+                }
+                
+                if(bc.RunStage4||bc.RunStage5) 
+                    sb.AppendLine() ;
+
+                if (bc.RunStage4)
+                {
+                    // restore - MySqlBackup.NET
+                    dicProgress[bc.TaskId].dicTask[10] = new BenchmarkTask(4, 1, dbName1, dumpFile1, bc.RunStage4);
+                    dicProgress[bc.TaskId].dicTask[11] = new BenchmarkTask(4, 2, dbName2, dumpFile1, bc.RunStage4);
+                    dicProgress[bc.TaskId].dicTask[12] = new BenchmarkTask(4, 3, dbName3, dumpFile1, bc.RunStage4);
+
+                    sb.AppendLine($"Database 1: {dbName1}");
+                    sb.AppendLine($"Database 2: {dbName2}");
+                    sb.AppendLine($"Database 3: {dbName3}");
+                }
+
+                if (bc.RunStage5)
+                {
+                    // restore - MySQL Instance
+                    dicProgress[bc.TaskId].dicTask[13] = new BenchmarkTask(5, 1, dbName4, dumpFile1, bc.RunStage5);
+                    dicProgress[bc.TaskId].dicTask[14] = new BenchmarkTask(5, 2, dbName5, dumpFile1, bc.RunStage5);
+                    dicProgress[bc.TaskId].dicTask[15] = new BenchmarkTask(5, 3, dbName6, dumpFile1, bc.RunStage5);
+
+                    sb.AppendLine($"Database 4: {dbName4}");
+                    sb.AppendLine($"Database 5: {dbName5}");
+                    sb.AppendLine($"Database 6: {dbName6}");
+                }
+
+                foreach (var kvStage in bti.dicStageInfo)
+                {
+                    var stageInfo = kvStage.Value;
+
+                    if (!stageInfo.RunStage)
                         continue;
-                    }
 
-                    if (!lstStage.Contains(bt.Stage))
+                    sb.AppendLine();
+                    sb.AppendLine(stageInfo.StageName);
+                    sb.AppendLine("--------------------------------");
+
+                    foreach (var kvTask in dicProgress[bc.TaskId].dicTask)
                     {
-                        lstStage.Add(bt.Stage);
+                        var bt = kvTask.Value;
 
-                        sb.AppendLine();
-                        sb.AppendLine(bt.StageName);
-                        sb.AppendLine("--------------------------------");
-                    }
+                        if (bt.Stage != stageInfo.StageId)
+                            continue;
 
-                    try
-                    {
-                        sb.AppendLine();
-                        sb.AppendLine(bt.ActionInfo);
-                        File.WriteAllText(bc.ReportFilePath, sb.ToString());
-                        dicProgress[bc.TaskId].Remarks = sb.ToString();
-
-                        bt.Started = true;
-                        bt.TimeStart = DateTime.Now;
-
-                        switch (bt.Stage)
+                        try
                         {
-                            case 1:
-                                ExportMySqlBackupNET(bt.DatabaseName, bt.DumpFile);
-                                break;
-                            case 2:
-                                ExportMySqlDump(bt.DatabaseName, bt.DumpFile);
-                                break;
-                            case 3:
-                                if (!File.Exists(bt.DumpFile))
-                                {
-                                    throw new Exception("Dump File 1 is not created yet. Please run Stage 1.");
-                                }
-                                ImportMySqlBackupNet(bt.DatabaseName, bt.DumpFile);
-                                break;
-                            case 4:
-                                if (!File.Exists(bt.DumpFile))
-                                {
-                                    throw new Exception("Dump File 1 is not created yet. Please run Stage 1.");
-                                }
-                                if (bc.MySqlInstanceDirect)
-                                {
-                                    ImportMySqlInstanceDirect(bt.DatabaseName, bt.DumpFile);
-                                }
-                                else
-                                {
-                                    ImportMySqlInstanceCmdShellRedirect(bt.DatabaseName, bt.DumpFile);
-                                }
-                                break;
+                            sb.AppendLine();
+                            sb.AppendLine(bt.ActionInfo);
+                            File.WriteAllText(bc.ReportFilePath, sb.ToString());
+                            dicProgress[bc.TaskId].Remarks = sb.ToString();
+
+                            bt.Started = true;
+                            bt.TimeStart = DateTime.Now;
+
+                            switch (bt.Stage)
+                            {
+                                case 1:
+                                case 2:
+                                    ExportMySqlBackupNET(bt.DatabaseName, bt.DumpFile, bt.IsParallel);
+                                    break;
+                                case 3:
+                                    ExportMySqlDump(bt.DatabaseName, bt.DumpFile);
+                                    break;
+                                case 4:
+                                    if (!File.Exists(bt.DumpFile))
+                                    {
+                                        throw new Exception("Dump File 1 is not created yet. Please run Stage 1 first.");
+                                    }
+                                    ImportMySqlBackupNet(bt.DatabaseName, bt.DumpFile);
+                                    break;
+                                case 5:
+                                    if (!File.Exists(bt.DumpFile))
+                                    {
+                                        throw new Exception("Dump File 1 is not created yet. Please run Stage 1 first.");
+                                    }
+                                    if (bc.MySqlInstanceDirect)
+                                    {
+                                        ImportMySqlInstanceDirect(bt.DatabaseName, bt.DumpFile);
+                                    }
+                                    else
+                                    {
+                                        ImportMySqlInstanceCmdShellRedirect(bt.DatabaseName, bt.DumpFile);
+                                    }
+                                    break;
+                            }
+
+                            bt.Completed = true;
+                            bt.TimeEnd = DateTime.Now;
+                            bt.TimeUsed = bt.TimeEnd - bt.TimeStart;
+
+                            sb.AppendLine($" -- Completed ({FormatTimeSpan(bt.TimeUsed)})");
+
+                            switch (stageInfo.StageId)
+                            {
+                                case 1:
+                                case 2:
+                                case 3:
+                                    bt.FileSize = new FileInfo(bt.DumpFile).Length;
+                                    bt.Sha256 = Sha256.Compute(bt.DumpFile);
+                                    if (bc.DeleteDumpFileAfterProcess)
+                                    {
+                                        if ((bc.RunStage4 || bc.RunStage5) && bt.DumpFile == dumpFile1)
+                                        {
+                                            // do not delete the first dump file, required for the import test    
+                                        }
+                                        else
+                                        {
+                                            try
+                                            {
+                                                File.Delete(bt.DumpFile);
+                                            }
+                                            catch { }
+                                        }
+                                    }
+                                    break;
+                            }
                         }
+                        catch (Exception ex)
+                        {
+                            bt.Completed = true;
+                            bt.TimeEnd = DateTime.Now;
+                            bt.TimeUsed = bt.TimeEnd - bt.TimeStart;
+                            bt.HasError = true;
+                            bt.LastError = ex;
 
-                        bt.Completed = true;
-                        bt.TimeEnd = DateTime.Now;
-                        bt.TimeUsed = bt.TimeEnd - bt.TimeStart;
-                    }
-                    catch (Exception ex)
-                    {
-                        bt.Completed = true;
-                        bt.TimeEnd = DateTime.Now;
-                        bt.TimeUsed = bt.TimeEnd - bt.TimeStart;
-                        bt.HasError = true;
-                        bt.LastError = ex;
-
-                        throw;
+                            throw;
+                        }
                     }
                 }
 
@@ -279,34 +385,33 @@ var taskid = {newTaskId};
 
                 var btProgress = dicProgress[bc.TaskId].dicTask;
 
-                for (int round = 1; round < 7; round++)
-                {
-                    string file = btProgress[round].DumpFile;
-
-                    if (!string.IsNullOrEmpty(file) && File.Exists(file))
-                    {
-                        btProgress[round].FileSize = new FileInfo(btProgress[round].DumpFile).Length;
-                        btProgress[round].Sha256 = CalculateSHA256File(btProgress[round].DumpFile);
-                    }
-                }
-
                 sb.AppendLine();
                 sb.AppendLine("All processes ended");
                 sb.AppendLine($"Time Start   : {timeStart:yyyy-MM-dd HH:mm:ss}");
                 sb.AppendLine($"Time End     : {timeEnd:yyyy-MM-dd HH:mm:ss}");
                 sb.AppendLine($"Time Elapsed : {totalTimeElapsed.Hours} h {totalTimeElapsed.Minutes} m {totalTimeElapsed.Seconds} s {totalTimeElapsed.Milliseconds} ms");
-
                 sb.AppendLine();
-                sb.AppendLine("SHA256 Checksums:");
+                sb.AppendLine("Calculating SHA256 Checksums...");
 
-                for (int round = 1; round < 7; round++)
+                foreach (var btInfo in btProgress)
                 {
-                    var bt = btProgress[round];
+                    var bt = btInfo.Value;
 
-                    if (!string.IsNullOrEmpty(bt.DumpFile) && File.Exists(bt.DumpFile))
+                    if (!bt.IsExport)
+                        continue;
+
+                    if (!bt.ActiveTask)
+                        continue;
+
+                    string file = bt.DumpFile;
+
+                    if (!string.IsNullOrEmpty(file) && File.Exists(file))
                     {
+                        bt.FileSize = new FileInfo(bt.DumpFile).Length;
+                        bt.Sha256 = Sha256.Compute(bt.DumpFile);
+
                         sb.AppendLine();
-                        sb.AppendLine($"Dump File {round}: {bt.FileName}");
+                        sb.AppendLine($"Dump File {btInfo.Key}: {bt.FileName}");
                         sb.AppendLine($"SHA256: {bt.Sha256}");
                     }
                 }
@@ -316,26 +421,27 @@ var taskid = {newTaskId};
                 sb.AppendLine("Benchmark Results");
                 sb.AppendLine("===================================");
 
-                Dictionary<int, string> dicStageName = new Dictionary<int, string>();
-                dicStageName[1] = "Backup/Export - MySqlBackup.NET";
-                dicStageName[2] = "Backup/Export - mysqldump.exe";
-                dicStageName[3] = "Restore/Import - MySqlBackup.NET";
-                dicStageName[4] = "Restore/Import - mysql.exe";
-
-                foreach (var kv in dicStageName)
+                foreach (var kvStage in bti.dicStageInfo)
                 {
+                    var stageInfo = kvStage.Value;
+
+                    if (!stageInfo.RunStage)
+                        continue;
+
                     sb.AppendLine();
-                    sb.AppendLine(kv.Value);
+                    sb.AppendLine(stageInfo.StageName);
                     sb.AppendLine("---------------------------------");
 
                     foreach (var kv2 in btProgress)
                     {
                         var bt = kv2.Value;
-
-                        if (bt.Stage != kv.Key)
+                        if (!bt.ActiveTask)
                             continue;
 
-                        if (bt.Stage < 3)
+                        if (bt.Stage != stageInfo.StageId)
+                            continue;
+
+                        if (bt.Stage <= 3)
                             sb.AppendLine($"Round {bt.Round}    {bt.TimeUsedDisplay}    {bt.FileSizeDisplay}");
                         else
                             sb.AppendLine($"Round {bt.Round}    {bt.TimeUsedDisplay}");
@@ -344,6 +450,10 @@ var taskid = {newTaskId};
 
                 if (bc.CleanUpDatabase)
                 {
+                    sb.AppendLine();
+                    sb.AppendLine("Clean up / removing databases");
+                    sb.AppendLine();
+
                     string[] dropSqls = { dbName1, dbName2, dbName3, dbName4, dbName5, dbName6 };
                     using (MySqlConnection conn = new MySqlConnection(bc.ConnectionString))
                     {
@@ -354,16 +464,10 @@ var taskid = {newTaskId};
                             {
                                 cmd.CommandText = $"DROP DATABASE IF EXISTS `{dbname}`";
                                 cmd.ExecuteNonQuery();
+
+                                sb.AppendLine($"DROP DATABASE IF EXISTS `{dbname}`");
                             }
                         }
-                    }
-
-                    sb.AppendLine();
-                    sb.AppendLine("Clean up / removing databases");
-                    sb.AppendLine();
-                    foreach (var dbname in dropSqls)
-                    {
-                        sb.AppendLine($"DROP DATABASE IF EXISTS `{dbname}`");
                     }
                 }
 
@@ -422,39 +526,6 @@ default-character-set={dbCharacterSet}";
             return filePathCnf;
         }
 
-        private bool RequireRunStage(int stage)
-        {
-            switch (stage)
-            {
-                case 1: return bc.RunStage1;
-                case 2: return bc.RunStage2;
-                case 3: return bc.RunStage3;
-                case 4: return bc.RunStage4;
-            }
-            return false;
-        }
-
-        void ExportMySqlBackupNET(string dbName, string dumpFilePath)
-        {
-            using (MySqlConnection conn = new MySqlConnection(bc.ConnectionString))
-            {
-                using (var cmd = conn.CreateCommand())
-                {
-                    conn.Open();
-
-                    cmd.CommandText = $"USE `{QueryExpress.EscapeIdentifier(dbName)}`";
-                    cmd.ExecuteNonQuery();
-
-                    using (MySqlBackup mb = new MySqlBackup(cmd))
-                    {
-                        mb.ExportInfo.RecordDumpTime = false;
-
-                        mb.ExportToFile(dumpFilePath);
-                    }
-                }
-            }
-        }
-
         void DropAndCreateDatabase(string dbName)
         {
             using (MySqlConnection conn = new MySqlConnection(bc.ConnectionString))
@@ -468,6 +539,28 @@ default-character-set={dbCharacterSet}";
 
                     cmd.CommandText = $"CREATE DATABASE IF NOT EXISTS `{QueryExpress.EscapeIdentifier(dbName)}`";
                     cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        void ExportMySqlBackupNET(string dbName, string dumpFilePath, bool parallel)
+        {
+            using (MySqlConnection conn = new MySqlConnection(bc.ConnectionString))
+            {
+                using (var cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+
+                    cmd.CommandText = $"USE `{QueryExpress.EscapeIdentifier(dbName)}`";
+                    cmd.ExecuteNonQuery();
+
+                    using (MySqlBackup mb = new MySqlBackup(cmd))
+                    {
+                        mb.ExportInfo.EnableParallelProcessing = parallel;
+                        mb.ExportInfo.RecordDumpTime = false;
+
+                        mb.ExportToFile(dumpFilePath);
+                    }
                 }
             }
         }
@@ -636,6 +729,97 @@ default-character-set={dbCharacterSet}";
             }
             catch { sb.AppendLine("OS: Information not available"); }
 
+            // Enhanced RAM Information
+            try
+            {
+                sb.AppendLine();
+                sb.AppendLine("Memory Details:");
+                sb.AppendLine("---------------");
+
+                ManagementObjectSearcher memorySearcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory");
+                var memoryModules = memorySearcher.Get().Cast<ManagementObject>().ToList();
+
+                if (memoryModules.Any())
+                {
+                    // Group by speed and type
+                    var memoryGroups = memoryModules
+                        .GroupBy(mo => new
+                        {
+                            Speed = mo["Speed"]?.ToString() ?? "Unknown",
+                            MemoryType = GetMemoryTypeDescription(mo["MemoryType"]?.ToString()),
+                            FormFactor = GetFormFactorDescription(mo["FormFactor"]?.ToString())
+                        })
+                        .ToList();
+
+                    long totalCapacity = 0;
+                    int moduleCount = 0;
+
+                    foreach (var group in memoryGroups)
+                    {
+                        var modules = group.ToList();
+                        long groupCapacity = 0;
+
+                        foreach (var module in modules)
+                        {
+                            if (long.TryParse(module["Capacity"]?.ToString(), out long capacity))
+                            {
+                                groupCapacity += capacity;
+                                totalCapacity += capacity;
+                            }
+                            moduleCount++;
+                        }
+
+                        double groupCapacityGB = (double)groupCapacity / (1024 * 1024 * 1024);
+
+                        sb.AppendLine($"RAM Modules: {modules.Count}x {groupCapacityGB / modules.Count:0.#}GB " +
+                                     $"({group.Key.MemoryType}, {group.Key.Speed} MHz, {group.Key.FormFactor})");
+                    }
+
+                    double totalCapacityGB = (double)totalCapacity / (1024 * 1024 * 1024);
+                    sb.AppendLine($"Total RAM: {totalCapacityGB:0.#}GB ({moduleCount} modules)");
+
+                    // Get additional memory information
+                    try
+                    {
+                        ManagementObjectSearcher boardSearcher = new ManagementObjectSearcher("SELECT * FROM Win32_BaseBoard");
+                        foreach (ManagementObject board in boardSearcher.Get())
+                        {
+                            string manufacturer = board["Manufacturer"]?.ToString();
+                            string product = board["Product"]?.ToString();
+                            if (!string.IsNullOrEmpty(manufacturer) && !string.IsNullOrEmpty(product))
+                            {
+                                sb.AppendLine($"Motherboard: {manufacturer} {product}");
+                                break;
+                            }
+                        }
+                    }
+                    catch { }
+
+                    // Memory configuration details
+                    if (memoryModules.Count > 0)
+                    {
+                        var firstModule = memoryModules.First();
+                        string manufacturer = firstModule["Manufacturer"]?.ToString()?.Trim();
+                        string partNumber = firstModule["PartNumber"]?.ToString()?.Trim();
+
+                        if (!string.IsNullOrEmpty(manufacturer))
+                            sb.AppendLine($"RAM Manufacturer: {manufacturer}");
+                        if (!string.IsNullOrEmpty(partNumber))
+                            sb.AppendLine($"RAM Part Number: {partNumber}");
+                    }
+                }
+                else
+                {
+                    sb.AppendLine("RAM Details: Information not available");
+                }
+            }
+            catch (Exception ex)
+            {
+                sb.AppendLine($"RAM Details: Error retrieving information - {ex.Message}");
+            }
+
+            sb.AppendLine();
+
             // CPU Information
             try
             {
@@ -755,7 +939,7 @@ default-character-set={dbCharacterSet}";
                 sb.AppendLine("Hard Disk: Information not available");
             }
 
-            // MySQL Information
+            // MySQL Information with Performance Variables
             string databaseFolderPath = "";
             DataTable dtTables = null;
             string serverVersion = "";
@@ -767,7 +951,10 @@ default-character-set={dbCharacterSet}";
                     conn.Open();
                     using (var cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = @"SELECT @@version AS server_version, @@max_allowed_packet AS max_packet, (SELECT DEFAULT_CHARACTER_SET_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = @dbName) AS db_charset";
+                        // Basic server info
+                        cmd.CommandText = @"SELECT @@version AS server_version, 
+                                   @@max_allowed_packet AS max_packet, 
+                                   (SELECT DEFAULT_CHARACTER_SET_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = @dbName) AS db_charset";
                         cmd.Parameters.AddWithValue("@dbName", bc.SourceDatabaseName);
 
                         using (var reader = cmd.ExecuteReader())
@@ -781,8 +968,139 @@ default-character-set={dbCharacterSet}";
                             }
                         }
 
-                        databaseFolderPath = QueryExpress.ExecuteScalarStr(cmd, "SHOW VARIABLES LIKE 'datadir'", "Value");
+                        // Get MySQL performance variables organized by category
+                        sb.AppendLine();
+                        sb.AppendLine("MySQL Performance Configuration:");
+                        sb.AppendLine("================================");
 
+                        // Define performance variables by category with descriptions
+                        var performanceCategories = new List<(string CategoryName, string Description, List<(string VarName, string DisplayName)> Variables)>
+                {
+                    ("Memory & Buffer Settings",
+                     "Memory allocation for caching and buffering operations - larger values generally improve performance but consume more RAM",
+                     new List<(string, string)>
+                     {
+                         ("innodb_buffer_pool_size", "InnoDB Buffer Pool Size"),
+                         ("innodb_log_buffer_size", "InnoDB Log Buffer Size"),
+                         ("query_cache_size", "Query Cache Size"),
+                         ("tmp_table_size", "Temporary Table Size"),
+                         ("max_heap_table_size", "Max Heap Table Size"),
+                         ("key_buffer_size", "Key Buffer Size (MyISAM)"),
+                         ("sort_buffer_size", "Sort Buffer Size"),
+                         ("read_buffer_size", "Read Buffer Size"),
+                         ("read_rnd_buffer_size", "Read Random Buffer Size"),
+                         ("join_buffer_size", "Join Buffer Size"),
+                         ("bulk_insert_buffer_size", "Bulk Insert Buffer Size"),
+                         ("myisam_sort_buffer_size", "MyISAM Sort Buffer Size")
+                     }),
+
+                    ("Transaction & Logging Settings",
+                     "Controls transaction durability vs performance trade-offs - lower values = faster but less durable",
+                     new List<(string, string)>
+                     {
+                         ("innodb_flush_log_at_trx_commit", "InnoDB Flush Log at Commit"),
+                         ("innodb_log_file_size", "InnoDB Log File Size"),
+                         ("sync_binlog", "Sync Binary Log"),
+                         ("binlog_format", "Binary Log Format"),
+                         ("query_cache_type", "Query Cache Type")
+                     }),
+
+                    ("I/O Performance Settings",
+                     "Disk I/O configuration - should be tuned based on storage type (SSD vs HDD) and workload",
+                     new List<(string, string)>
+                     {
+                         ("innodb_io_capacity", "InnoDB I/O Capacity"),
+                         ("innodb_io_capacity_max", "InnoDB I/O Capacity Max"),
+                         ("innodb_flush_method", "InnoDB Flush Method"),
+                         ("innodb_read_io_threads", "InnoDB Read I/O Threads"),
+                         ("innodb_write_io_threads", "InnoDB Write I/O Threads")
+                     })
+                };
+
+                        foreach (var category in performanceCategories)
+                        {
+                            sb.AppendLine();
+                            sb.AppendLine($"{category.CategoryName}:");
+                            sb.AppendLine($"# {category.Description}");
+                            sb.AppendLine(new string('-', category.CategoryName.Length + 1));
+
+                            foreach (var variable in category.Variables)
+                            {
+                                try
+                                {
+                                    var value = QueryExpress.ExecuteScalarStr(cmd, $"SHOW VARIABLES LIKE '{variable.VarName}'", "Value");
+
+                                    if (!string.IsNullOrEmpty(value))
+                                    {
+                                        string displayValue = FormatMySqlSize(variable.VarName, value);
+                                        sb.AppendLine($"{variable.VarName} = {displayValue}");
+                                    }
+                                    else
+                                    {
+                                        sb.AppendLine($"{variable.VarName} = Not available");
+                                    }
+                                }
+                                catch
+                                {
+                                    sb.AppendLine($"{variable.VarName} = Error retrieving value");
+                                }
+                            }
+                        }
+
+                        // Get storage engine information
+                        sb.AppendLine();
+                        sb.AppendLine("Storage Engine Information:");
+                        sb.AppendLine("---------------------------");
+
+                        try
+                        {
+                            cmd.CommandText = "SHOW ENGINES";
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    string engine = reader.GetString("Engine");
+                                    string support = reader.GetString("Support");
+                                    if (support == "DEFAULT" || support == "YES")
+                                    {
+                                        sb.AppendLine($"{engine}: {support}");
+                                    }
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            sb.AppendLine("Storage engine info: Not available");
+                        }
+
+                        // Get table engine distribution for the benchmark database
+                        sb.AppendLine();
+                        sb.AppendLine($"Table Storage Engines ({bc.SourceDatabaseName}):");
+                        sb.AppendLine("--------------------------------------");
+
+                        try
+                        {
+                            cmd.CommandText = $@"SELECT ENGINE, COUNT(*) as table_count 
+                                       FROM information_schema.TABLES 
+                                       WHERE TABLE_SCHEMA = '{QueryExpress.EscapeIdentifier(bc.SourceDatabaseName)}' 
+                                       AND TABLE_TYPE = 'BASE TABLE' 
+                                       GROUP BY ENGINE";
+
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    sb.AppendLine($"{reader.GetString("ENGINE")}: {reader.GetInt32("table_count")} tables");
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            sb.AppendLine("Table engine distribution: Not available");
+                        }
+
+                        // Continue with existing code for datadir, tables, etc.
+                        databaseFolderPath = QueryExpress.ExecuteScalarStr(cmd, "SHOW VARIABLES LIKE 'datadir'", "Value");
                         dtTables = QueryExpress.GetTable(cmd, "SHOW FULL TABLES WHERE Table_type='BASE TABLE';");
 
                         foreach (DataRow dr in dtTables.Rows)
@@ -811,9 +1129,53 @@ default-character-set={dbCharacterSet}";
             sb.AppendLine($"MySqlDump: {serverVersion} (Export)");
             sb.AppendLine($"MySql: {serverVersion} (Import)");
             sb.AppendLine($"MySqlBackup: {typeof(MySqlBackup).Assembly.GetName().Version}, with MySqlConnector.dll (MIT) v{typeof(MySqlConnection).Assembly.GetName().Version}");
-            sb.AppendLine("Execution Note: MySqlDump and MySql.exe are executed through system commands");
-            sb.AppendLine("Execution Note: MySqlBackup is executed through ASP.NET Web Application (.NET Framework)");
+            sb.AppendLine("Execution Note:");
+            sb.AppendLine("- MySqlDump and MySql.exe are executed through .NET System.Diagnostics.Process without external script");
+            sb.AppendLine("- MySqlBackup is executed through ASP.NET Web Application (.NET Framework) in asynchronous task");
             sb.AppendLine();
+        }
+
+        // Helper methods for memory information
+        private string GetMemoryTypeDescription(string memoryType)
+        {
+            if (string.IsNullOrEmpty(memoryType) || !int.TryParse(memoryType, out int type))
+                return "Unknown";
+
+            switch (type)
+            {
+                case 20:
+                    return "DDR";
+                case 21:
+                    return "DDR2";
+                case 22:
+                    return "DDR2 FB-DIMM";
+                case 24:
+                    return "DDR3";
+                case 26:
+                    return "DDR4";
+                case 30:
+                    return "DDR5";
+                default:
+                    return $"Type {type}";
+            }
+        }
+
+        private string GetFormFactorDescription(string formFactor)
+        {
+            if (string.IsNullOrEmpty(formFactor) || !int.TryParse(formFactor, out int factor))
+                return "Unknown";
+
+            switch (factor)
+            {
+                case 8:
+                    return "DIMM";
+                case 12:
+                    return "SO-DIMM";
+                case 13:
+                    return "Micro-DIMM";
+                default:
+                    return $"Form {factor}";
+            }
         }
 
         private long GetDatabaseSize()
@@ -870,20 +1232,53 @@ default-character-set={dbCharacterSet}";
             return totalSize;
         }
 
-        private string CalculateSHA256File(string filePath)
+        private string FormatMySqlSize(string variableName, string value)
         {
-            using (SHA256 sha256 = SHA256.Create())
+            // Variables that represent byte sizes
+            var sizeVariables = new HashSet<string>
+    {
+        "innodb_buffer_pool_size", "innodb_log_file_size", "innodb_log_buffer_size",
+        "query_cache_size", "tmp_table_size", "max_heap_table_size",
+        "bulk_insert_buffer_size", "myisam_sort_buffer_size", "key_buffer_size",
+        "sort_buffer_size", "read_buffer_size", "read_rnd_buffer_size", "join_buffer_size"
+    };
+
+            if (sizeVariables.Contains(variableName) && long.TryParse(value, out long bytes))
             {
-                using (FileStream fileStream = File.OpenRead(filePath))
-                {
-                    byte[] hash = sha256.ComputeHash(fileStream);
-                    StringBuilder sb = new StringBuilder();
-                    foreach (byte b in hash)
-                    {
-                        sb.Append(b.ToString("x2"));
-                    }
-                    return sb.ToString();
-                }
+                const long GB = 1024 * 1024 * 1024;
+                const long MB = 1024 * 1024;
+                const long KB = 1024;
+
+                if (bytes >= GB)
+                    return $"{(double)bytes / GB:0.##} GB ({value} bytes)";
+                else if (bytes >= MB)
+                    return $"{(double)bytes / MB:0.##} MB ({value} bytes)";
+                else if (bytes >= KB)
+                    return $"{(double)bytes / KB:0.##} KB ({value} bytes)";
+                else
+                    return $"{value} bytes";
+            }
+
+            return value;
+        }
+
+        string FormatTimeSpan(TimeSpan timeSpan)
+        {
+            if (timeSpan.TotalHours >= 1)
+            {
+                return $"{timeSpan.Hours}h {timeSpan.Minutes}m {timeSpan.Seconds}s {timeSpan.Milliseconds}ms";
+            }
+            else if (timeSpan.TotalMinutes >= 1)
+            {
+                return $"{timeSpan.Minutes}m {timeSpan.Seconds}s {timeSpan.Milliseconds}ms";
+            }
+            else if (timeSpan.TotalSeconds >= 1)
+            {
+                return $"{timeSpan.Seconds}s {timeSpan.Milliseconds}ms";
+            }
+            else
+            {
+                return $"{timeSpan.Milliseconds}ms";
             }
         }
     }
@@ -892,6 +1287,9 @@ default-character-set={dbCharacterSet}";
     {
         [JsonPropertyName("dicTask")]
         public Dictionary<int, BenchmarkTask> dicTask { get; set; } = new Dictionary<int, BenchmarkTask>();
+
+        [JsonPropertyName("dicStageInfo")]
+        public Dictionary<int, StageInfo> dicStageInfo { get; set; } = new Dictionary<int, StageInfo>();
 
         public bool Started { get; set; } = false;
         public bool Completed { get; set; } = false;
@@ -917,8 +1315,8 @@ default-character-set={dbCharacterSet}";
         {
             get
             {
-                if (TimeStart != DateTime.MinValue)
-                    return TimeStart.ToString("yyyy-MM-dd, hh:mm:ss tt");
+                if (TimeEnd != DateTime.MinValue)
+                    return TimeEnd.ToString("yyyy-MM-dd, hh:mm:ss tt");
                 return "---";
             }
         }
@@ -936,8 +1334,16 @@ default-character-set={dbCharacterSet}";
         public Exception LastError { get; set; } = null;
     }
 
+    public class StageInfo
+    {
+        public int StageId { get; set; }
+        public string StageName { get; set; }
+        public bool RunStage { get; set; }
+    }
+
     public class BenchmarkTask
     {
+        public bool ActiveTask { get; set; }
         public int Round { get; set; } = 0;
         public int Stage { get; set; } = 0;
         public string DatabaseName { get; set; } = "";
@@ -960,6 +1366,23 @@ default-character-set={dbCharacterSet}";
                 return Path.GetFileName(DumpFile);
             }
         }
+        public int PercentComplete { get; set; } = 0;
+        public bool IsParallel { get; set; } = false;
+        [JsonPropertyName("IsExport")]
+        public bool IsExport
+        {
+            get
+            {
+                switch (Stage)
+                {
+                    case 1:
+                    case 2:
+                    case 3:
+                        return true;
+                }
+                return false;
+            }
+        }
 
         [JsonIgnore]
         public Exception LastError = null;
@@ -976,12 +1399,23 @@ default-character-set={dbCharacterSet}";
             }
         }
 
-        public BenchmarkTask(int _stage, int _round, string _dbname, string _dumpfile)
+        public BenchmarkTask(int _stage, int _round, string _dbname, string _dumpfile, bool _activeTask)
         {
             Stage = _stage;
             Round = _round;
             DatabaseName = _dbname;
             DumpFile = _dumpfile;
+            ActiveTask = _activeTask;
+        }
+
+        public BenchmarkTask(int _stage, int _round, string _dbname, string _dumpfile, bool _activeTask, bool _isparallel)
+        {
+            Stage = _stage;
+            Round = _round;
+            DatabaseName = _dbname;
+            DumpFile = _dumpfile;
+            IsParallel = _isparallel;
+            ActiveTask = _activeTask;
         }
 
         public string StageName
@@ -991,12 +1425,14 @@ default-character-set={dbCharacterSet}";
                 switch (Stage)
                 {
                     case 1:
-                        return "Export/Backup - MySqlBackup.NET";
+                        return "Export/Backup - MySqlBackup.NET - Single Thread";
                     case 2:
-                        return "Export/Backup - MySqlDump";
+                        return "Export/Backup - MySqlBackup.NET - Parallel Processing";
                     case 3:
-                        return "Import/Restore - MySqlBackup.NET";
+                        return "Export/Backup - MySqlDump";
                     case 4:
+                        return "Import/Restore - MySqlBackup.NET";
+                    case 5:
                         return "Import/Restore - MySql Instance";
                 }
                 return "";
@@ -1019,8 +1455,8 @@ default-character-set={dbCharacterSet}";
         {
             get
             {
-                if (TimeStart != DateTime.MinValue)
-                    return TimeStart.ToString("yyyy-MM-dd, hh:mm:ss tt");
+                if (TimeEnd != DateTime.MinValue)
+                    return TimeEnd.ToString("yyyy-MM-dd, hh:mm:ss tt");
                 return "---";
             }
         }
@@ -1068,9 +1504,10 @@ default-character-set={dbCharacterSet}";
                 switch (Stage)
                 {
                     case 1: return $"Round {Round} - MySqlBackup.NET - {DatabaseName} > {FileName}";
-                    case 2: return $"Round {Round} - MySqlDump.exe - {DatabaseName} > {FileName}";
-                    case 3: return $"Round {Round} - MySqlBackup.NET - {DatabaseName} < {FileName}";
-                    case 4: return $"Round {Round} - MySql.exe - {DatabaseName} < {FileName}";
+                    case 2: return $"Round {Round} - MySqlBackup.NET (Parallel) - {DatabaseName} > {FileName}";
+                    case 3: return $"Round {Round} - MySqlDump.exe - {DatabaseName} > {FileName}";
+                    case 4: return $"Round {Round} - MySqlBackup.NET - {DatabaseName} < {FileName}";
+                    case 5: return $"Round {Round} - MySql.exe - {DatabaseName} < {FileName}";
                 }
                 return "";
             }
@@ -1087,12 +1524,14 @@ default-character-set={dbCharacterSet}";
         public string MySqlDumpFilePath { get; set; }
         public string MySqlFilePath { get; set; }
         public bool MySqlInstanceDirect { get; set; } = true;
-        public bool SkipGetSystemInfo { get; set; } = true;
+        public bool GetSystemInfo { get; set; } = true;
         public bool CleanUpDatabase { get; set; } = false;
         public bool RunStage1 { get; set; }
         public bool RunStage2 { get; set; }
         public bool RunStage3 { get; set; }
         public bool RunStage4 { get; set; }
+        public bool RunStage5 { get; set; }
+        public bool DeleteDumpFileAfterProcess { get; set; }
 
         public BenchmarkConfiguration()
         {
@@ -1108,6 +1547,19 @@ default-character-set={dbCharacterSet}";
                 throw new ArgumentException("BaseFolder is required");
             if (string.IsNullOrEmpty(ReportFilePath))
                 throw new ArgumentException("ReportFilePath is required");
+        }
+
+        public bool RunStage(int stageid)
+        {
+            switch (stageid)
+            {
+                case 1: return RunStage1;
+                case 2: return RunStage2;
+                case 3: return RunStage3;
+                case 4: return RunStage4;
+                case 5: return RunStage5;
+            }
+            return false;
         }
     }
 }

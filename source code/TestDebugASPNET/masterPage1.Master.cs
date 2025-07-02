@@ -36,7 +36,7 @@ namespace System
             string escapedTitle = title.Replace("'", "\\'");
             string escapedMsg = msg.Replace("'", "\\'");
             string isGood = isGoodMsg ? "true" : "false";
-            string s = $"<script>showMessage('{escapedTitle}', '{escapedMsg}', {isGood});</script>";
+            string s = $"<script>setTimeout(()=> {{ showMessage('{escapedTitle}', '{escapedMsg}', {isGood}); }}, 500);</script>";
             phBottomScript.Controls.Add(new LiteralControl(s));
         }
     }

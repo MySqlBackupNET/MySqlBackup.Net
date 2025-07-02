@@ -4,7 +4,7 @@
     <style type="text/css">
         .div-table-result {
             max-width: calc(100vw - 50px);
-            max-height: calc(100vh - 365px);
+            max-height: 555px;
             overflow: auto;
         }
 
@@ -72,9 +72,9 @@
                 border: 1px solid #adadad;
             }
 
-            .footer {
-                display: none;
-            }
+        .footer {
+            display: none;
+        }
     </style>
     <style id="style2" type="text/css"></style>
 </asp:Content>

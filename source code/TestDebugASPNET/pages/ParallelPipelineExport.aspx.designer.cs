@@ -11,43 +11,52 @@ namespace System.pages
 {
 
 
-    public partial class CreateSampleTableRows
+    public partial class ParallelPipelineExport
     {
 
         /// <summary>
-        /// btGenerateData control.
+        /// panelSetup control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btGenerateData;
+        protected global::System.Web.UI.WebControls.Panel panelSetup;
 
         /// <summary>
-        /// txtTotalTables control.
+        /// cbParallel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTotalTables;
+        protected global::System.Web.UI.WebControls.CheckBox cbParallel;
 
         /// <summary>
-        /// txtTotalRows control.
+        /// btStart control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTotalRows;
+        protected global::System.Web.UI.WebControls.Button btStart;
 
         /// <summary>
-        /// cbDropRecreateTable control.
+        /// panelResult control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox cbDropRecreateTable;
+        protected global::System.Web.UI.WebControls.Panel panelResult;
+
+        /// <summary>
+        /// ltTaskId control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal ltTaskId;
     }
 }
