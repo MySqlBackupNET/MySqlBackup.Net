@@ -268,6 +268,13 @@
                     </td>
                 </tr>
                 <tr>
+                    <td style="padding-top: 10px; padding-bottom: 0; vertical-align: top;">Report Folder</td>
+                    <td>
+                        <asp:TextBox ID="txtReportFileFolder" runat="server" Width="600px"></asp:TextBox><br />
+                        *Destination folder of report file
+                    </td>
+                </tr>
+                <tr>
                     <td></td>
                     <td>
                         <div style="border: 1px solid #71c668;">

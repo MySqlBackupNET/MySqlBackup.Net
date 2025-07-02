@@ -33,8 +33,9 @@
         Total Rows:
         <asp:TextBox ID="txtTotalRows" runat="server" TextMode="Number" Width="100px" Text="10000"></asp:TextBox>
 
-        Drop and Re-Create the sample table:
         <asp:CheckBox ID="cbDropRecreateTable" runat="server" Checked="true" />
+        Drop and Re-Create the sample table:
+        
 
         <br />
         <br />

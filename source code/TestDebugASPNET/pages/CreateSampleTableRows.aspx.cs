@@ -205,7 +205,7 @@ namespace System.pages
                             {
                                 if (_dropRecreateTable)
                                 {
-                                    cmd.CommandText = "DROP TABLE IF EXISTS sample1;";
+                                    cmd.CommandText = $"DROP TABLE IF EXISTS sample{i};";
                                     cmd.ExecuteNonQuery();
                                 }
 

@@ -53,6 +53,7 @@ namespace System.pages
                     txtFilePathMySqlDump.Text = instancePathMySqlDump;
                     txtFilePathMySql.Text = instancePathMySql;
                     txtOutputFolder.Text = Server.MapPath("~/App_Data/backup");
+                    txtReportFileFolder.Text = txtOutputFolder.Text;
                 }
                 catch (Exception ex)
                 {
@@ -67,7 +68,8 @@ namespace System.pages
             string folder = txtOutputFolder.Text;
             Directory.CreateDirectory(folder);
 
-            string reportFilePath = Path.Combine(folder, $"benchmark_report_{DateTime.Now:yyyy-MM-dd HHmmss}.txt");
+            Directory.CreateDirectory(txtReportFileFolder.Text);
+            string reportFilePath = Path.Combine(txtReportFileFolder.Text, $"benchmark_report_{DateTime.Now:yyyy-MM-dd HHmmss}.txt");
 
             BenchmarkTest.TaskId++;
             int newTaskId = BenchmarkTest.TaskId;
@@ -248,9 +250,9 @@ var taskid = {newTaskId};
                     sb.AppendLine($"Dump File 8: {dumpFile8}");
                     sb.AppendLine($"Dump File 9: {dumpFile9}");
                 }
-                
-                if(bc.RunStage4||bc.RunStage5) 
-                    sb.AppendLine() ;
+
+                if (bc.RunStage4 || bc.RunStage5)
+                    sb.AppendLine();
 
                 if (bc.RunStage4)
                 {
@@ -340,6 +342,12 @@ var taskid = {newTaskId};
                             bt.TimeEnd = DateTime.Now;
                             bt.TimeUsed = bt.TimeEnd - bt.TimeStart;
 
+                            if ((bt.Stage == 4 || bt.Stage == 5) && bc.CleanUpDatabase)
+                            {
+                                sb.AppendLine(" -- Deleting database / Clean up...");
+                                DropAndCreateDatabase(bt.DatabaseName, true, false);
+                            }
+
                             sb.AppendLine($" -- Completed ({FormatTimeSpan(bt.TimeUsed)})");
 
                             switch (stageInfo.StageId)
@@ -403,17 +411,9 @@ var taskid = {newTaskId};
                     if (!bt.ActiveTask)
                         continue;
 
-                    string file = bt.DumpFile;
-
-                    if (!string.IsNullOrEmpty(file) && File.Exists(file))
-                    {
-                        bt.FileSize = new FileInfo(bt.DumpFile).Length;
-                        bt.Sha256 = Sha256.Compute(bt.DumpFile);
-
-                        sb.AppendLine();
-                        sb.AppendLine($"Dump File {btInfo.Key}: {bt.FileName}");
-                        sb.AppendLine($"SHA256: {bt.Sha256}");
-                    }
+                    sb.AppendLine();
+                    sb.AppendLine($"Dump File {btInfo.Key}: {bt.FileName}");
+                    sb.AppendLine($"SHA256: {bt.Sha256}");
                 }
 
                 sb.AppendLine();
@@ -445,29 +445,6 @@ var taskid = {newTaskId};
                             sb.AppendLine($"Round {bt.Round}    {bt.TimeUsedDisplay}    {bt.FileSizeDisplay}");
                         else
                             sb.AppendLine($"Round {bt.Round}    {bt.TimeUsedDisplay}");
-                    }
-                }
-
-                if (bc.CleanUpDatabase)
-                {
-                    sb.AppendLine();
-                    sb.AppendLine("Clean up / removing databases");
-                    sb.AppendLine();
-
-                    string[] dropSqls = { dbName1, dbName2, dbName3, dbName4, dbName5, dbName6 };
-                    using (MySqlConnection conn = new MySqlConnection(bc.ConnectionString))
-                    {
-                        using (var cmd = conn.CreateCommand())
-                        {
-                            conn.Open();
-                            foreach (var dbname in dropSqls)
-                            {
-                                cmd.CommandText = $"DROP DATABASE IF EXISTS `{dbname}`";
-                                cmd.ExecuteNonQuery();
-
-                                sb.AppendLine($"DROP DATABASE IF EXISTS `{dbname}`");
-                            }
-                        }
                     }
                 }
 
@@ -526,7 +503,7 @@ default-character-set={dbCharacterSet}";
             return filePathCnf;
         }
 
-        void DropAndCreateDatabase(string dbName)
+        void DropAndCreateDatabase(string dbName, bool drop, bool create)
         {
             using (MySqlConnection conn = new MySqlConnection(bc.ConnectionString))
             {
@@ -534,11 +511,17 @@ default-character-set={dbCharacterSet}";
                 {
                     conn.Open();
 
-                    cmd.CommandText = $"DROP DATABASE IF EXISTS `{QueryExpress.EscapeIdentifier(dbName)}`";
-                    cmd.ExecuteNonQuery();
+                    if (drop)
+                    {
+                        cmd.CommandText = $"DROP DATABASE IF EXISTS `{QueryExpress.EscapeIdentifier(dbName)}`";
+                        cmd.ExecuteNonQuery();
+                    }
 
-                    cmd.CommandText = $"CREATE DATABASE IF NOT EXISTS `{QueryExpress.EscapeIdentifier(dbName)}`";
-                    cmd.ExecuteNonQuery();
+                    if (create)
+                    {
+                        cmd.CommandText = $"CREATE DATABASE IF NOT EXISTS `{QueryExpress.EscapeIdentifier(dbName)}`";
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
         }
@@ -567,7 +550,7 @@ default-character-set={dbCharacterSet}";
 
         void ImportMySqlBackupNet(string dbName, string dumpFilePath)
         {
-            DropAndCreateDatabase(dbName);
+            DropAndCreateDatabase(dbName, true, true);
 
             using (MySqlConnection conn = new MySqlConnection(bc.ConnectionString))
             {
@@ -609,7 +592,7 @@ default-character-set={dbCharacterSet}";
 
         void ImportMySqlInstanceDirect(string database, string dumpFilePath)
         {
-            DropAndCreateDatabase(database);
+            DropAndCreateDatabase(database, true, true);
 
             string filePathCnf = GenerateTempMySqlConfigFile();
 
@@ -632,7 +615,7 @@ default-character-set={dbCharacterSet}";
 
         void ImportMySqlInstanceCmdShellRedirect(string database, string dumpFilePath)
         {
-            DropAndCreateDatabase(database);
+            DropAndCreateDatabase(database, true, true);
 
             string filePathCnf = GenerateTempMySqlConfigFile();
 

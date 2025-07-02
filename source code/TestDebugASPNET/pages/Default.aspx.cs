@@ -38,10 +38,31 @@ namespace System
 
         protected void btSaveConnStr_Click(object sender, EventArgs e)
         {
-            config.SaveConnStr(txtConnStr.Text);
-
             try
             {
+                config.SaveConnStr(txtConnStr.Text);
+
+                MySqlConnectionStringBuilder consb = new MySqlConnectionStringBuilder(txtConnStr.Text);
+                string database = consb.Database;
+
+                if (database != "")
+                {
+                    consb.Database = "";
+
+                    using (var conn = new MySqlConnection(consb.ConnectionString))
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        conn.Open();
+                        string dbName = QueryExpress.ExecuteScalarStr(cmd, $"show databases like '{QueryExpress.EscapeIdentifier(database)}';");
+                        if (dbName != database)
+                        {
+                            cmd.CommandText = $"create database if not exists `{QueryExpress.EscapeIdentifier(database)}`";
+                            cmd.ExecuteNonQuery();
+                            ((masterPage1)this.Master).WriteTopMessageBar($"New database created: {database}", true);
+                        }
+                    }
+                }
+
                 string timenow = "";
 
                 using (var conn = config.GetNewConnection())
