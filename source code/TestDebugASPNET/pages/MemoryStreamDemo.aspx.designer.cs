@@ -51,24 +51,6 @@ namespace System.pages
         protected global::System.Web.UI.WebControls.TextBox txtPwd;
 
         /// <summary>
-        /// cbRunStreamTest control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox cbRunStreamTest;
-
-        /// <summary>
-        /// cbRunMemoryStreamTest control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox cbRunMemoryStreamTest;
-
-        /// <summary>
         /// fileUploadRestore control.
         /// </summary>
         /// <remarks>
@@ -76,15 +58,6 @@ namespace System.pages
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.FileUpload fileUploadRestore;
-
-        /// <summary>
-        /// btTest control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btTest;
 
         /// <summary>
         /// btBackup control.

@@ -25,16 +25,12 @@
             <asp:TextBox ID="txtPwd" runat="server" TextMode="Password"></asp:TextBox>
             <br />
 
-            <asp:CheckBox ID="cbRunStreamTest" runat="server" Checked="true" /> (For testing) Run Stream Test<br />
-            <asp:CheckBox ID="cbRunMemoryStreamTest" runat="server" Checked="true" /> (For testing) Run Memory Test
-
             Restore File:
             <asp:FileUpload ID="fileUploadRestore" runat="server" />
         </div>
 
         <br />
 
-        <asp:Button ID="btTest" runat="server" Text="Run Test" OnClick="btTest_Click" OnClientClick="showBigLoading(0);" />
         <asp:Button ID="btBackup" runat="server" Text="Backup" OnClick="btBackup_Click" OnClientClick="showBigLoading(3000);" />
         <asp:Button ID="btRestore" runat="server" Text="Restore" OnClick="btRestore_Click" OnClientClick="showBigLoading(0);" />
 

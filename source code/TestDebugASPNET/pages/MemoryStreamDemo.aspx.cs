@@ -125,10 +125,5 @@ namespace System.pages
                 ms?.Dispose(); // recylce the memory
             }
         }
-
-        protected void btTest_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }
