@@ -1,93 +1,31 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFrameworks>net40;net45;net46;net47;net48;net481</TargetFrameworks>
-    <RootNamespace>Devart.Data.MySql</RootNamespace>
-    <AssemblyName>MySqlBackupNet.DevartExpress</AssemblyName>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageId>MySqlBackup.Net.DevartExpress</PackageId>
-    <Authors>adriancs</Authors>
-    <Company>MySqlBackup.NET</Company>
-    <Product>MySqlBackup.NET.DevartExpress</Product>
-    <Description>A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET. A special build for Devart Express (MySql) dotConnect.</Description>
-    <Copyright>MySqlBackup.NET</Copyright>
-    <PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>mysqlbackup;devart;mysql</PackageTags>
-    <Version>2.3.10</Version>
-    <AssemblyVersion>2.3.10</AssemblyVersion>
-    <FileVersion>2.3.10</FileVersion>
-    <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
-    <Title>MySqlBackup.Net for dotConnect.Express.for.MySQL (Devart)</Title>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET48|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET48|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET472|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET472|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET471|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET471|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET47|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET47|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET462|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET462|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET461|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET461|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|NET452|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET452|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="dotConnect.Express.for.MySQL" Version="9.4.235" />
-  </ItemGroup>
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	
+	<PropertyGroup>
+		<TargetFrameworks>net4;net4.5;net462;net471;net48;net481</TargetFrameworks>
+		<RootNamespace>Devart.Data.MySql</RootNamespace>
+		<DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
+		<Nullable>disable</Nullable>
+		<PackageId>MySqlBackup.Net.DevartExpress</PackageId>
+		<Authors>adriancs</Authors>
+		<Company>MySqlBackup.NET</Company>
+		<Product>MySqlBackup.NET.DevartExpress</Product>
+		<Description>A tool to backup and restore MySQL database in C#/VB.NET/ASP.NET. A special build for Devart Express (MySql) dotConnect.</Description>
+		<Copyright>Public Domain</Copyright>
+		<PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</RepositoryUrl>
+		<Version>2.6.0</Version>
+		<AssemblyVersion>2.6.0</AssemblyVersion>
+		<FileVersion>2.6.0</FileVersion>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<AssemblyName>MySqlBackupNet.DevartExpress</AssemblyName>
+		<PackageTags>mysql;backup;restore;database;devart;dotconnect;express;csharp;dotnet;sql</PackageTags>
+		<PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+		<Title>MySqlBackup.Net for dotConnect.Express.for.MySQL (Devart)</Title>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="dotConnect.Express.for.MySQL" Version="9.4.235" />
+	</ItemGroup>
+	
 </Project>

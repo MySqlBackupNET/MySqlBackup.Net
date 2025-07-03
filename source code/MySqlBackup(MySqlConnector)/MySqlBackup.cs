@@ -1,30 +1,18 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace MySqlConnector
 {
-    public class MySqlBackup : IDisposable
+    public partial class MySqlBackup : IDisposable
     {
-        enum ProcessType
-        {
-            Export,
-            Import
-        }
-
-        public enum ProcessEndType
-        {
-            UnknownStatus,
-            Complete,
-            Cancelled,
-            Error
-        }
-
         public static string Version =>
             typeof(MySqlBackup).Assembly.GetName().Version.ToString();
 
@@ -39,10 +27,10 @@ namespace MySqlConnector
 
         DateTime timeStart;
         DateTime timeEnd;
-        ProcessType currentProcess;
+        MySqlBackup.ProcessType currentProcess;
 
-        ProcessEndType processCompletionType;
-        bool stopProcess = false;
+        MySqlBackup.ProcessEndType processCompletionType;
+        volatile bool stopProcess = false;
         Exception _lastError = null;
         string _lastErrorSql = string.Empty;
 
@@ -151,7 +139,8 @@ namespace MySqlConnector
             }
         }
 
-        #region Export
+        #region Export Entry Point
+
 
         public string ExportToString()
         {
@@ -261,7 +250,7 @@ namespace MySqlConnector
                 if (sm.CanSeek)
                     sm.Seek(0, SeekOrigin.Begin);
 
-                using (var writer = new StreamWriter(sm, textEncoding, GetOptimalStreamBufferSize()))
+                using (var writer = new StreamWriter(sm, textEncoding, GetOptimalStreamBufferSize(), true))
                 {
                     textWriter = writer;
                     ExportStart();
@@ -371,8 +360,8 @@ namespace MySqlConnector
                     Command.ExecuteNonQuery();
                 }
 
-                if (stopProcess) processCompletionType = ProcessEndType.Cancelled;
-                else processCompletionType = ProcessEndType.Complete;
+                if (stopProcess) processCompletionType = MySqlBackup.ProcessEndType.Cancelled;
+                else processCompletionType = MySqlBackup.ProcessEndType.Complete;
             }
             catch (Exception ex)
             {
@@ -433,8 +422,8 @@ namespace MySqlConnector
             ExportInfo.ScriptsDelimiter = ExportInfo.ScriptsDelimiter.Trim();
 
             stopProcess = false;
-            processCompletionType = ProcessEndType.UnknownStatus;
-            currentProcess = ProcessType.Export;
+            processCompletionType = MySqlBackup.ProcessEndType.UnknownStatus;
+            currentProcess = MySqlBackup.ProcessType.Export;
             _lastError = null;
             timerReport.Interval = ExportInfo.IntervalForProgressReport;
 
@@ -510,41 +499,10 @@ namespace MySqlConnector
 
         void Export_TableRows()
         {
-            Dictionary<string, string> dicTables = Export_GetTablesToBeExportedReArranged();
-
-            _totalTables = dicTables.Count;
-
-            if (ExportInfo.ExportTableStructure || ExportInfo.ExportRows)
-            {
-                if (ExportProgressChanged != null)
-                    timerReport.Start();
-
-                foreach (KeyValuePair<string, string> kvTable in dicTables)
-                {
-                    if (stopProcess)
-                        return;
-
-                    string tableName = kvTable.Key;
-                    string selectSQL = kvTable.Value;
-
-                    bool exclude = Export_ThisTableIsExcluded(tableName);
-                    if (exclude)
-                    {
-                        continue;
-                    }
-
-                    _currentTableName = tableName;
-                    _currentTableIndex = _currentTableIndex + 1;
-                    _totalRowsInCurrentTable = _database.Tables[tableName].TotalRows;
-
-                    if (ExportInfo.ExportTableStructure)
-                        Export_TableStructure(tableName);
-
-                    var excludeRows = Export_ThisRowForTableIsExcluded(tableName);
-                    if (ExportInfo.ExportRows && !excludeRows)
-                        Export_Rows(tableName, selectSQL);
-                }
-            }
+            if (ExportInfo.EnableParallelProcessing)
+                Export_TableRowsParallelThread();
+            else
+                Export_TableRowsSingleThread();
         }
 
         bool Export_ThisTableIsExcluded(string tableName)
@@ -710,6 +668,863 @@ namespace MySqlConnector
 
             return lst;
         }
+
+
+        void Export_Procedures()
+        {
+            if (!ExportInfo.ExportProcedures || _database.Procedures.Count == 0)
+                return;
+
+            Export_WriteComment(string.Empty);
+            Export_WriteComment("Dumping procedures");
+            Export_WriteComment(string.Empty);
+            textWriter.WriteLine();
+
+            foreach (MySqlProcedure procedure in _database.Procedures)
+            {
+                if (stopProcess)
+                    return;
+
+                if (procedure.CreateProcedureSQLWithoutDefiner.Trim().Length == 0 ||
+                    procedure.CreateProcedureSQL.Trim().Length == 0)
+                    continue;
+
+                //Export_WriteLine(string.Format("DROP PROCEDURE IF EXISTS `{0}`;", procedure.Name));
+                Export_WriteLine(string.Format("DROP PROCEDURE IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(procedure.Name)));
+
+                Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
+
+                if (ExportInfo.ExportRoutinesWithoutDefiner)
+                    Export_WriteLine(procedure.CreateProcedureSQLWithoutDefiner + " " + ExportInfo.ScriptsDelimiter);
+                else
+                    Export_WriteLine(procedure.CreateProcedureSQL + " " + ExportInfo.ScriptsDelimiter);
+
+                Export_WriteLine("DELIMITER ;");
+                textWriter.WriteLine();
+            }
+            textWriter.Flush();
+        }
+
+        void Export_Functions()
+        {
+            if (!ExportInfo.ExportFunctions || _database.Functions.Count == 0)
+                return;
+
+            Export_WriteComment(string.Empty);
+            Export_WriteComment("Dumping functions");
+            Export_WriteComment(string.Empty);
+            textWriter.WriteLine();
+
+            foreach (MySqlFunction function in _database.Functions)
+            {
+                if (stopProcess)
+                    return;
+
+                if (function.CreateFunctionSQL.Trim().Length == 0 ||
+                    function.CreateFunctionSQLWithoutDefiner.Trim().Length == 0)
+                    continue;
+
+                //Export_WriteLine(string.Format("DROP FUNCTION IF EXISTS `{0}`;", function.Name));
+                Export_WriteLine(string.Format("DROP FUNCTION IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(function.Name)));
+
+                Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
+
+                if (ExportInfo.ExportRoutinesWithoutDefiner)
+                    Export_WriteLine(function.CreateFunctionSQLWithoutDefiner + " " + ExportInfo.ScriptsDelimiter);
+                else
+                    Export_WriteLine(function.CreateFunctionSQL + " " + ExportInfo.ScriptsDelimiter);
+
+                Export_WriteLine("DELIMITER ;");
+                textWriter.WriteLine();
+            }
+
+            textWriter.Flush();
+        }
+
+        void Export_Views()
+        {
+            if (!ExportInfo.ExportViews || _database.Views.Count == 0)
+                return;
+
+            // ReArrange Views
+            Dictionary<string, string> dicView_Create = new Dictionary<string, string>();
+            foreach (var view in _database.Views)
+            {
+                dicView_Create[view.Name] = view.CreateViewSQL;
+            }
+
+            var lst = Export_ReArrangeDependencies(dicView_Create, null, "`");
+
+            Export_WriteComment(string.Empty);
+            Export_WriteComment("Dumping views");
+            Export_WriteComment(string.Empty);
+            textWriter.WriteLine();
+
+            foreach (var viewname in lst)
+            {
+                if (stopProcess)
+                    return;
+
+                var view = _database.Views[viewname];
+
+                if (view.CreateViewSQL.Trim().Length == 0 ||
+                    view.CreateViewSQLWithoutDefiner.Trim().Length == 0)
+                    continue;
+
+                //Export_WriteLine(string.Format("DROP TABLE IF EXISTS `{0}`;", view.Name));
+                //Export_WriteLine(string.Format("DROP VIEW IF EXISTS `{0}`;", view.Name));
+
+                Export_WriteLine(string.Format("DROP TABLE IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(view.Name)));
+                Export_WriteLine(string.Format("DROP VIEW IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(view.Name)));
+
+                if (ExportInfo.ExportRoutinesWithoutDefiner)
+                    Export_WriteLine(view.CreateViewSQLWithoutDefiner);
+                else
+                    Export_WriteLine(view.CreateViewSQL);
+
+                textWriter.WriteLine();
+            }
+
+            textWriter.WriteLine();
+            textWriter.Flush();
+        }
+
+        void Export_Events()
+        {
+            if (!ExportInfo.ExportEvents || _database.Events.Count == 0)
+                return;
+
+            Export_WriteComment(string.Empty);
+            Export_WriteComment("Dumping events");
+            Export_WriteComment(string.Empty);
+            textWriter.WriteLine();
+
+            foreach (MySqlEvent e in _database.Events)
+            {
+                if (stopProcess)
+                    return;
+
+                if (e.CreateEventSql.Trim().Length == 0 ||
+                    e.CreateEventSqlWithoutDefiner.Trim().Length == 0)
+                    continue;
+
+                //Export_WriteLine(string.Format("DROP EVENT IF EXISTS `{0}`;", e.Name));
+                Export_WriteLine(string.Format("DROP EVENT IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(e.Name)));
+
+                Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
+
+                if (ExportInfo.ExportRoutinesWithoutDefiner)
+                    Export_WriteLine(e.CreateEventSqlWithoutDefiner + " " + ExportInfo.ScriptsDelimiter);
+                else
+                    Export_WriteLine(e.CreateEventSql + " " + ExportInfo.ScriptsDelimiter);
+
+                Export_WriteLine("DELIMITER ;");
+                textWriter.WriteLine();
+            }
+
+            textWriter.Flush();
+        }
+
+        void Export_Triggers()
+        {
+            if (!ExportInfo.ExportTriggers ||
+                _database.Triggers.Count == 0)
+                return;
+
+            Export_WriteComment(string.Empty);
+            Export_WriteComment("Dumping triggers");
+            Export_WriteComment(string.Empty);
+            textWriter.WriteLine();
+
+            foreach (MySqlTrigger trigger in _database.Triggers)
+            {
+                if (stopProcess)
+                    return;
+
+                var createTriggerSQL = trigger.CreateTriggerSQL.Trim();
+                var createTriggerSQLWithoutDefiner = trigger.CreateTriggerSQLWithoutDefiner.Trim();
+                if (createTriggerSQL.Length == 0 ||
+                    createTriggerSQLWithoutDefiner.Length == 0)
+                    continue;
+
+                //Export_WriteLine(string.Format("DROP TRIGGER /*!50030 IF EXISTS */ `{0}`;", trigger.Name));
+                Export_WriteLine(string.Format("DROP TRIGGER /*!50030 IF EXISTS */ `{0}`;", QueryExpress.EscapeIdentifier(trigger.Name)));
+
+                Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
+
+                if (ExportInfo.ExportRoutinesWithoutDefiner)
+                    Export_WriteLine(createTriggerSQLWithoutDefiner + " " + ExportInfo.ScriptsDelimiter);
+                else
+                    Export_WriteLine(createTriggerSQL + " " + ExportInfo.ScriptsDelimiter);
+
+                Export_WriteLine("DELIMITER ;");
+                textWriter.WriteLine();
+            }
+
+            textWriter.Flush();
+        }
+
+        void Export_DocumentFooter()
+        {
+            textWriter.WriteLine();
+
+            List<string> lstFooters = ExportInfo.GetDocumentFooters();
+            if (lstFooters.Count > 0)
+            {
+                foreach (string s in lstFooters)
+                {
+                    Export_WriteLine(s);
+                }
+            }
+
+            timeEnd = DateTime.Now;
+
+            if (ExportInfo.RecordDumpTime)
+            {
+                TimeSpan ts = timeEnd - timeStart;
+
+                textWriter.WriteLine();
+                textWriter.WriteLine();
+                Export_WriteComment(string.Format("Dump completed on {0}", timeEnd.ToString("yyyy-MM-dd HH:mm:ss")));
+                Export_WriteComment(string.Format("Total time: {0}:{1}:{2}:{3}:{4} (d:h:m:s:ms)", ts.Days, ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds));
+            }
+
+            textWriter.Flush();
+        }
+
+        void Export_WriteComment(string text)
+        {
+            if (ExportInfo.EnableComment)
+                Export_WriteLine(string.Format("-- {0}", text));
+        }
+
+        void Export_WriteLine(string text)
+        {
+            textWriter.WriteLine(text);
+        }
+
+        void Export_RaiseCompletionEvent()
+        {
+            if (ExportCompleted != null)
+            {
+                ExportCompleteArgs arg = new ExportCompleteArgs(timeStart, timeEnd, processCompletionType, _lastError);
+                ExportCompleted(this, arg);
+            }
+        }
+
+        void Export_RestoreOriginalVariables()
+        {
+            try
+            {
+                Command.CommandText = $"SET @@session.time_zone= '{_originalTimeZone}';";
+                Command.ExecuteNonQuery();
+            }
+            catch { }
+        }
+
+
+        #endregion
+
+        #region Export Parallel Processing
+
+        // Data structures for parallel processing
+        class RowData
+        {
+            public string TableName { get; set; }
+            public object[] Values { get; set; }
+            public string[] ColumnNames { get; set; }
+            public MySqlTable Table { get; set; }
+            public bool IsTableHeader { get; set; }
+            public bool IsTableFooter { get; set; }
+            public string HeaderSQL { get; set; }
+            public string FooterSQL { get; set; }
+            public RowsDataExportMode ExportMode { get; set; }
+        }
+
+        class SqlStatement
+        {
+            public string SQL { get; set; }
+            public bool IsComplete { get; set; }
+            public bool FlushRequired { get; set; }
+        }
+
+        // New fields for parallel processing
+        private BlockingCollection<RowData> _rowDataCollection;
+        private BlockingCollection<SqlStatement> _sqlStatementCollection;
+        private Task _phase1Task;
+        private Task _phase2Task;
+        private Task _phase3Task;
+        private volatile bool _phase1Complete = false;
+        private volatile bool _phase2Complete = false;
+        private volatile bool _phase3Complete = false;
+        private readonly object _progressLock = new object();
+
+        void Export_TableRowsSingleThread()
+        {
+            // Move the original Export_TableRows() implementation here
+            Dictionary<string, string> dicTables = Export_GetTablesToBeExportedReArranged();
+
+            _totalTables = dicTables.Count;
+
+            if (ExportInfo.ExportTableStructure || ExportInfo.ExportRows)
+            {
+                if (ExportProgressChanged != null)
+                    timerReport.Start();
+
+                foreach (KeyValuePair<string, string> kvTable in dicTables)
+                {
+                    if (stopProcess)
+                        return;
+
+                    string tableName = kvTable.Key;
+                    string selectSQL = kvTable.Value;
+
+                    bool exclude = Export_ThisTableIsExcluded(tableName);
+                    if (exclude)
+                    {
+                        continue;
+                    }
+
+                    _currentTableName = tableName;
+                    _currentTableIndex = _currentTableIndex + 1;
+                    _totalRowsInCurrentTable = _database.Tables[tableName].TotalRows;
+
+                    if (ExportInfo.ExportTableStructure)
+                        Export_TableStructure(tableName);
+
+                    var excludeRows = Export_ThisRowForTableIsExcluded(tableName);
+                    if (ExportInfo.ExportRows && !excludeRows)
+                        Export_Rows(tableName, selectSQL);
+                }
+            }
+        }
+
+        void Export_TableRowsParallelThread()
+        {
+            Dictionary<string, string> dicTables = Export_GetTablesToBeExportedReArranged();
+            _totalTables = dicTables.Count;
+
+            if (!ExportInfo.ExportTableStructure && !ExportInfo.ExportRows)
+                return;
+
+            // Initialize BlockingCollections with reasonable capacity
+            _rowDataCollection = new BlockingCollection<RowData>(1000);
+            _sqlStatementCollection = new BlockingCollection<SqlStatement>(500);
+
+            // Reset completion flags
+            _phase1Complete = false;
+            _phase2Complete = false;
+            _phase3Complete = false;
+
+            if (ExportProgressChanged != null)
+                timerReport.Start();
+
+            try
+            {
+                // Start all three phases
+                _phase1Task = Task.Run(() => Phase1_ReadData(dicTables));
+                _phase2Task = Task.Run(() => Phase2_ConvertToSQL());
+                _phase3Task = Task.Run(() => Phase3_WriteOutput());
+
+                // Wait for all phases to complete
+                Task.WaitAll(_phase1Task, _phase2Task, _phase3Task);
+            }
+            catch (Exception ex)
+            {
+                // Signal stop to all phases
+                stopProcess = true;
+                throw;
+            }
+            finally
+            {
+                // Cleanup
+                _rowDataCollection?.Dispose();
+                _sqlStatementCollection?.Dispose();
+            }
+        }
+
+        void Phase1_ReadData(Dictionary<string, string> dicTables)
+        {
+            try
+            {
+                foreach (KeyValuePair<string, string> kvTable in dicTables)
+                {
+                    if (stopProcess)
+                        break;
+
+                    string tableName = kvTable.Key;
+                    string selectSQL = kvTable.Value;
+
+                    bool exclude = Export_ThisTableIsExcluded(tableName);
+                    if (exclude)
+                        continue;
+
+                    lock (_progressLock)
+                    {
+                        _currentTableName = tableName;
+                        _currentTableIndex++;
+                        _totalRowsInCurrentTable = _database.Tables[tableName].TotalRows;
+                        _currentRowIndexInCurrentTable = 0;
+                    }
+
+                    MySqlTable table = _database.Tables[tableName];
+
+                    // Add table structure if needed
+                    if (ExportInfo.ExportTableStructure)
+                    {
+                        _rowDataCollection.Add(new RowData
+                        {
+                            TableName = tableName,
+                            IsTableHeader = true,
+                            HeaderSQL = GetTableStructureSQL(tableName),
+                            Table = table
+                        });
+                    }
+
+                    // Check if rows should be exported
+                    var excludeRows = Export_ThisRowForTableIsExcluded(tableName);
+                    if (ExportInfo.ExportRows && !excludeRows)
+                    {
+                        // Add table rows header
+                        _rowDataCollection.Add(new RowData
+                        {
+                            TableName = tableName,
+                            IsTableHeader = true,
+                            HeaderSQL = GetTableRowsHeaderSQL(tableName),
+                            Table = table,
+                            ExportMode = ExportInfo.RowsExportMode
+                        });
+
+                        // Read actual data
+                        Phase1_ReadTableData(tableName, selectSQL, table);
+
+                        // Add table rows footer
+                        _rowDataCollection.Add(new RowData
+                        {
+                            TableName = tableName,
+                            IsTableFooter = true,
+                            FooterSQL = GetTableRowsFooterSQL(tableName),
+                            Table = table
+                        });
+                    }
+
+                    if (stopProcess)
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (!stopProcess)
+                    throw;
+            }
+            finally
+            {
+                _phase1Complete = true;
+                _rowDataCollection.CompleteAdding();
+            }
+        }
+
+        void Phase1_ReadTableData(string tableName, string selectSQL, MySqlTable table)
+        {
+            if (stopProcess)
+                return;
+
+            // Setup value adjustment rules
+            bool currentTableHasAdjustedValueRule = false;
+            Dictionary<string, Func<object, object>> currentTableColumnValueAdjustment = null;
+
+            if (_hasAdjustedValueRule && ExportInfo.TableColumnValueAdjustments.ContainsKey(tableName))
+            {
+                currentTableHasAdjustedValueRule = true;
+                currentTableColumnValueAdjustment = ExportInfo.TableColumnValueAdjustments[tableName];
+            }
+
+            Command.CommandText = selectSQL;
+
+            using (MySqlDataReader rdr = Command.ExecuteReader())
+            {
+                // Get column names
+                string[] columnNames = new string[rdr.FieldCount];
+                for (int i = 0; i < rdr.FieldCount; i++)
+                {
+                    columnNames[i] = rdr.GetName(i);
+                }
+
+                while (rdr.Read())
+                {
+                    if (stopProcess)
+                        break;
+
+                    // Read row data
+                    object[] values = new object[rdr.FieldCount];
+                    for (int i = 0; i < rdr.FieldCount; i++)
+                    {
+                        object value = rdr[i];
+                        string columnName = columnNames[i];
+
+                        // Apply value adjustment if needed
+                        if (currentTableHasAdjustedValueRule &&
+                            currentTableColumnValueAdjustment.TryGetValue(columnName, out var adjustFunc))
+                        {
+                            value = adjustFunc(value);
+                        }
+
+                        values[i] = value;
+                    }
+
+                    // Add to collection
+                    _rowDataCollection.Add(new RowData
+                    {
+                        TableName = tableName,
+                        Values = values,
+                        ColumnNames = columnNames,
+                        Table = table,
+                        IsTableHeader = false,
+                        IsTableFooter = false,
+                        ExportMode = ExportInfo.RowsExportMode
+                    });
+
+                    lock (_progressLock)
+                    {
+                        _currentRowIndexInCurrentTable++;
+                        _currentRowIndexInAllTable++;
+                    }
+
+                    if (stopProcess)
+                        break;
+                }
+            }
+        }
+
+        void Phase2_ConvertToSQL()
+        {
+            try
+            {
+                string currentInsertHeader = null;
+                StringBuilder currentSqlBuilder = new StringBuilder();
+                long currentSqlByteLength = 0L;
+                bool isFirstRowInStatement = true;
+                string currentTableName = null;
+                RowsDataExportMode currentExportMode = RowsDataExportMode.Insert;
+
+                foreach (RowData rowData in _rowDataCollection.GetConsumingEnumerable())
+                {
+                    if (stopProcess)
+                        break;
+
+                    if (rowData.IsTableHeader)
+                    {
+                        // Flush any pending SQL
+                        if (currentSqlBuilder.Length > 0)
+                        {
+                            currentSqlBuilder.AppendLine(";");
+                            _sqlStatementCollection.Add(new SqlStatement
+                            {
+                                SQL = currentSqlBuilder.ToString(),
+                                IsComplete = true,
+                                FlushRequired = true
+                            });
+                            currentSqlBuilder.Clear();
+                            currentSqlByteLength = 0L;
+                        }
+
+                        // Add header SQL
+                        _sqlStatementCollection.Add(new SqlStatement
+                        {
+                            SQL = rowData.HeaderSQL,
+                            IsComplete = true,
+                            FlushRequired = true
+                        });
+
+                        currentTableName = rowData.TableName;
+                        currentExportMode = rowData.ExportMode;
+                        currentInsertHeader = null;
+                        isFirstRowInStatement = true;
+                    }
+                    else if (rowData.IsTableFooter)
+                    {
+                        // Flush any pending SQL
+                        if (currentSqlBuilder.Length > 0)
+                        {
+                            currentSqlBuilder.AppendLine(";");
+                            _sqlStatementCollection.Add(new SqlStatement
+                            {
+                                SQL = currentSqlBuilder.ToString(),
+                                IsComplete = true,
+                                FlushRequired = true
+                            });
+                            currentSqlBuilder.Clear();
+                            currentSqlByteLength = 0L;
+                        }
+
+                        // Add footer SQL
+                        _sqlStatementCollection.Add(new SqlStatement
+                        {
+                            SQL = rowData.FooterSQL,
+                            IsComplete = true,
+                            FlushRequired = true
+                        });
+
+                        currentInsertHeader = null;
+                        isFirstRowInStatement = true;
+                    }
+                    else
+                    {
+                        // Process regular row data
+                        Phase2_ProcessRowData(rowData, ref currentInsertHeader, currentSqlBuilder, ref currentSqlByteLength, ref isFirstRowInStatement, currentExportMode);
+                    }
+                }
+
+                // Flush any remaining SQL
+                if (currentSqlBuilder.Length > 0)
+                {
+                    _sqlStatementCollection.Add(new SqlStatement
+                    {
+                        SQL = currentSqlBuilder.ToString() + ";",
+                        IsComplete = true,
+                        FlushRequired = true
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                if (!stopProcess)
+                    throw;
+            }
+            finally
+            {
+                _phase2Complete = true;
+                _sqlStatementCollection.CompleteAdding();
+            }
+        }
+
+        void Phase2_ProcessRowData(RowData rowData, ref string currentInsertHeader, StringBuilder currentSqlBuilder, ref long currentSqlByteLength, ref bool isFirstRowInStatement, RowsDataExportMode exportMode)
+        {
+            // Generate insert header if needed
+            if (currentInsertHeader == null)
+            {
+                currentInsertHeader = Export_GetInsertStatementHeaderFromRowData(exportMode, rowData);
+            }
+
+            // Generate value string
+            StringBuilder sbValue = new StringBuilder();
+            Export_GetValueStringFromRowData(rowData, sbValue);
+            string valueString = sbValue.ToString();
+            long sqlValueByteLength = QueryExpress.EstimateByteCount(valueString, textEncoding);
+
+            // Calculate forecast byte length
+            int lineBreakByteLength = textEncoding.GetByteCount(Environment.NewLine);
+            long insertHeaderByteLength = QueryExpress.EstimateByteCount(currentInsertHeader, textEncoding);
+            long forecastSqlStatementByteLength = currentSqlByteLength + sqlValueByteLength + 1L; // +1 for comma or semicolon
+
+            if (ExportInfo.InsertLineBreakBetweenInserts)
+                forecastSqlStatementByteLength += lineBreakByteLength;
+
+            // Check if we need to start a new statement
+            if (forecastSqlStatementByteLength > ExportInfo.MaxSqlLength)
+            {
+                // Flush current statement
+                if (currentSqlBuilder.Length > 0)
+                {
+                    currentSqlBuilder.AppendLine(";");
+                    _sqlStatementCollection.Add(new SqlStatement
+                    {
+                        SQL = currentSqlBuilder.ToString(),
+                        IsComplete = true,
+                        FlushRequired = false
+                    });
+                    currentSqlBuilder.Clear();
+                    currentSqlByteLength = 0L;
+                }
+                isFirstRowInStatement = true;
+            }
+
+            // Start new statement if needed
+            if (isFirstRowInStatement)
+            {
+                currentSqlBuilder.Append(currentInsertHeader);
+                currentSqlByteLength = insertHeaderByteLength;
+
+                if (ExportInfo.InsertLineBreakBetweenInserts)
+                {
+                    currentSqlBuilder.AppendLine();
+                    currentSqlByteLength += lineBreakByteLength;
+                }
+                isFirstRowInStatement = false;
+            }
+            else
+            {
+                currentSqlBuilder.Append(",");
+                currentSqlByteLength += 1;
+
+                if (ExportInfo.InsertLineBreakBetweenInserts)
+                {
+                    currentSqlBuilder.AppendLine();
+                    currentSqlByteLength += lineBreakByteLength;
+                }
+            }
+
+            currentSqlBuilder.Append(valueString);
+            currentSqlByteLength += sqlValueByteLength;
+        }
+
+        void Phase3_WriteOutput()
+        {
+            try
+            {
+                foreach (SqlStatement sqlStatement in _sqlStatementCollection.GetConsumingEnumerable())
+                {
+                    if (stopProcess)
+                        break;
+
+                    if (!string.IsNullOrEmpty(sqlStatement.SQL))
+                    {
+                        //textWriter.WriteLine(sqlStatement.SQL);
+                        textWriter.Write(sqlStatement.SQL);
+
+                        if (sqlStatement.FlushRequired)
+                        {
+                            textWriter.Flush();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (!stopProcess)
+                    throw;
+            }
+            finally
+            {
+                _phase3Complete = true;
+                textWriter?.Flush();
+            }
+        }
+
+        // Helper methods for generating SQL strings
+        string GetTableStructureSQL(string tableName)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine($"-- ");
+            sb.AppendLine($"-- Definition of {tableName}");
+            sb.AppendLine($"-- ");
+            sb.AppendLine();
+
+            if (ExportInfo.AddDropTable)
+            {
+                sb.AppendLine($"DROP TABLE IF EXISTS `{QueryExpress.EscapeIdentifier(tableName)}`;");
+            }
+
+            if (ExportInfo.ResetAutoIncrement)
+                sb.AppendLine(_database.Tables[tableName].CreateTableSqlWithoutAutoIncrement);
+            else
+                sb.AppendLine(_database.Tables[tableName].CreateTableSql);
+
+            return sb.ToString();
+        }
+
+        string GetTableRowsHeaderSQL(string tableName)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine();
+            sb.AppendLine($"-- ");
+            sb.AppendLine($"-- Dumping data for table {tableName}");
+            sb.AppendLine($"-- ");
+            sb.AppendLine();
+            sb.AppendLine($"/*!40000 ALTER TABLE `{QueryExpress.EscapeIdentifier(tableName)}` DISABLE KEYS */;");
+
+            if (ExportInfo.WrapWithinTransaction)
+                sb.AppendLine("START TRANSACTION;");
+
+            if (ExportInfo.EnableLockTablesWrite)
+                sb.AppendLine($"LOCK TABLES `{QueryExpress.EscapeIdentifier(tableName)}` WRITE;");
+
+            return sb.ToString();
+        }
+
+        string GetTableRowsFooterSQL(string tableName)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (ExportInfo.EnableLockTablesWrite)
+                sb.AppendLine($"UNLOCK TABLES;");
+
+            if (ExportInfo.WrapWithinTransaction)
+                sb.AppendLine("COMMIT;");
+
+            sb.AppendLine($"/*!40000 ALTER TABLE `{QueryExpress.EscapeIdentifier(tableName)}` ENABLE KEYS */;");
+            sb.AppendLine();
+
+            return sb.ToString();
+        }
+
+        string Export_GetInsertStatementHeaderFromRowData(RowsDataExportMode rowsExportMode, RowData rowData)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (rowsExportMode == RowsDataExportMode.Insert)
+                sb.Append("INSERT INTO `");
+            else if (rowsExportMode == RowsDataExportMode.InsertIgnore)
+                sb.Append("INSERT IGNORE INTO `");
+            else if (rowsExportMode == RowsDataExportMode.Replace)
+                sb.Append("REPLACE INTO `");
+
+            sb.Append(QueryExpress.EscapeIdentifier(rowData.TableName));
+            sb.Append("`(");
+
+            bool isFirst = true;
+            for (int i = 0; i < rowData.ColumnNames.Length; i++)
+            {
+                string columnName = rowData.ColumnNames[i];
+
+                if (rowData.Table.Columns[columnName].IsGeneratedColumn)
+                    continue;
+
+                if (!isFirst)
+                    sb.Append(",");
+
+                sb.Append("`");
+                sb.Append(QueryExpress.EscapeIdentifier(columnName));
+                sb.Append("`");
+
+                isFirst = false;
+            }
+
+            sb.Append(") VALUES");
+            return sb.ToString();
+        }
+
+        void Export_GetValueStringFromRowData(RowData rowData, StringBuilder sb)
+        {
+            bool isFirst = true;
+            sb.Append("(");
+
+            for (int i = 0; i < rowData.Values.Length; i++)
+            {
+                string columnName = rowData.ColumnNames[i];
+
+                if (rowData.Table.Columns[columnName].IsGeneratedColumn)
+                    continue;
+
+                if (!isFirst)
+                    sb.Append(",");
+
+                object value = rowData.Values[i];
+                var col = rowData.Table.Columns[columnName];
+
+                QueryExpress.ConvertToSqlFormat(sb, value, col, true, true);
+
+                isFirst = false;
+            }
+
+            sb.Append(")");
+        }
+
+        #endregion
+
+        #region Export Single Thread
 
         void Export_Rows(string tableName, string selectSQL)
         {
@@ -1163,258 +1978,6 @@ namespace MySqlConnector
             }
         }
 
-        void Export_Procedures()
-        {
-            if (!ExportInfo.ExportProcedures || _database.Procedures.Count == 0)
-                return;
-
-            Export_WriteComment(string.Empty);
-            Export_WriteComment("Dumping procedures");
-            Export_WriteComment(string.Empty);
-            textWriter.WriteLine();
-
-            foreach (MySqlProcedure procedure in _database.Procedures)
-            {
-                if (stopProcess)
-                    return;
-
-                if (procedure.CreateProcedureSQLWithoutDefiner.Trim().Length == 0 ||
-                    procedure.CreateProcedureSQL.Trim().Length == 0)
-                    continue;
-
-                //Export_WriteLine(string.Format("DROP PROCEDURE IF EXISTS `{0}`;", procedure.Name));
-                Export_WriteLine(string.Format("DROP PROCEDURE IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(procedure.Name)));
-
-                Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
-
-                if (ExportInfo.ExportRoutinesWithoutDefiner)
-                    Export_WriteLine(procedure.CreateProcedureSQLWithoutDefiner + " " + ExportInfo.ScriptsDelimiter);
-                else
-                    Export_WriteLine(procedure.CreateProcedureSQL + " " + ExportInfo.ScriptsDelimiter);
-
-                Export_WriteLine("DELIMITER ;");
-                textWriter.WriteLine();
-            }
-            textWriter.Flush();
-        }
-
-        void Export_Functions()
-        {
-            if (!ExportInfo.ExportFunctions || _database.Functions.Count == 0)
-                return;
-
-            Export_WriteComment(string.Empty);
-            Export_WriteComment("Dumping functions");
-            Export_WriteComment(string.Empty);
-            textWriter.WriteLine();
-
-            foreach (MySqlFunction function in _database.Functions)
-            {
-                if (stopProcess)
-                    return;
-
-                if (function.CreateFunctionSQL.Trim().Length == 0 ||
-                    function.CreateFunctionSQLWithoutDefiner.Trim().Length == 0)
-                    continue;
-
-                //Export_WriteLine(string.Format("DROP FUNCTION IF EXISTS `{0}`;", function.Name));
-                Export_WriteLine(string.Format("DROP FUNCTION IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(function.Name)));
-
-                Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
-
-                if (ExportInfo.ExportRoutinesWithoutDefiner)
-                    Export_WriteLine(function.CreateFunctionSQLWithoutDefiner + " " + ExportInfo.ScriptsDelimiter);
-                else
-                    Export_WriteLine(function.CreateFunctionSQL + " " + ExportInfo.ScriptsDelimiter);
-
-                Export_WriteLine("DELIMITER ;");
-                textWriter.WriteLine();
-            }
-
-            textWriter.Flush();
-        }
-
-        void Export_Views()
-        {
-            if (!ExportInfo.ExportViews || _database.Views.Count == 0)
-                return;
-
-            // ReArrange Views
-            Dictionary<string, string> dicView_Create = new Dictionary<string, string>();
-            foreach (var view in _database.Views)
-            {
-                dicView_Create[view.Name] = view.CreateViewSQL;
-            }
-
-            var lst = Export_ReArrangeDependencies(dicView_Create, null, "`");
-
-            Export_WriteComment(string.Empty);
-            Export_WriteComment("Dumping views");
-            Export_WriteComment(string.Empty);
-            textWriter.WriteLine();
-
-            foreach (var viewname in lst)
-            {
-                if (stopProcess)
-                    return;
-
-                var view = _database.Views[viewname];
-
-                if (view.CreateViewSQL.Trim().Length == 0 ||
-                    view.CreateViewSQLWithoutDefiner.Trim().Length == 0)
-                    continue;
-
-                //Export_WriteLine(string.Format("DROP TABLE IF EXISTS `{0}`;", view.Name));
-                //Export_WriteLine(string.Format("DROP VIEW IF EXISTS `{0}`;", view.Name));
-
-                Export_WriteLine(string.Format("DROP TABLE IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(view.Name)));
-                Export_WriteLine(string.Format("DROP VIEW IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(view.Name)));
-
-                if (ExportInfo.ExportRoutinesWithoutDefiner)
-                    Export_WriteLine(view.CreateViewSQLWithoutDefiner);
-                else
-                    Export_WriteLine(view.CreateViewSQL);
-
-                textWriter.WriteLine();
-            }
-
-            textWriter.WriteLine();
-            textWriter.Flush();
-        }
-
-        void Export_Events()
-        {
-            if (!ExportInfo.ExportEvents || _database.Events.Count == 0)
-                return;
-
-            Export_WriteComment(string.Empty);
-            Export_WriteComment("Dumping events");
-            Export_WriteComment(string.Empty);
-            textWriter.WriteLine();
-
-            foreach (MySqlEvent e in _database.Events)
-            {
-                if (stopProcess)
-                    return;
-
-                if (e.CreateEventSql.Trim().Length == 0 ||
-                    e.CreateEventSqlWithoutDefiner.Trim().Length == 0)
-                    continue;
-
-                //Export_WriteLine(string.Format("DROP EVENT IF EXISTS `{0}`;", e.Name));
-                Export_WriteLine(string.Format("DROP EVENT IF EXISTS `{0}`;", QueryExpress.EscapeIdentifier(e.Name)));
-
-                Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
-
-                if (ExportInfo.ExportRoutinesWithoutDefiner)
-                    Export_WriteLine(e.CreateEventSqlWithoutDefiner + " " + ExportInfo.ScriptsDelimiter);
-                else
-                    Export_WriteLine(e.CreateEventSql + " " + ExportInfo.ScriptsDelimiter);
-
-                Export_WriteLine("DELIMITER ;");
-                textWriter.WriteLine();
-            }
-
-            textWriter.Flush();
-        }
-
-        void Export_Triggers()
-        {
-            if (!ExportInfo.ExportTriggers ||
-                _database.Triggers.Count == 0)
-                return;
-
-            Export_WriteComment(string.Empty);
-            Export_WriteComment("Dumping triggers");
-            Export_WriteComment(string.Empty);
-            textWriter.WriteLine();
-
-            foreach (MySqlTrigger trigger in _database.Triggers)
-            {
-                if (stopProcess)
-                    return;
-
-                var createTriggerSQL = trigger.CreateTriggerSQL.Trim();
-                var createTriggerSQLWithoutDefiner = trigger.CreateTriggerSQLWithoutDefiner.Trim();
-                if (createTriggerSQL.Length == 0 ||
-                    createTriggerSQLWithoutDefiner.Length == 0)
-                    continue;
-
-                //Export_WriteLine(string.Format("DROP TRIGGER /*!50030 IF EXISTS */ `{0}`;", trigger.Name));
-                Export_WriteLine(string.Format("DROP TRIGGER /*!50030 IF EXISTS */ `{0}`;", QueryExpress.EscapeIdentifier(trigger.Name)));
-
-                Export_WriteLine("DELIMITER " + ExportInfo.ScriptsDelimiter);
-
-                if (ExportInfo.ExportRoutinesWithoutDefiner)
-                    Export_WriteLine(createTriggerSQLWithoutDefiner + " " + ExportInfo.ScriptsDelimiter);
-                else
-                    Export_WriteLine(createTriggerSQL + " " + ExportInfo.ScriptsDelimiter);
-
-                Export_WriteLine("DELIMITER ;");
-                textWriter.WriteLine();
-            }
-
-            textWriter.Flush();
-        }
-
-        void Export_DocumentFooter()
-        {
-            textWriter.WriteLine();
-
-            List<string> lstFooters = ExportInfo.GetDocumentFooters();
-            if (lstFooters.Count > 0)
-            {
-                foreach (string s in lstFooters)
-                {
-                    Export_WriteLine(s);
-                }
-            }
-
-            timeEnd = DateTime.Now;
-
-            if (ExportInfo.RecordDumpTime)
-            {
-                TimeSpan ts = timeEnd - timeStart;
-
-                textWriter.WriteLine();
-                textWriter.WriteLine();
-                Export_WriteComment(string.Format("Dump completed on {0}", timeEnd.ToString("yyyy-MM-dd HH:mm:ss")));
-                Export_WriteComment(string.Format("Total time: {0}:{1}:{2}:{3}:{4} (d:h:m:s:ms)", ts.Days, ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds));
-            }
-
-            textWriter.Flush();
-        }
-
-        void Export_WriteComment(string text)
-        {
-            if (ExportInfo.EnableComment)
-                Export_WriteLine(string.Format("-- {0}", text));
-        }
-
-        void Export_WriteLine(string text)
-        {
-            textWriter.WriteLine(text);
-        }
-
-        void Export_RaiseCompletionEvent()
-        {
-            if (ExportCompleted != null)
-            {
-                ExportCompleteArgs arg = new ExportCompleteArgs(timeStart, timeEnd, processCompletionType, _lastError);
-                ExportCompleted(this, arg);
-            }
-        }
-
-        void Export_RestoreOriginalVariables()
-        {
-            try
-            {
-                Command.CommandText = $"SET @@session.time_zone= '{_originalTimeZone}';";
-                Command.ExecuteNonQuery();
-            }
-            catch { }
-        }
-
         #endregion
 
         #region Import
@@ -1646,7 +2209,7 @@ namespace MySqlConnector
                 {
                     if (stopProcess)
                     {
-                        processCompletionType = ProcessEndType.Cancelled;
+                        processCompletionType = MySqlBackup.ProcessEndType.Cancelled;
                         break;
                     }
 
@@ -1721,8 +2284,8 @@ namespace MySqlConnector
             textEncoding = ImportInfo.TextEncoding;
             _sb = new StringBuilder(_initialMaxStringBuilderCapacity);
 
-            currentProcess = ProcessType.Import;
-            processCompletionType = ProcessEndType.Complete;
+            currentProcess = MySqlBackup.ProcessType.Import;
+            processCompletionType = MySqlBackup.ProcessEndType.Complete;
             _delimiter = ";";
             _lastErrorSql = string.Empty;
 
@@ -1903,17 +2466,17 @@ namespace MySqlConnector
         {
             if (ImportCompleted != null)
             {
-                MySqlBackup.ProcessEndType completedType = ProcessEndType.UnknownStatus;
+                MySqlBackup.ProcessEndType completedType = MySqlBackup.ProcessEndType.UnknownStatus;
 
                 switch (processCompletionType)
                 {
-                    case ProcessEndType.Complete:
+                    case MySqlBackup.ProcessEndType.Complete:
                         completedType = MySqlBackup.ProcessEndType.Complete;
                         break;
-                    case ProcessEndType.Error:
+                    case MySqlBackup.ProcessEndType.Error:
                         completedType = MySqlBackup.ProcessEndType.Error;
                         break;
-                    case ProcessEndType.Cancelled:
+                    case MySqlBackup.ProcessEndType.Cancelled:
                         completedType = MySqlBackup.ProcessEndType.Cancelled;
                         break;
                 }
@@ -1931,11 +2494,11 @@ namespace MySqlConnector
 
             StopAllProcess();
 
-            if (currentProcess == ProcessType.Export)
+            if (currentProcess == MySqlBackup.ProcessType.Export)
             {
                 ReportProgress();
             }
-            else if (currentProcess == ProcessType.Import)
+            else if (currentProcess == MySqlBackup.ProcessType.Import)
             {
                 _currentBytes = _totalBytes;
 
@@ -1950,7 +2513,7 @@ namespace MySqlConnector
 
         void ReportProgress()
         {
-            if (currentProcess == ProcessType.Export)
+            if (currentProcess == MySqlBackup.ProcessType.Export)
             {
                 if (ExportProgressChanged != null)
                 {
@@ -1958,7 +2521,7 @@ namespace MySqlConnector
                     ExportProgressChanged(this, arg);
                 }
             }
-            else if (currentProcess == ProcessType.Import)
+            else if (currentProcess == MySqlBackup.ProcessType.Import)
             {
                 if (ImportProgressChanged != null)
                 {
@@ -1968,16 +2531,51 @@ namespace MySqlConnector
             }
         }
 
+        // Override StopAllProcess to handle parallel processing
         public void StopAllProcess()
         {
             stopProcess = true;
             Command?.Cancel();
             timerReport.Stop();
+
+            // Signal BlockingCollections to stop
+            try
+            {
+                _rowDataCollection?.CompleteAdding();
+                _sqlStatementCollection?.CompleteAdding();
+            }
+            catch
+            {
+                // Ignore exceptions during cleanup
+            }
         }
 
+        // Override Dispose to handle parallel processing cleanup
         public void Dispose()
         {
             StopAllProcess();
+
+            // Wait for tasks to complete with timeout
+            try
+            {
+                if (_phase1Task != null || _phase2Task != null || _phase3Task != null)
+                {
+                    var tasks = new List<Task>();
+                    if (_phase1Task != null) tasks.Add(_phase1Task);
+                    if (_phase2Task != null) tasks.Add(_phase2Task);
+                    if (_phase3Task != null) tasks.Add(_phase3Task);
+
+                    Task.WaitAll(tasks.ToArray(), TimeSpan.FromSeconds(10));
+                }
+            }
+            catch
+            {
+                // Ignore timeout exceptions
+            }
+
+            // Dispose BlockingCollections
+            _rowDataCollection?.Dispose();
+            _sqlStatementCollection?.Dispose();
 
             if (timerReport != null)
             {
@@ -1998,5 +2596,36 @@ namespace MySqlConnector
                 textReader = null;
             }
         }
+
+        //public void StopAllProcess()
+        //{
+        //    stopProcess = true;
+        //    Command?.Cancel();
+        //    timerReport.Stop();
+        //}
+
+        //public void Dispose()
+        //{
+        //    StopAllProcess();
+
+        //    if (timerReport != null)
+        //    {
+        //        timerReport.Stop();
+        //        timerReport.Dispose();
+        //        timerReport = null;
+        //    }
+
+        //    if (textWriter != null)
+        //    {
+        //        textWriter.Dispose();
+        //        textWriter = null;
+        //    }
+
+        //    if (textReader != null)
+        //    {
+        //        textReader.Dispose();
+        //        textReader = null;
+        //    }
+        //}
     }
 }

@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDebugASPNET", "TestDebu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup(Devart-Express)", "MySqlBackup(Devart-Express)\MySqlBackup(Devart-Express).csproj", "{69FA087E-C510-B4D3-E153-0A9A8F0B8B13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup(MySql.Data)", "MySqlBackup(MySql.Data)\MySqlBackup(MySql.Data).csproj", "{B89787E3-A726-84F1-AC4E-7812843BF86D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup(MySql.Data)", "MySqlBackup(MySql.Data)\MySqlBackup(MySql.Data).csproj", "{D2D668B6-0937-4497-9492-249553AB2A94}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,14 +63,14 @@ Global
 		{69FA087E-C510-B4D3-E153-0A9A8F0B8B13}.Release|Any CPU.Build.0 = Release|Any CPU
 		{69FA087E-C510-B4D3-E153-0A9A8F0B8B13}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
 		{69FA087E-C510-B4D3-E153-0A9A8F0B8B13}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
-		{B89787E3-A726-84F1-AC4E-7812843BF86D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B89787E3-A726-84F1-AC4E-7812843BF86D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B89787E3-A726-84F1-AC4E-7812843BF86D}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
-		{B89787E3-A726-84F1-AC4E-7812843BF86D}.NET20|Any CPU.Build.0 = Debug|Any CPU
-		{B89787E3-A726-84F1-AC4E-7812843BF86D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B89787E3-A726-84F1-AC4E-7812843BF86D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B89787E3-A726-84F1-AC4E-7812843BF86D}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
-		{B89787E3-A726-84F1-AC4E-7812843BF86D}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
+		{D2D668B6-0937-4497-9492-249553AB2A94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2D668B6-0937-4497-9492-249553AB2A94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2D668B6-0937-4497-9492-249553AB2A94}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2D668B6-0937-4497-9492-249553AB2A94}.NET20|Any CPU.Build.0 = Debug|Any CPU
+		{D2D668B6-0937-4497-9492-249553AB2A94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2D668B6-0937-4497-9492-249553AB2A94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2D668B6-0937-4497-9492-249553AB2A94}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
+		{D2D668B6-0937-4497-9492-249553AB2A94}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

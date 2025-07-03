@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MySql.Data.MySqlClient
 {
@@ -9,7 +10,8 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     public class ExportInformations
     {
-        int _interval = 100;
+        private int _maxSqlLength = 16 * 1024 * 1024;
+        private int _interval = 100;
         string _delimiter = "|";
 
         List<string> _documentHeaders = null;
@@ -19,6 +21,10 @@ namespace MySql.Data.MySqlClient
 
         List<string> _lstExcludeTables = null;
         List<string> _lstExcludeRowsForTables = null;
+
+        private Dictionary<string, Dictionary<string, Func<object, object>>> _columnAdjustments;
+
+        public bool EnableParallelProcessing { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets the tables (black list) that will be excluded for export. The rows of the these tables will not be exported too.
@@ -55,36 +61,87 @@ namespace MySql.Data.MySqlClient
         }
 
         /// <summary>
+        /// Set the Timezone to UTC (+00:00). Default true. Essential for exporting timestamp related values.
+        /// </summary>
+        public bool SetTimeZoneUTC { get; set; } = true;
+
+        /// <summary>
+        /// Get the list of document headers. Set timezone to UTC (+00:00)
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
+        public List<string> GetDocumentHeaders(MySqlCommand cmd)
+        {
+            return GetDocumentHeaders(cmd, true);
+        }
+
+        /// <summary>
         /// Gets the list of document headers.
         /// </summary>
         /// <param name="cmd">The MySqlCommand that will be used to retrieve the database default character set.</param>
         /// <returns>List of document headers.</returns>
-        public List<string> GetDocumentHeaders(MySqlCommand cmd)
+        public List<string> GetDocumentHeaders(MySqlCommand cmd, bool setTimezoneUtc)
         {
+            const string SaveTimeZoneStatement = "/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;";
+            const string SetTimeZoneUtcStatement = "/*!40103 SET TIME_ZONE='+00:00' */;";
+
             if (_documentHeaders == null)
             {
-                _documentHeaders = new List<string>();
-                string databaseCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW variables LIKE 'character_set_database';", 1);
+                string databaseCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW VARIABLES LIKE 'character_set_database';", 1);
+                if (string.IsNullOrEmpty(databaseCharSet))
+                {
+                    databaseCharSet = "utf8mb4"; // Default to modern Unicode character set
+                }
 
+                _documentHeaders = new List<string>();
                 _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;");
                 _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;");
                 _documentHeaders.Add("/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;");
-                _documentHeaders.Add(string.Format("/*!40101 SET NAMES {0} */;", databaseCharSet));
-                //_documentHeaders.Add("/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;");
-                //_documentHeaders.Add("/*!40103 SET TIME_ZONE='+00:00' */;");
+                _documentHeaders.Add($"/*!40101 SET NAMES {databaseCharSet} */;");
+                if (setTimezoneUtc)
+                {
+                    _documentHeaders.Add(SaveTimeZoneStatement);
+                    _documentHeaders.Add(SetTimeZoneUtcStatement);
+                }
                 _documentHeaders.Add("/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;");
                 _documentHeaders.Add("/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;");
                 _documentHeaders.Add("/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;");
                 _documentHeaders.Add("/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;");
             }
+            else
+            {
+                Regex SaveTimeZoneRegex = new Regex(@"^/\*!\d{5}\s+SET\s+@OLD_TIME_ZONE\s*=\s*@@TIME_ZONE\s*\*/\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+                Regex SetTimeZoneUtcRegex = new Regex(@"^/\*!\d{5}\s+SET\s+TIME_ZONE\s*=\s*'\+00:00'\s*\*/\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+                if (!setTimezoneUtc)
+                {
+                    for (int i = _documentHeaders.Count - 1; i >= 0; i--)
+                    {
+                        if (SaveTimeZoneRegex.IsMatch(_documentHeaders[i]) || SetTimeZoneUtcRegex.IsMatch(_documentHeaders[i]))
+                            _documentHeaders.RemoveAt(i);
+                    }
+                }
+                else
+                {
+                    bool hasSaveTimeZone = false;
+                    bool hasSetTimeZone = false;
+
+                    foreach (string header in _documentHeaders)
+                    {
+                        if (SaveTimeZoneRegex.IsMatch(header))
+                            hasSaveTimeZone = true;
+                        if (SetTimeZoneUtcRegex.IsMatch(header))
+                            hasSetTimeZone = true;
+                    }
+
+                    if (!hasSaveTimeZone)
+                        _documentHeaders.Add(SaveTimeZoneStatement);
+                    if (!hasSetTimeZone)
+                        _documentHeaders.Add(SetTimeZoneUtcStatement);
+                }
+            }
 
             return _documentHeaders;
-        }
-
-        private bool IsValidMySqlCharacterSet(string charSet)
-        {
-            var validCharSets = new HashSet<string> { "utf8", "utf8mb4", "latin1", "ascii", "binary" };
-            return validCharSets.Contains(charSet.ToLower());
         }
 
         /// <summary>
@@ -97,15 +154,29 @@ namespace MySql.Data.MySqlClient
         }
 
         /// <summary>
+        /// Get the document footers. Reset timezone.
+        /// </summary>
+        /// <returns></returns>
+        public List<string> GetDocumentFooters()
+        {
+            return GetDocumentFooters(true);
+        }
+
+        /// <summary>
         /// Gets the document footers.
         /// </summary>
         /// <returns>List of document footers.</returns>
-        public List<string> GetDocumentFooters()
+        public List<string> GetDocumentFooters(bool resetTimeZone)
         {
+            const string TimeZoneStatement = "/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;";
+
             if (_documentFooters == null)
             {
                 _documentFooters = new List<string>();
-                //_documentFooters.Add("/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;");
+                if (resetTimeZone)
+                {
+                    _documentFooters.Add(TimeZoneStatement);
+                }
                 _documentFooters.Add("/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;");
                 _documentFooters.Add("/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;");
                 _documentFooters.Add("/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;");
@@ -113,6 +184,39 @@ namespace MySql.Data.MySqlClient
                 _documentFooters.Add("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;");
                 _documentFooters.Add("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;");
                 _documentFooters.Add("/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;");
+            }
+            else
+            {
+                var timeZoneRegex = new Regex(@"^/\*!\d{5}\s+SET\s+TIME_ZONE\s*=\s*@OLD_TIME_ZONE\s*\*/\s*$", RegexOptions.IgnoreCase);
+
+                if (!resetTimeZone)
+                {
+                    for (int i = _documentFooters.Count - 1; i >= 0; i--)
+                    {
+                        if (timeZoneRegex.IsMatch(_documentFooters[i]))
+                        {
+                            _documentFooters.RemoveAt(i);
+                        }
+                    }
+                }
+                else
+                {
+                    bool hasTimeZoneStatement = false;
+
+                    foreach (string footer in _documentFooters)
+                    {
+                        if (timeZoneRegex.IsMatch(footer))
+                        {
+                            hasTimeZoneStatement = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasTimeZoneStatement)
+                    {
+                        _documentFooters.Insert(0, TimeZoneStatement);
+                    }
+                }
             }
 
             return _documentFooters;
@@ -169,77 +273,85 @@ namespace MySql.Data.MySqlClient
         /// <summary>
         /// Gets or Sets a value indicates whether the Dump Time should recorded in dump file.
         /// </summary>
-        public bool RecordDumpTime = true;
+        public bool RecordDumpTime { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the SQL statement of "CREATE DATABASE" should be added into dump file.
         /// </summary>
-        public bool AddCreateDatabase = false;
+        public bool AddCreateDatabase { get; set; } = false;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the SQL statement of "DROP DATABASE" should be added into dump file.
         /// </summary>
-        public bool AddDropDatabase = false;
+        public bool AddDropDatabase { get; set; } = false;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Table Structure (CREATE TABLE) should be exported.
         /// </summary>
-        public bool ExportTableStructure = true;
+        public bool ExportTableStructure { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the SQL statement of "DROP TABLE" should be added into the dump file.
         /// </summary>
-        public bool AddDropTable = true;
+        public bool AddDropTable { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the value of auto-increment of each table should be reset to 1.
         /// </summary>
-        public bool ResetAutoIncrement = false;
+        public bool ResetAutoIncrement { get; set; } = false;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Rows should be exported.
         /// </summary>
-        public bool ExportRows = true;
+        public bool ExportRows { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets the maximum length for combining multiple INSERTs into single sql. Default value is 5MB. Only applies if RowsExportMode = "INSERT" or "INSERTIGNORE" or "REPLACE". This value will be ignored if RowsExportMode = ONDUPLICATEKEYUPDATE or UPDATE.
         /// </summary>
-        public int MaxSqlLength = 5 * 1024 * 1024;
+        public int MaxSqlLength
+        {
+            get => _maxSqlLength;
+            set
+            {
+                if (value < 1024)
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "SQL length must be at least 1KB (1024 bytes).");
+
+                if (value > 1073741824) // 1GB
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "SQL length cannot exceed 1GB (1073741824 bytes).");
+
+                _maxSqlLength = value;
+            }
+        }
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Stored Procedures should be exported.
         /// </summary>
-        public bool ExportProcedures = true;
+        public bool ExportProcedures { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Stored Functions should be exported.
         /// </summary>
-        public bool ExportFunctions = true;
+        public bool ExportFunctions { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Stored Triggers should be exported.
         /// </summary>
-        public bool ExportTriggers = true;
+        public bool ExportTriggers { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Stored Views should be exported.
         /// </summary>
-        public bool ExportViews = true;
+        public bool ExportViews { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the Stored Events should be exported.
         /// </summary>
-        public bool ExportEvents = true;
+        public bool ExportEvents { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates the interval of time (in miliseconds) to raise the event of ExportProgressChanged.
         /// </summary>
-        public int IntervalForProgressReport { get { if (_interval == 0) return 100; return _interval; } set { _interval = value; } }
-
-        /// <summary>
-        /// Gets or Sets a value indicates whether the totals of rows should be counted before export process commence. The value of total rows is used for progress reporting. Extra time is needed to get the total rows. Sets this value to FALSE if not applying progress reporting.
-        /// </summary>
-        //public bool GetTotalRowsBeforeExport = true;
+        public int IntervalForProgressReport { get { if (_interval == 0) return 250; return _interval; } set { _interval = value; } }
 
         /// <summary>
         /// Gets or Sets the delimiter used for exporting Procedures, Functions, Events and Triggers. Default delimiter is "|".
@@ -249,49 +361,43 @@ namespace MySql.Data.MySqlClient
         /// <summary>
         /// Gets or Sets a value indicates whether the exported Scripts (Procedure, Functions, Events, Triggers, Events) should exclude DEFINER.
         /// </summary>
-        public bool ExportRoutinesWithoutDefiner = true;
+        public bool ExportRoutinesWithoutDefiner { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a enum value indicates how the rows of each table should be exported. INSERT = The default option. Recommended if exporting to a new database. If the primary key existed, the process will halt; INSERT IGNORE = If the primary key existed, skip it; REPLACE = If the primary key existed, delete the row and insert new data; OnDuplicateKeyUpdate = If the primary key existed, update the row. If all fields are primary keys, it will change to INSERT IGNORE; UPDATE = If the primary key is not existed, skip it and if all the fields are primary key, no rows will be exported.
         /// </summary>
-        public RowsDataExportMode RowsExportMode = RowsDataExportMode.Insert;
+        public RowsDataExportMode RowsExportMode { get; set; } = RowsDataExportMode.Insert;
 
         /// <summary>
         /// Gets or Sets a value indicates whether the rows dump should be wrapped with transaction. Recommended to set this value to FALSE if using RowsExportMode = "INSERT" or "INSERTIGNORE" or "REPLACE", else TRUE.
         /// </summary>
-        public bool WrapWithinTransaction = false;
+        public bool WrapWithinTransaction { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to use LOCK TABLES WRITE during export operations.
+        /// When enabled, tables are locked for writing to ensure data consistency but may block other operations.
+        /// </summary>
+        public bool EnableLockTablesWrite { get; set; } = false;
 
         /// <summary>
         /// Gets or Sets a value indicates the encoding to be used for exporting the dump. Default = UTF8Coding(false)
         /// </summary>
-        public Encoding TextEncoding = new UTF8Encoding(false);
-
-        /// <summary>
-        /// Gets or Sets a enum value indicates how the BLOB should be exported. HexString = Hexa Decimal String (default); BinaryChar = char format.
-        /// </summary>
-        public BlobDataExportMode BlobExportMode = BlobDataExportMode.HexString;
-
-        /// <summary>
-        /// BlobExportMode = BlobDataExportMode.BinaryChar is disabled by default as this feature is under development. Set this value to true if you wish continue to export BLOB into binary string/char format. This is temporary available for debugging and development purposes.
-        /// </summary>
-        public bool BlobExportModeForBinaryStringAllow = false;
+        public Encoding TextEncoding { get; set; } = new UTF8Encoding(false);
 
         /// <summary>
         /// Gets or Sets a value indicates the method of how the total rows value is being obtained. InformationSchema = Fast, but approximate value; SelectCount = Slow but accurate; Skip = Skip obtaining total rows.
         /// </summary>
-        public GetTotalRowsMethod GetTotalRowsMode = GetTotalRowsMethod.InformationSchema;
+        public GetTotalRowsMethod GetTotalRowsMode { get; set; } = GetTotalRowsMethod.SelectCount;
 
         /// <summary>
         /// Gets or Sets a value indicates whether comments should be included in the dump content.
         /// </summary>
-        public bool EnableComment = true;
+        public bool EnableComment { get; set; } = true;
 
         /// <summary>
         /// Gets or Sets a value indicates whether line breaks should be added in between multiple INSERTs.
         /// </summary>
-        public bool InsertLineBreakBetweenInserts = false;
-
-        private Dictionary<string, Dictionary<string, Func<object, object>>> _columnAdjustments;
+        public bool InsertLineBreakBetweenInserts { get; set; } = false;
 
         /// <summary>
         /// Gets or sets table and column-specific value adjustment functions.
@@ -308,7 +414,7 @@ namespace MySql.Data.MySqlClient
         /// <summary>
         /// Helper method to add column adjustment
         /// </summary>
-        public void SetTableColumnValueAdjustment(string tableName, string columnName, Func<object, object> adjustFunc)
+        public void AddTableColumnValueAdjustment(string tableName, string columnName, Func<object, object> adjustFunc)
         {
             if (_columnAdjustments == null)
                 _columnAdjustments = new Dictionary<string, Dictionary<string, Func<object, object>>>(StringComparer.OrdinalIgnoreCase);

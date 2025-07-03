@@ -18,7 +18,7 @@ namespace Devart.Data.MySql
         {
             _name = procedureName;
 
-            string sql = string.Format("SHOW CREATE PROCEDURE `{0}`;", procedureName);
+            string sql = string.Format("SHOW CREATE PROCEDURE `{0}`;", QueryExpress.EscapeIdentifier(procedureName));
 
             _createProcedureSQL = QueryExpress.ExecuteScalarStr(cmd, sql, 2);
 

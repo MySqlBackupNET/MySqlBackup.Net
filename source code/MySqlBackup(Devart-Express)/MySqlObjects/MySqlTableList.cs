@@ -5,7 +5,7 @@ using System.Data;
 
 namespace Devart.Data.MySql
 {
-    public class MySqlTableList : IDisposable, IEnumerable<MySqlTable>
+    public class MySqlTableList : IEnumerable<MySqlTable>
     {
         string _sqlShowFullTables = string.Empty;
         Dictionary<string, MySqlTable> _lst = new Dictionary<string, MySqlTable>();
@@ -51,16 +51,6 @@ namespace Devart.Data.MySql
 
         IEnumerator IEnumerable.GetEnumerator() =>
             _lst.Values.GetEnumerator();
-
-        public void Dispose()
-        {
-            foreach(var key in _lst.Keys)
-            {
-                _lst[key].Dispose();
-                _lst[key] = null;
-            }
-            _lst = null;
-        }
 
         public bool Contains(string name)
         {

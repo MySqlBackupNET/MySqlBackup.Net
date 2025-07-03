@@ -5,7 +5,7 @@ using System.Data;
 
 namespace Devart.Data.MySql
 {
-    public class MySqlEventList : IDisposable, IEnumerable<MySqlEvent>
+    public class MySqlEventList : IEnumerable<MySqlEvent>
     {
         string _sqlShowEvents = string.Empty;
         Dictionary<string, MySqlEvent> _lst = new Dictionary<string, MySqlEvent>();
@@ -23,7 +23,7 @@ namespace Devart.Data.MySql
             try
             {
                 string dbname = QueryExpress.ExecuteScalarStr(cmd, "SELECT DATABASE();");
-                _sqlShowEvents = string.Format("SHOW EVENTS WHERE UPPER(TRIM(Db))=UPPER(TRIM('{0}'));", dbname);
+                _sqlShowEvents = string.Format("SHOW EVENTS WHERE UPPER(TRIM(Db))=UPPER(TRIM('{0}'));", QueryExpress.EscapeIdentifier(dbname));
                 DataTable dt = QueryExpress.GetTable(cmd, _sqlShowEvents);
 
                 foreach (DataRow dr in dt.Rows)
@@ -72,14 +72,5 @@ namespace Devart.Data.MySql
 
         IEnumerator IEnumerable.GetEnumerator() =>
            _lst.Values.GetEnumerator();
-
-        public void Dispose()
-        {
-            foreach (var key in _lst.Keys)
-            {
-                _lst[key] = null;
-            }
-            _lst = null;
-        }
     }
 }

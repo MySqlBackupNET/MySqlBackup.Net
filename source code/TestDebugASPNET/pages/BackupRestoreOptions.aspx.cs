@@ -31,11 +31,19 @@ namespace System.pages
 
         void LoadConstr()
         {
-            txtConnStr.Text = config.ConnString;
-
-            if (config.TestConnectionOk())
+            try
             {
-                LoadDatabaseInfo();
+                txtConnStr.Text = config.ConnString;
+
+                if (config.TestConnectionOk())
+                {
+                    LoadDatabaseInfo();
+                }
+            }
+            catch (Exception ex)
+            {
+                ((masterPage1)this.Master).WriteTopMessageBar("Error: " + ex.Message, false);
+                ((masterPage1)this.Master).ShowMessage("Error", ex.Message, false);
             }
         }
 
@@ -60,7 +68,7 @@ namespace System.pages
                     {
                         return (false, "No database is selected");
                     }
-                    
+
                     lstDocHeaders = ef.GetDocumentHeaders(cmd);
                     dtTable = QueryExpress.GetTable(cmd, "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE';");
                 }
@@ -89,14 +97,37 @@ namespace System.pages
             txtDocumentFooters.Text = string.Join(Environment.NewLine, lstDocFooters);
 
             return (true, "");
+
         }
 
         protected void btSaveConnStr_Click(object sender, EventArgs e)
         {
-            config.SaveConnStr(txtConnStr.Text);
 
             try
             {
+                config.SaveConnStr(txtConnStr.Text);
+
+                MySqlConnectionStringBuilder consb = new MySqlConnectionStringBuilder(txtConnStr.Text);
+                string database = consb.Database;
+
+                if (database != "")
+                {
+                    consb.Database = "";
+
+                    using (var conn = new MySqlConnection(consb.ConnectionString))
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        conn.Open();
+                        string dbName = QueryExpress.ExecuteScalarStr(cmd, $"show databases like '{QueryExpress.EscapeIdentifier(database)}';");
+                        if (dbName != database)
+                        {
+                            cmd.CommandText = $"create database if not exists `{QueryExpress.EscapeIdentifier(database)}`";
+                            cmd.ExecuteNonQuery();
+                            ((masterPage1)this.Master).WriteTopMessageBar($"New database created: {database}", true);
+                        }
+                    }
+                }
+
                 string timenow = "";
 
                 using (MySqlConnection conn = config.GetNewConnection())

@@ -5,7 +5,7 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient
 {
-    public class MySqlTriggerList : IDisposable, IEnumerable<MySqlTrigger>
+    public class MySqlTriggerList : IEnumerable<MySqlTrigger>
     {
         string _sqlShowTriggers = string.Empty;
         Dictionary<string, MySqlTrigger> _lst = new Dictionary<string, MySqlTrigger>();
@@ -71,14 +71,5 @@ namespace MySql.Data.MySqlClient
 
         IEnumerator IEnumerable.GetEnumerator() =>
            _lst.Values.GetEnumerator();
-
-        public void Dispose()
-        {
-            foreach (var key in _lst.Keys)
-            {
-                _lst[key] = null;
-            }
-            _lst = null;
-        }
     }
 }

@@ -14,7 +14,7 @@
         {
             _name = functionName;
 
-            string sql = string.Format("SHOW CREATE FUNCTION `{0}`;", functionName);
+            string sql = string.Format("SHOW CREATE FUNCTION `{0}`;", QueryExpress.EscapeIdentifier(functionName));
 
             _createFunctionSQL = QueryExpress.ExecuteScalarStr(cmd, sql, 2);
 

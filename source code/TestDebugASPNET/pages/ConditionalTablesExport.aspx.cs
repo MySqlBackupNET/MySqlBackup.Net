@@ -24,6 +24,8 @@ namespace System.pages
         {
             try
             {
+                string dbName = "";
+
                 MySqlDatabase d = new MySqlDatabase();
 
                 using (MySqlConnection conn = config.GetNewConnection())
@@ -32,8 +34,20 @@ namespace System.pages
                     {
                         conn.Open();
 
-                        d.GetDatabaseInfo(cmd, GetTotalRowsMethod.Skip);
+                        dbName = QueryExpress.ExecuteScalarStr(cmd, "select database();");
+
+                        if (!string.IsNullOrEmpty(dbName))
+                        {
+                            d.GetDatabaseInfo(cmd, GetTotalRowsMethod.Skip);
+                        }
                     }
+                }
+
+                if (string.IsNullOrEmpty(dbName))
+                {
+                    ((masterPage1)this.Master).WriteTopMessageBar("No database defined.", false);
+                    ((masterPage1)this.Master).ShowMessage("Error", "No database selected", false);
+                    return;
                 }
 
                 StringBuilder sb = new StringBuilder();

@@ -5,7 +5,7 @@ using System.Data;
 
 namespace Devart.Data.MySql
 {
-    public class MySqlFunctionList : IDisposable, IEnumerable<MySqlFunction>
+    public class MySqlFunctionList : IEnumerable<MySqlFunction>
     {
         string _sqlShowFunctions = string.Empty;
         Dictionary<string, MySqlFunction> _lst = new Dictionary<string, MySqlFunction>();
@@ -23,7 +23,7 @@ namespace Devart.Data.MySql
             try
             {
                 string dbname = QueryExpress.ExecuteScalarStr(cmd, "SELECT DATABASE();");
-                _sqlShowFunctions = string.Format("SHOW FUNCTION STATUS WHERE UPPER(TRIM(Db))= UPPER(TRIM('{0}'));", dbname);
+                _sqlShowFunctions = string.Format("SHOW FUNCTION STATUS WHERE UPPER(TRIM(Db))= UPPER(TRIM('{0}'));", QueryExpress.EscapeIdentifier(dbname));
                 DataTable dt = QueryExpress.GetTable(cmd, _sqlShowFunctions);
 
                 foreach (DataRow dr in dt.Rows)
@@ -72,14 +72,5 @@ namespace Devart.Data.MySql
 
         IEnumerator IEnumerable.GetEnumerator() =>
            _lst.Values.GetEnumerator();
-
-        public void Dispose()
-        {
-            foreach (var key in _lst.Keys)
-            {
-                _lst[key] = null;
-            }
-            _lst = null;
-        }
     }
 }

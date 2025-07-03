@@ -14,7 +14,7 @@
         {
             _name = eventName;
 
-            _createEventSql = QueryExpress.ExecuteScalarStr(cmd, string.Format("SHOW CREATE EVENT `{0}`;", _name), "Create Event");
+            _createEventSql = QueryExpress.ExecuteScalarStr(cmd, string.Format("SHOW CREATE EVENT `{0}`;", QueryExpress.EscapeIdentifier(_name)), "Create Event");
 
             _createEventSql = _createEventSql.Replace("\r\n", "^~~~~~~~~~~~~~~^");
             _createEventSql = _createEventSql.Replace("\n", "^~~~~~~~~~~~~~~^");

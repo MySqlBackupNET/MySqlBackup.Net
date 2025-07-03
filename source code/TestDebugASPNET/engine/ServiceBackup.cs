@@ -61,7 +61,7 @@ namespace System
                 {
                     using (var cmd = new MySqlCommand())
                     {
-                        await conn.OpenAsync();
+                        conn.Open();
                         cmd.Connection = conn;
 
                         using (var mb = new MySqlBackup(cmd))

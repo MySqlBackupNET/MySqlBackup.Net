@@ -5,7 +5,7 @@ using System.Timers;
 
 namespace MySql.Data.MySqlClient
 {
-    public class MySqlDatabase : IDisposable
+    public class MySqlDatabase
     {
         string _name = string.Empty;
         string _createDatabaseSql = string.Empty;
@@ -49,7 +49,7 @@ namespace MySql.Data.MySqlClient
         {
             _name = QueryExpress.ExecuteScalarStr(cmd, "SELECT DATABASE();");
             _defaultCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW VARIABLES LIKE 'character_set_database';", 1);
-            _createDatabaseSql = QueryExpress.ExecuteScalarStr(cmd, string.Format("SHOW CREATE DATABASE `{0}`;", _name), 1).Replace("CREATE DATABASE", "CREATE DATABASE IF NOT EXISTS") + ";";
+            _createDatabaseSql = QueryExpress.ExecuteScalarStr(cmd, string.Format("SHOW CREATE DATABASE `{0}`;", QueryExpress.EscapeIdentifier(_name)), 1).Replace("CREATE DATABASE", "CREATE DATABASE IF NOT EXISTS") + ";";
             _dropDatabaseSql = string.Format("DROP DATABASE IF EXISTS `{0}`;", _name);
 
             _listTable = new MySqlTableList(cmd);
@@ -77,7 +77,7 @@ namespace MySql.Data.MySqlClient
 
             if (enumGetTotalRowsMode == GetTotalRowsMethod.InformationSchema)
             {
-                DataTable dtTotalRows = QueryExpress.GetTable(cmd, string.Format("SELECT TABLE_NAME, TABLE_ROWS FROM `information_schema`.`tables` WHERE `table_schema` = '{0}';", _name));
+                DataTable dtTotalRows = QueryExpress.GetTable(cmd, string.Format("SELECT TABLE_NAME, TABLE_ROWS FROM `information_schema`.`tables` WHERE `table_schema` = '{0}';", QueryExpress.EscapeIdentifier(_name)));
                 timer.Start();
                 foreach (DataRow dr in dtTotalRows.Rows)
                 {
@@ -102,16 +102,6 @@ namespace MySql.Data.MySqlClient
                 timer.Stop();
                 GetTotalRowsProgressChanged?.Invoke(this, new GetTotalRowsArgs(_listTable.Count, _listTable.Count));
             }
-        }
-
-        public void Dispose()
-        {
-            _listTable.Dispose();
-            _listProcedure.Dispose();
-            _listFunction.Dispose();
-            _listEvent.Dispose();
-            _listTrigger.Dispose();
-            _listView.Dispose();
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient
 {
-    public class MySqlProcedureList : IDisposable, IEnumerable<MySqlProcedure>
+    public class MySqlProcedureList : IEnumerable<MySqlProcedure>
     {
         string _sqlShowProcedures = string.Empty;
         Dictionary<string, MySqlProcedure> _lst = new Dictionary<string, MySqlProcedure>();
@@ -23,7 +23,7 @@ namespace MySql.Data.MySqlClient
             try
             {
                 string dbname = QueryExpress.ExecuteScalarStr(cmd, "SELECT DATABASE();");
-                _sqlShowProcedures = string.Format("SHOW PROCEDURE STATUS WHERE UPPER(TRIM(Db))= UPPER(TRIM('{0}'));", dbname);
+                _sqlShowProcedures = string.Format("SHOW PROCEDURE STATUS WHERE UPPER(TRIM(Db))= UPPER(TRIM('{0}'));", QueryExpress.EscapeIdentifier(dbname));
                 DataTable dt = QueryExpress.GetTable(cmd, _sqlShowProcedures);
 
                 foreach (DataRow dr in dt.Rows)
@@ -72,14 +72,5 @@ namespace MySql.Data.MySqlClient
 
         IEnumerator IEnumerable.GetEnumerator() =>
            _lst.Values.GetEnumerator();
-
-        public void Dispose()
-        {
-            foreach (var key in _lst.Keys)
-            {
-                _lst[key] = null;
-            }
-            _lst = null;
-        }
     }
 }

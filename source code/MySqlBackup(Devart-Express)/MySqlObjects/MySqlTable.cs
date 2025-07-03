@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Devart.Data.MySql
 {
-    public class MySqlTable : IDisposable
+    public class MySqlTable
     {
         string _name = string.Empty;
         MySqlColumnList _lst = null;
@@ -24,7 +24,7 @@ namespace Devart.Data.MySql
         public MySqlTable(MySqlCommand cmd, string name)
         {
             _name = name;
-            string sql = string.Format("SHOW CREATE TABLE `{0}`;", name);
+            string sql = string.Format("SHOW CREATE TABLE `{0}`;", QueryExpress.EscapeIdentifier(name));
             _createTableSql = QueryExpress.ExecuteScalarStr(cmd, sql, 1).Replace(Environment.NewLine, "^~~~~~~^").Replace("\r", "^~~~~~~^").Replace("\n", "^~~~~~~^").Replace("^~~~~~~^", Environment.NewLine).Replace("CREATE TABLE ", "CREATE TABLE IF NOT EXISTS ") + ";";
             _createTableSqlWithoutAutoIncrement = RemoveAutoIncrement(_createTableSql);
             _lst = new MySqlColumnList(cmd, name);
@@ -33,11 +33,15 @@ namespace Devart.Data.MySql
 
         void GetInsertStatementHeaders()
         {
-            _insertStatementHeaderWithoutColumns = string.Format("INSERT INTO `{0}` VALUES", _name);
+            //_insertStatementHeaderWithoutColumns = string.Format("INSERT INTO `{0}` VALUES", _name);
+            _insertStatementHeaderWithoutColumns = string.Format("INSERT INTO `{0}` VALUES", QueryExpress.EscapeIdentifier(_name));
 
             StringBuilder sb = new StringBuilder();
             sb.Append("INSERT INTO `");
-            sb.Append(_name);
+            
+            //sb.Append(_name);
+            sb.Append(QueryExpress.EscapeIdentifier(_name));
+
             sb.Append("` (");
             var i = 0;
             foreach (var column in _lst)
@@ -57,7 +61,7 @@ namespace Devart.Data.MySql
 
         public void GetTotalRowsByCounting(MySqlCommand cmd)
         {
-            string sql = string.Format("SELECT COUNT(1) FROM `{0}`;", _name);
+            string sql = string.Format("SELECT COUNT(1) FROM `{0}`;", QueryExpress.EscapeIdentifier(_name));
             _totalRows = QueryExpress.ExecuteScalarLong(cmd, sql);
         }
 
@@ -93,12 +97,6 @@ namespace Devart.Data.MySql
             }
 
             return sql;
-        }
-
-        public void Dispose()
-        {
-            _lst.Dispose();
-            _lst = null;
         }
     }
 }

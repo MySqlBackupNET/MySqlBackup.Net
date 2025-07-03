@@ -14,7 +14,7 @@
         {
             _name = viewName;
 
-            string sqlShowCreate = string.Format("SHOW CREATE VIEW `{0}`;", viewName);
+            string sqlShowCreate = string.Format("SHOW CREATE VIEW `{0}`;", QueryExpress.EscapeIdentifier(viewName));
 
             System.Data.DataTable dtView = QueryExpress.GetTable(cmd, sqlShowCreate);
 

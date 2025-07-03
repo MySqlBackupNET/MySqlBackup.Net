@@ -5,7 +5,7 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient
 {
-    public class MySqlViewList : IDisposable, IEnumerable<MySqlView>
+    public class MySqlViewList : IEnumerable<MySqlView>
     {
         string _sqlShowViewList = string.Empty;
         Dictionary<string, MySqlView> _lst = new Dictionary<string, MySqlView>();
@@ -23,7 +23,7 @@ namespace MySql.Data.MySqlClient
             try
             {
                 string dbname = QueryExpress.ExecuteScalarStr(cmd, "SELECT DATABASE();");
-                _sqlShowViewList = string.Format("SHOW FULL TABLES FROM `{0}` WHERE Table_type = 'VIEW';", dbname);
+                _sqlShowViewList = string.Format("SHOW FULL TABLES FROM `{0}` WHERE Table_type = 'VIEW';", QueryExpress.EscapeIdentifier(dbname));
                 DataTable dt = QueryExpress.GetTable(cmd, _sqlShowViewList);
 
                 foreach (DataRow dr in dt.Rows)
@@ -72,14 +72,5 @@ namespace MySql.Data.MySqlClient
 
         IEnumerator IEnumerable.GetEnumerator() =>
            _lst.Values.GetEnumerator();
-
-        public void Dispose()
-        {
-            foreach (var key in _lst.Keys)
-            {
-                _lst[key] = null;
-            }
-            _lst = null;
-        }
     }
 }

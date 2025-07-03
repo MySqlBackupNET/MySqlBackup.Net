@@ -5,7 +5,7 @@ using System.Data;
 
 namespace MySql.Data.MySqlClient
 {
-    public class MySqlColumnList : IDisposable, IEnumerable<MySqlColumn>
+    public class MySqlColumnList : IEnumerable<MySqlColumn>
     {
         string _tableName;
         string _sqlShowFullColumns = string.Empty;
@@ -19,9 +19,9 @@ namespace MySql.Data.MySqlClient
         public MySqlColumnList(MySqlCommand cmd, string tableName)
         {
             _tableName = tableName;
-            DataTable dtDataType = QueryExpress.GetTable(cmd, string.Format("SELECT * FROM  `{0}` where 1 = 2;", tableName));
+            DataTable dtDataType = QueryExpress.GetTable(cmd, string.Format("SELECT * FROM  `{0}` where 1 = 2;", QueryExpress.EscapeIdentifier(tableName)));
             
-            _sqlShowFullColumns = string.Format("SHOW FULL COLUMNS FROM `{0}`;", tableName);
+            _sqlShowFullColumns = string.Format("SHOW FULL COLUMNS FROM `{0}`;", QueryExpress.EscapeIdentifier(tableName));
             DataTable dtColInfo = QueryExpress.GetTable(cmd, _sqlShowFullColumns);
 
             for (int i = 0; i < dtDataType.Columns.Count; i++)
@@ -71,15 +71,6 @@ namespace MySql.Data.MySqlClient
         public bool Contains(string columnName)
         {
             return _lst.ContainsKey(columnName);
-        }
-
-        public void Dispose()
-        {
-            foreach (var key in _lst.Keys)
-            {
-                _lst[key] = null;
-            }
-            _lst = null;
         }
 
         public IEnumerator<MySqlColumn> GetEnumerator() =>

@@ -53,7 +53,10 @@ namespace System.pages
                     txtFilePathMySqlDump.Text = instancePathMySqlDump;
                     txtFilePathMySql.Text = instancePathMySql;
                     txtOutputFolder.Text = Server.MapPath("~/App_Data/backup");
-                    txtReportFileFolder.Text = txtOutputFolder.Text;
+
+                    string filePathReport = Path.Combine(txtOutputFolder.Text, $"benchmark-report-{DateTime.Now:yyyy-MM-dd_HHmmss}.txt");
+
+                    txtReportFilePath.Text = filePathReport;
                 }
                 catch (Exception ex)
                 {
@@ -65,45 +68,60 @@ namespace System.pages
 
         protected async void btRun_Click(object sender, EventArgs e)
         {
-            string folder = txtOutputFolder.Text;
-            Directory.CreateDirectory(folder);
-
-            Directory.CreateDirectory(txtReportFileFolder.Text);
-            string reportFilePath = Path.Combine(txtReportFileFolder.Text, $"benchmark_report_{DateTime.Now:yyyy-MM-dd HHmmss}.txt");
-
-            BenchmarkTest.TaskId++;
-            int newTaskId = BenchmarkTest.TaskId;
-
-            var bc = new BenchmarkConfiguration
+            try
             {
-                TaskId = newTaskId,
-                ConnectionString = config.ConnString,
-                SourceDatabaseName = txtInitialSchema.Text,
-                BaseFolder = folder,
-                ReportFilePath = reportFilePath,
-                MySqlDumpFilePath = txtFilePathMySqlDump.Text,
-                MySqlFilePath = txtFilePathMySql.Text,
-                MySqlInstanceDirect = cbMySqlInstanceExecuteDirect.Checked,
-                GetSystemInfo = cbGetSystemInfo.Checked,
-                CleanUpDatabase = cbCleanDatabaseAfterUse.Checked,
-                RunStage1 = cbRunStage1.Checked,
-                RunStage2 = cbRunStage2.Checked,
-                RunStage3 = cbRunStage3.Checked,
-                RunStage4 = cbRunStage4.Checked,
-                RunStage5 = cbRunStage5.Checked,
-                DeleteDumpFileAfterProcess = cbDeleteDumpFile.Checked
-            };
+                string folder = txtOutputFolder.Text;
+                Directory.CreateDirectory(folder);
 
-            // Fire and forget, run the task asynchronously in background
-            _ = Task.Run(() => RunTest(bc));
+                string reportFilePath = txtReportFilePath.Text;
 
-            panelSetup.Visible = false;
-            panelResult.Visible = true;
-            literalTaskId.Text = $@"
+                string folderReport = Path.GetDirectoryName(reportFilePath);
+                Directory.CreateDirectory(folderReport);
+
+                BenchmarkTest.TaskId++;
+                int newTaskId = BenchmarkTest.TaskId;
+
+                int.TryParse(txtTotalRound.Text, out int totalRounds);
+
+                if (totalRounds < 1) totalRounds = 1;
+                if (totalRounds > 3) totalRounds = 3;
+
+                var bc = new BenchmarkConfiguration
+                {
+                    TaskId = newTaskId,
+                    ConnectionString = config.ConnString,
+                    SourceDatabaseName = txtInitialSchema.Text,
+                    BaseFolder = folder,
+                    ReportFilePath = reportFilePath,
+                    MySqlDumpFilePath = txtFilePathMySqlDump.Text,
+                    MySqlFilePath = txtFilePathMySql.Text,
+                    MySqlInstanceDirect = cbMySqlInstanceExecuteDirect.Checked,
+                    GetSystemInfo = cbGetSystemInfo.Checked,
+                    CleanUpDatabase = cbCleanDatabaseAfterUse.Checked,
+                    RunStage1 = cbRunStage1.Checked,
+                    RunStage2 = cbRunStage2.Checked,
+                    RunStage3 = cbRunStage3.Checked,
+                    RunStage4 = cbRunStage4.Checked,
+                    RunStage5 = cbRunStage5.Checked,
+                    DeleteDumpFileAfterProcess = cbDeleteDumpFile.Checked,
+                    TotalRounds = totalRounds
+                };
+
+                // Fire and forget, run the task asynchronously in background
+                _ = Task.Run(() => RunTest(bc));
+
+                panelSetup.Visible = false;
+                panelResult.Visible = true;
+                literalTaskId.Text = $@"
 <script>
 var taskid = {newTaskId};
 </script>
 ";
+            }
+            catch(Exception ex)
+            {
+                ((masterPage1)this.Master).WriteTopMessageBar("Error: " + ex.Message, false);
+            }
         }
 
         private async Task RunTest(BenchmarkConfiguration bc)
@@ -194,61 +212,59 @@ var taskid = {newTaskId};
                 Directory.CreateDirectory(dirReport);
                 File.WriteAllText(bc.ReportFilePath, sb.ToString());
 
-                string dumpFile1 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-1.txt");
-                string dumpFile2 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-2.txt");
-                string dumpFile3 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-3.txt");
-                string dumpFile4 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-4-parallel.txt");
-                string dumpFile5 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-5-parallel.txt");
-                string dumpFile6 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-6-parallel.txt");
-                string dumpFile7 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqldump-1.txt");
-                string dumpFile8 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqldump-2.txt");
-                string dumpFile9 = Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqldump-3.txt");
+                // Generate dump file names based on total rounds
+                List<string> dumpFiles1 = new List<string>();  // MySqlBackup.NET
+                List<string> dumpFiles2 = new List<string>();  // MySqlBackup.NET Parallel
+                List<string> dumpFiles3 = new List<string>();  // MySqlDump
+                List<string> dbNames1 = new List<string>();    // MySqlBackup.NET restore
+                List<string> dbNames2 = new List<string>();    // MySQL Instance restore
 
-                string dbName1 = $"test_benchmark_restore_mysqlbackupnet_1";
-                string dbName2 = $"test_benchmark_restore_mysqlbackupnet_2";
-                string dbName3 = $"test_benchmark_restore_mysqlbackupnet_3";
-                string dbName4 = $"test_benchmark_restore_mysql_1";
-                string dbName5 = $"test_benchmark_restore_mysql_2";
-                string dbName6 = $"test_benchmark_restore_mysql_3";
+                for (int i = 1; i <= bc.TotalRounds; i++)
+                {
+                    dumpFiles1.Add(Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-{i}.txt"));
+                    dumpFiles2.Add(Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-{i + bc.TotalRounds}-parallel.txt"));
+                    dumpFiles3.Add(Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqldump-{i}.txt"));
+                    dbNames1.Add($"test_benchmark_restore_mysqlbackupnet_{i}");
+                    dbNames2.Add($"test_benchmark_restore_mysql_{i}");
+                }
 
                 sb.AppendLine();
                 sb.AppendLine($"Initial Source Database: {bc.SourceDatabaseName}");
                 sb.AppendLine();
 
+                int taskCounter = 1;
+
                 if (bc.RunStage1)
                 {
                     // backup - MySqlBackup.NET
-                    dicProgress[bc.TaskId].dicTask[1] = new BenchmarkTask(1, 1, bc.SourceDatabaseName, dumpFile1, bc.RunStage1);
-                    dicProgress[bc.TaskId].dicTask[2] = new BenchmarkTask(1, 2, bc.SourceDatabaseName, dumpFile2, bc.RunStage1);
-                    dicProgress[bc.TaskId].dicTask[3] = new BenchmarkTask(1, 3, bc.SourceDatabaseName, dumpFile3, bc.RunStage1);
-
-                    sb.AppendLine($"Dump File 1: {dumpFile1}");
-                    sb.AppendLine($"Dump File 2: {dumpFile2}");
-                    sb.AppendLine($"Dump File 3: {dumpFile3}");
+                    for (int i = 0; i < bc.TotalRounds; i++)
+                    {
+                        dicProgress[bc.TaskId].dicTask[taskCounter] = new BenchmarkTask(1, i + 1, bc.SourceDatabaseName, dumpFiles1[i], bc.RunStage1);
+                        sb.AppendLine($"Dump File {taskCounter}: {dumpFiles1[i]}");
+                        taskCounter++;
+                    }
                 }
 
                 if (bc.RunStage2)
                 {
                     // backup - MySqlBackup.NET - Parallel Processing
-                    dicProgress[bc.TaskId].dicTask[4] = new BenchmarkTask(2, 1, bc.SourceDatabaseName, dumpFile4, bc.RunStage2, true);
-                    dicProgress[bc.TaskId].dicTask[5] = new BenchmarkTask(2, 2, bc.SourceDatabaseName, dumpFile5, bc.RunStage2, true);
-                    dicProgress[bc.TaskId].dicTask[6] = new BenchmarkTask(2, 3, bc.SourceDatabaseName, dumpFile6, bc.RunStage2, true);
-
-                    sb.AppendLine($"Dump File 4: {dumpFile4}");
-                    sb.AppendLine($"Dump File 5: {dumpFile5}");
-                    sb.AppendLine($"Dump File 6: {dumpFile6}");
+                    for (int i = 0; i < bc.TotalRounds; i++)
+                    {
+                        dicProgress[bc.TaskId].dicTask[taskCounter] = new BenchmarkTask(2, i + 1, bc.SourceDatabaseName, dumpFiles2[i], bc.RunStage2, true);
+                        sb.AppendLine($"Dump File {taskCounter}: {dumpFiles2[i]}");
+                        taskCounter++;
+                    }
                 }
 
                 if (bc.RunStage3)
                 {
                     // backup - MySqlDump
-                    dicProgress[bc.TaskId].dicTask[7] = new BenchmarkTask(3, 1, bc.SourceDatabaseName, dumpFile7, bc.RunStage3);
-                    dicProgress[bc.TaskId].dicTask[8] = new BenchmarkTask(3, 2, bc.SourceDatabaseName, dumpFile8, bc.RunStage3);
-                    dicProgress[bc.TaskId].dicTask[9] = new BenchmarkTask(3, 3, bc.SourceDatabaseName, dumpFile9, bc.RunStage3);
-
-                    sb.AppendLine($"Dump File 7: {dumpFile7}");
-                    sb.AppendLine($"Dump File 8: {dumpFile8}");
-                    sb.AppendLine($"Dump File 9: {dumpFile9}");
+                    for (int i = 0; i < bc.TotalRounds; i++)
+                    {
+                        dicProgress[bc.TaskId].dicTask[taskCounter] = new BenchmarkTask(3, i + 1, bc.SourceDatabaseName, dumpFiles3[i], bc.RunStage3);
+                        sb.AppendLine($"Dump File {taskCounter}: {dumpFiles3[i]}");
+                        taskCounter++;
+                    }
                 }
 
                 if (bc.RunStage4 || bc.RunStage5)
@@ -257,25 +273,23 @@ var taskid = {newTaskId};
                 if (bc.RunStage4)
                 {
                     // restore - MySqlBackup.NET
-                    dicProgress[bc.TaskId].dicTask[10] = new BenchmarkTask(4, 1, dbName1, dumpFile1, bc.RunStage4);
-                    dicProgress[bc.TaskId].dicTask[11] = new BenchmarkTask(4, 2, dbName2, dumpFile1, bc.RunStage4);
-                    dicProgress[bc.TaskId].dicTask[12] = new BenchmarkTask(4, 3, dbName3, dumpFile1, bc.RunStage4);
-
-                    sb.AppendLine($"Database 1: {dbName1}");
-                    sb.AppendLine($"Database 2: {dbName2}");
-                    sb.AppendLine($"Database 3: {dbName3}");
+                    for (int i = 0; i < bc.TotalRounds; i++)
+                    {
+                        dicProgress[bc.TaskId].dicTask[taskCounter] = new BenchmarkTask(4, i + 1, dbNames1[i], dumpFiles1[0], bc.RunStage4); // Use first dump file for all restore tests
+                        sb.AppendLine($"Database {taskCounter}: {dbNames1[i]}");
+                        taskCounter++;
+                    }
                 }
 
                 if (bc.RunStage5)
                 {
                     // restore - MySQL Instance
-                    dicProgress[bc.TaskId].dicTask[13] = new BenchmarkTask(5, 1, dbName4, dumpFile1, bc.RunStage5);
-                    dicProgress[bc.TaskId].dicTask[14] = new BenchmarkTask(5, 2, dbName5, dumpFile1, bc.RunStage5);
-                    dicProgress[bc.TaskId].dicTask[15] = new BenchmarkTask(5, 3, dbName6, dumpFile1, bc.RunStage5);
-
-                    sb.AppendLine($"Database 4: {dbName4}");
-                    sb.AppendLine($"Database 5: {dbName5}");
-                    sb.AppendLine($"Database 6: {dbName6}");
+                    for (int i = 0; i < bc.TotalRounds; i++)
+                    {
+                        dicProgress[bc.TaskId].dicTask[taskCounter] = new BenchmarkTask(5, i + 1, dbNames2[i], dumpFiles1[0], bc.RunStage5); // Use first dump file for all restore tests
+                        sb.AppendLine($"Database {taskCounter}: {dbNames2[i]}");
+                        taskCounter++;
+                    }
                 }
 
                 foreach (var kvStage in bti.dicStageInfo)
@@ -359,7 +373,7 @@ var taskid = {newTaskId};
                                     bt.Sha256 = Sha256.Compute(bt.DumpFile);
                                     if (bc.DeleteDumpFileAfterProcess)
                                     {
-                                        if ((bc.RunStage4 || bc.RunStage5) && bt.DumpFile == dumpFile1)
+                                        if ((bc.RunStage4 || bc.RunStage5) && bt.DumpFile == dumpFiles1[0])
                                         {
                                             // do not delete the first dump file, required for the import test    
                                         }
@@ -382,8 +396,6 @@ var taskid = {newTaskId};
                             bt.TimeUsed = bt.TimeEnd - bt.TimeStart;
                             bt.HasError = true;
                             bt.LastError = ex;
-
-                            throw;
                         }
                     }
                 }
@@ -1515,6 +1527,7 @@ default-character-set={dbCharacterSet}";
         public bool RunStage4 { get; set; }
         public bool RunStage5 { get; set; }
         public bool DeleteDumpFileAfterProcess { get; set; }
+        public int TotalRounds { get; set; }
 
         public BenchmarkConfiguration()
         {

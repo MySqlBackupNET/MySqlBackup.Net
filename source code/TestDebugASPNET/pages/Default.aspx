@@ -78,8 +78,9 @@
         MySQL Connection String: 
         <br />
         <br />
-        <asp:TextBox ID="txtConnStr" runat="server" Width="800px"></asp:TextBox><br />
-        *This connection string will be used for all database operations in this app
+        <asp:TextBox ID="txtConnStr" runat="server" Width="900px" placeholder="server=localhost;user=root;pwd=;convertzerodatetime=true;treattinyasboolean=true;database=;"></asp:TextBox><br />
+        *This connection string will be used for all database operations in this app.<br />
+        *If the database that specified in the connection string is not existed, upon saving the connection, it will be created.
         <br />
         <br />
 

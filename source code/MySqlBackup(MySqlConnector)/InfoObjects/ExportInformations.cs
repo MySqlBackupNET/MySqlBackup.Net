@@ -24,6 +24,8 @@ namespace MySqlConnector
 
         private Dictionary<string, Dictionary<string, Func<object, object>>> _columnAdjustments;
 
+        public bool EnableParallelProcessing { get; set; } = true;
+
         /// <summary>
         /// Gets or Sets the tables (black list) that will be excluded for export. The rows of the these tables will not be exported too.
         /// </summary>
@@ -385,7 +387,7 @@ namespace MySqlConnector
         /// <summary>
         /// Gets or Sets a value indicates the method of how the total rows value is being obtained. InformationSchema = Fast, but approximate value; SelectCount = Slow but accurate; Skip = Skip obtaining total rows.
         /// </summary>
-        public GetTotalRowsMethod GetTotalRowsMode { get; set; } = GetTotalRowsMethod.InformationSchema;
+        public GetTotalRowsMethod GetTotalRowsMode { get; set; } = GetTotalRowsMethod.SelectCount;
 
         /// <summary>
         /// Gets or Sets a value indicates whether comments should be included in the dump content.

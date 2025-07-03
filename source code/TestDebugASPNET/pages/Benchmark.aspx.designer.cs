@@ -60,13 +60,13 @@ namespace System.pages
         protected global::System.Web.UI.WebControls.TextBox txtOutputFolder;
 
         /// <summary>
-        /// txtReportFileFolder control.
+        /// txtReportFilePath control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtReportFileFolder;
+        protected global::System.Web.UI.WebControls.TextBox txtReportFilePath;
 
         /// <summary>
         /// cbMySqlInstanceExecuteDirect control.
@@ -85,6 +85,15 @@ namespace System.pages
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox cbMySqlInstanceExecuteCmdShell;
+
+        /// <summary>
+        /// txtTotalRound control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtTotalRound;
 
         /// <summary>
         /// cbGetSystemInfo control.

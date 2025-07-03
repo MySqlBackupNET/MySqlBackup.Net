@@ -225,6 +225,15 @@
                 .remarks-content::-webkit-scrollbar-thumb:hover {
                     background: #555;
                 }
+
+        ul ul {
+            list-style-type: "-";
+            padding-left: 20px; /* Controls indentation distance */
+        }
+
+            ul ul li {
+                padding-left: 10px; /* Controls distance between symbol and text */
+            }
     </style>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
@@ -233,45 +242,58 @@
         <asp:Panel ID="panelSetup" runat="server">
 
             <h1>Benchmark</h1>
-
-            Performance test and comparison of Backup and Restore of using MySqlBackup.NET, MySqlDump and MySql (instance).<br />
-            The test requires this ASP.NET application to be run with "LocalSystem" / "System" / "Administrator" privilege.<br />
+            Performance test and comparison of Backup and Restore using MySqlBackup.NET, MySqlDump, and MySQL (instance).
             <br />
+            Notes:
+            <ul>
+                <li>Running this test in the Visual Studio debugging environment will slow down the process by 2-4 times.</li>
+                <li>For optimum speed, build this project with the [Release] profile and publish it to a folder. Use Windows IIS to run this ASP.NET app.</li>
+                <li>Executing mysqldump.exe and mysql.exe in ASP.NET:
+                    <ul>
+                        <li><strong>Local Windows 10/11 IIS:</strong> Works with default ApplicationPoolIdentity (no privilege changes needed).</li>
+                        <li><strong>Shared Web Hosting:</strong> Executable restrictions prevent running mysql.exe and mysqldump.exe.</li>
+                        <li><strong>Self-owned Windows Server/VPS:</strong> May (may not) require granting file system permissions to ApplicationPoolIdentity or changing to a custom account with MySQL access.</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <hr />
+
             Please manually enter the file path of the following instance:
             <table class="maintb">
                 <tr>
                     <td style="padding-top: 10px; padding-bottom: 0; vertical-align: top;">Initial Schema</td>
                     <td>
-                        <asp:TextBox ID="txtInitialSchema" runat="server" Width="600px"></asp:TextBox><br />
+                        <asp:TextBox ID="txtInitialSchema" runat="server" Width="200px"></asp:TextBox><br />
                         *This database is expected to have already been populated with rows of data.
                     </td>
                 </tr>
                 <tr>
                     <td style="padding-top: 10px; padding-bottom: 0; vertical-align: top;">MySqlDump</td>
                     <td>
-                        <asp:TextBox ID="txtFilePathMySqlDump" runat="server" Width="600px"></asp:TextBox><br />
+                        <asp:TextBox ID="txtFilePathMySqlDump" runat="server" Width="800px"></asp:TextBox><br />
                         *The executable file path of mysqldump.exe
                     </td>
                 </tr>
                 <tr>
                     <td style="padding-top: 10px; padding-bottom: 0; vertical-align: top;">MySql</td>
                     <td>
-                        <asp:TextBox ID="txtFilePathMySql" runat="server" Width="600px"></asp:TextBox><br />
+                        <asp:TextBox ID="txtFilePathMySql" runat="server" Width="800px"></asp:TextBox><br />
                         *The executable file path of mysql.exe
                     </td>
                 </tr>
                 <tr>
                     <td style="padding-top: 10px; padding-bottom: 0; vertical-align: top;">Output Folder</td>
                     <td>
-                        <asp:TextBox ID="txtOutputFolder" runat="server" Width="600px"></asp:TextBox><br />
+                        <asp:TextBox ID="txtOutputFolder" runat="server" Width="800px"></asp:TextBox><br />
                         *Destination folder of exported dump files
                     </td>
                 </tr>
                 <tr>
-                    <td style="padding-top: 10px; padding-bottom: 0; vertical-align: top;">Report Folder</td>
+                    <td style="padding-top: 10px; padding-bottom: 0; vertical-align: top;">Report File</td>
                     <td>
-                        <asp:TextBox ID="txtReportFileFolder" runat="server" Width="600px"></asp:TextBox><br />
-                        *Destination folder of report file
+                        <asp:TextBox ID="txtReportFilePath" runat="server" TextMode="MultiLine" Style="white-space: pre-wrap; word-wrap: break-word; word-break: break-all; width: 800px; height: 40px;"></asp:TextBox><br />
+                        *Full file path location for saving the report
                     </td>
                 </tr>
                 <tr>
@@ -316,10 +338,15 @@
                 <tr>
                     <td></td>
                     <td>
+                        <asp:TextBox ID="txtTotalRound" runat="server" TextMode="Number" Width="40px" Text="3" min="1" max="3"></asp:TextBox>
+                        Total round for each stage (min: 1, max: 3)</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
                         <asp:CheckBox ID="cbGetSystemInfo" runat="server" Checked="true" />
                         Get System Info</td>
                 </tr>
-
                 <tr>
                     <td></td>
                     <td>
@@ -353,13 +380,13 @@
                 <tr>
                     <td></td>
                     <td>
-                        <asp:CheckBox ID="cbCleanDatabaseAfterUse" runat="server" />
+                        <asp:CheckBox ID="cbCleanDatabaseAfterUse" runat="server" Checked="true" />
                         Clean Up Database After Use</td>
                 </tr>
                 <tr>
                     <td></td>
                     <td>
-                        <asp:CheckBox ID="cbDeleteDumpFile" runat="server" />
+                        <asp:CheckBox ID="cbDeleteDumpFile" runat="server" Checked="true" />
                         Delete dump file immediately after each process. Note: The first dump file must be kept for the import test</td>
                 </tr>
             </table>
@@ -376,8 +403,8 @@
             <asp:Literal ID="literalTaskId" runat="server"></asp:Literal>
 
             <script>
-
                 let intervalId = null;
+                let totalRounds = 3; // Default value, will be updated from backend data
 
                 const stageNames = {
                     1: "Export/Backup - MySqlBackup.NET",
@@ -385,15 +412,6 @@
                     3: "Export/Backup - MySqlDump (mysqldump.exe)",
                     4: "Import/Restore - MySqlBackup.NET",
                     5: "Import/Restore - MySql (mysql.exe) Instance"
-                };
-
-                // Map backend stages to frontend stages for task numbering
-                const stageTaskMapping = {
-                    1: { start: 1, end: 3 },   // Tasks 1-3: Stage 1 (MySqlBackup.NET)
-                    2: { start: 4, end: 6 },   // Tasks 4-6: Stage 2 (MySqlBackup.NET Parallel)  
-                    3: { start: 7, end: 9 },   // Tasks 7-9: Stage 3 (MySqlDump)
-                    4: { start: 10, end: 12 }, // Tasks 10-12: Stage 4 (MySqlBackup.NET Import)
-                    5: { start: 13, end: 15 }  // Tasks 13-15: Stage 5 (MySql Instance Import)
                 };
 
                 function getActiveStages(pr) {
@@ -407,6 +425,20 @@
                         }
                     }
                     return activeStages.sort();
+                }
+
+                function getTotalRoundsFromTasks(pr) {
+                    // Determine total rounds from the actual tasks
+                    let maxRound = 0;
+                    if (pr.dicTask) {
+                        for (let taskId in pr.dicTask) {
+                            const task = pr.dicTask[taskId];
+                            if (task.ActiveTask && task.Round > maxRound) {
+                                maxRound = task.Round;
+                            }
+                        }
+                    }
+                    return maxRound > 0 ? maxRound : 3; // Default to 3 if no tasks found
                 }
 
                 function drawUI() {
@@ -442,7 +474,7 @@
                     container.innerHTML = html;
                 }
 
-                function updateStagesUI(activeStages) {
+                function updateStagesUI(activeStages, totalRounds) {
                     const stagesContainer = document.getElementById('stages-container');
 
                     let html = '';
@@ -454,8 +486,8 @@
                 <div class="rounds-container">
         `;
 
-                        // Create rounds for each stage
-                        for (let round = 1; round <= 3; round++) {
+                        // Create rounds based on actual totalRounds
+                        for (let round = 1; round <= totalRounds; round++) {
                             html += `
                 <div class="round-block pending" id="block-${stage}-${round}">
                     <div class="round-title">Round ${round}</div>
@@ -482,19 +514,16 @@
 
                 function updateProgress(pr) {
                     const activeStages = getActiveStages(pr);
-                    const totalTasks = activeStages.length * 3; // 3 rounds per active stage
+                    const actualTotalRounds = getTotalRoundsFromTasks(pr);
+                    const totalTasks = activeStages.length * actualTotalRounds;
                     let completedTasks = 0;
 
-                    // Count completed tasks only for active stages
+                    // Count completed tasks for active stages only
                     if (pr.dicTask) {
-                        for (let stageId of activeStages) {
-                            const mapping = stageTaskMapping[stageId];
-                            if (mapping) {
-                                for (let taskId = mapping.start; taskId <= mapping.end; taskId++) {
-                                    if (pr.dicTask[taskId] && pr.dicTask[taskId].Completed && pr.dicTask[taskId].ActiveTask) {
-                                        completedTasks++;
-                                    }
-                                }
+                        for (let taskId in pr.dicTask) {
+                            const task = pr.dicTask[taskId];
+                            if (task.ActiveTask && task.Completed && activeStages.includes(task.Stage)) {
+                                completedTasks++;
                             }
                         }
                     }
@@ -509,10 +538,17 @@
 
                 function fillValues(pr) {
                     const activeStages = getActiveStages(pr);
+                    const actualTotalRounds = getTotalRoundsFromTasks(pr);
 
-                    // Update stages UI if not already done or if stages changed
-                    if (document.getElementById('stages-container').children.length === 0) {
-                        updateStagesUI(activeStages);
+                    // Update totalRounds if it has changed
+                    if (totalRounds !== actualTotalRounds) {
+                        totalRounds = actualTotalRounds;
+                    }
+
+                    // Update stages UI if not already done or if stages/rounds changed
+                    const stagesContainer = document.getElementById('stages-container');
+                    if (stagesContainer.children.length === 0) {
+                        updateStagesUI(activeStages, totalRounds);
                     }
 
                     // Update main info
@@ -569,6 +605,11 @@
 
                             // Skip if this stage is not active
                             if (!activeStages.includes(stage)) {
+                                continue;
+                            }
+
+                            // Skip if this round is beyond what we're displaying
+                            if (round > totalRounds) {
                                 continue;
                             }
 
@@ -762,6 +803,19 @@
                         intervalId = setInterval(fetchProgress, 1000);
                         console.log('Restarted polling');
                     }
+                }
+
+                // Add input validation for total rounds
+                function hideButton(button) {
+                    const totalRoundInput = document.getElementById('txtTotalRound');
+                    if (totalRoundInput) {
+                        let value = parseInt(totalRoundInput.value) || 1;
+                        if (value < 1) value = 1;
+                        if (value > 3) value = 3;
+                        totalRoundInput.value = value;
+                    }
+
+                    button.style.display = 'none';
                 }
 
                 // Initialize
