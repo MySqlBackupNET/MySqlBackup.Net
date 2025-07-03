@@ -23,28 +23,11 @@ namespace System.pages
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-            {
-                LoadConstr();
-            }
-        }
-
-        void LoadConstr()
-        {
             try
             {
-                txtConnStr.Text = config.ConnString;
-
-                if (config.TestConnectionOk())
-                {
-                    LoadDatabaseInfo();
-                }
+                LoadDatabaseInfo();
             }
-            catch (Exception ex)
-            {
-                ((masterPage1)this.Master).WriteTopMessageBar("Error: " + ex.Message, false);
-                ((masterPage1)this.Master).ShowMessage("Error", ex.Message, false);
-            }
+            catch { }
         }
 
         (bool, string) LoadDatabaseInfo()
@@ -98,57 +81,6 @@ namespace System.pages
 
             return (true, "");
 
-        }
-
-        protected void btSaveConnStr_Click(object sender, EventArgs e)
-        {
-
-            try
-            {
-                config.SaveConnStr(txtConnStr.Text);
-
-                MySqlConnectionStringBuilder consb = new MySqlConnectionStringBuilder(txtConnStr.Text);
-                string database = consb.Database;
-
-                if (database != "")
-                {
-                    consb.Database = "";
-
-                    using (var conn = new MySqlConnection(consb.ConnectionString))
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        conn.Open();
-                        string dbName = QueryExpress.ExecuteScalarStr(cmd, $"show databases like '{QueryExpress.EscapeIdentifier(database)}';");
-                        if (dbName != database)
-                        {
-                            cmd.CommandText = $"create database if not exists `{QueryExpress.EscapeIdentifier(database)}`";
-                            cmd.ExecuteNonQuery();
-                            ((masterPage1)this.Master).WriteTopMessageBar($"New database created: {database}", true);
-                        }
-                    }
-                }
-
-                string timenow = "";
-
-                using (MySqlConnection conn = config.GetNewConnection())
-                {
-                    using (MySqlCommand cmd = new MySqlCommand())
-                    {
-                        conn.Open();
-                        cmd.Connection = conn;
-
-                        cmd.CommandText = "select now();";
-                        timenow = cmd.ExecuteScalar() + "";
-                    }
-                }
-
-                ((masterPage1)this.Master).ShowMessage("Ok", "Connection Success", true);
-                ((masterPage1)this.Master).WriteTopMessageBar($"Connection string saved and the connection test is success. {timenow}", true);
-            }
-            catch (Exception ex)
-            {
-                ((masterPage1)this.Master).ShowMessage("Error", $"Connection Failed. Error: {ex.Message}", false);
-            }
         }
 
         protected void btCreateSampleData_Click(object sender, EventArgs e)
@@ -374,6 +306,8 @@ namespace System.pages
                 }
 
                 ((masterPage1)this.Master).ShowMessage("Ok", "Success! Sample table and data rows are created.", true);
+
+                btGetDatabaseInfo_Click(null, null);
             }
             catch (Exception ex)
             {
@@ -491,31 +425,48 @@ namespace System.pages
 
         protected void btRunBackup_Click(object sender, EventArgs e)
         {
-            var exportInfo = GetExportInfo();
-
-            string filename = $"Simple-Backup-{DateTime.Now:yyyy-MM-dd HHmmss}.sql";
-            string folder = Server.MapPath("~/App_Data/temp");
-            Directory.CreateDirectory(folder);
-
-            string dumpFile = Path.Combine(folder, filename);
-
-            using (MySqlConnection conn = config.GetNewConnection())
+            try
             {
-                using (MySqlCommand cmd = new MySqlCommand())
-                {
-                    conn.Open();
-                    cmd.Connection = conn;
+                var exportInfo = GetExportInfo();
 
-                    using (MySqlBackup mb = new MySqlBackup(cmd))
+                string filename = $"Simple-Backup-{DateTime.Now:yyyy-MM-dd HHmmss}.sql";
+                string folder = Server.MapPath("~/App_Data/temp");
+                Directory.CreateDirectory(folder);
+
+                string dumpFile = Path.Combine(folder, filename);
+
+                using (MySqlConnection conn = config.GetNewConnection())
+                {
+                    using (MySqlCommand cmd = new MySqlCommand())
                     {
-                        mb.ExportInfo = exportInfo;
-                        mb.ExportToFile(dumpFile);
+                        conn.Open();
+                        cmd.Connection = conn;
+
+                        using (MySqlBackup mb = new MySqlBackup(cmd))
+                        {
+                            mb.ExportInfo = exportInfo;
+                            mb.ExportToFile(dumpFile);
+                        }
                     }
                 }
-            }
 
-            ((masterPage1)this.Master).WriteTopMessageBar($"Database backup successful.", true);
-            ((masterPage1)this.Master).ShowMessage("Ok", "Database backup success", true);
+                string zipfilepath = dumpFile + ".zip";
+
+                ZipHelper.ZipFile(dumpFile, zipfilepath);
+
+                Response.Clear();
+                Response.ContentType = "application/zip";
+                Response.AppendHeader("Content-Disposition", $"attachment; filename=\"{filename}.zip\"");
+                Response.AppendHeader("Content-Length", new FileInfo(zipfilepath).Length + "");
+                Response.TransmitFile(zipfilepath);
+                Response.Flush();
+                Response.End();
+            }
+            catch (Exception ex)
+            {
+                ((masterPage1)this.Master).WriteTopMessageBar("Error: " + ex.Message, false);
+                ((masterPage1)this.Master).ShowMessage("Error", ex.Message, false);
+            }
         }
 
         protected async void btRunBackupAsync_Click(object sender, EventArgs e)

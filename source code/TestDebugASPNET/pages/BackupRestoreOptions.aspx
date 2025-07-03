@@ -16,20 +16,7 @@
 
         <h1>Backup and Restore MySQL With Options</h1>
 
-        This is a lightweight debugging tool designed exclusively for testing MySqlBackup.NET functionality during development. This project facilitates rapid testing of backup operations and error handling.<br />
-        <br />
-
-        MySQL Connection String: 
-    <br />
-        <br />
-        <asp:TextBox ID="txtConnStr" runat="server" Width="900px" placeholder="server=localhost;user=root;pwd=;convertzerodatetime=true;treattinyasboolean=true;database=;"></asp:TextBox><br />
-        *This connection string will be used for all database operations in this app.<br />
-        *If the database that specified in the connection string is not existed, upon saving the connection, it will be created.
-        <br />
-        <br />
-
-        <asp:Button ID="btSaveConnStr" runat="server" Text="Save and Test Connection" OnClick="btSaveConnStr_Click" />
-        <asp:Button ID="btCreateSampleData" runat="server" Text="Create Sample Data" OnClick="btCreateSampleData_Click" />
+        <asp:Button ID="btCreateSampleData" runat="server" Text="Create Quick Sample Tables and Rows" OnClick="btCreateSampleData_Click" />
         <a href="/DatabaseRecordList" class="buttonmain">View Backup File List</a>
 
         <br />
@@ -49,7 +36,7 @@
                         </div>
                         <div style="padding: 10px; line-height: 320%;">
 
-                            <asp:Button ID="btRunBackup" runat="server" Text="Run Simple Backup" OnClick="btRunBackup_Click" OnClientClick="showBackupLoading(0);" />
+                            <asp:Button ID="btRunBackup" runat="server" Text="Run Simple Backup" OnClick="btRunBackup_Click" OnClientClick="showBackupLoading(3000);" />
                             <asp:Button ID="btRunBackupAsync" runat="server" Text="Run Backup Async (Progress Report)" OnClick="btRunBackupAsync_Click" />
                             <asp:Button ID="btBackupMemoryStream" runat="server" Text="Backup Memory Stream" OnClick="btBackupMemoryStream_Click" />
                             <asp:Button ID="btGetDatabaseInfo" runat="server" Text="Refresh Info" OnClick="btGetDatabaseInfo_Click" />

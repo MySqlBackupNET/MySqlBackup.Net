@@ -14,6 +14,7 @@
             <asp:Button ID="btDeleteTestDatabase" runat="server" Text="Delete All Test_xxx_... Databases in MySQL Server" OnClick="btDeleteTestDatabase_Click" OnClientClick="showBigLoading(0);" />
             <asp:Button ID="btDeleteTempDumpFiles" runat="server" Text="Delete All Dump Files in Temp Folder" OnClick="btDeleteTempDumpFiles_Click" OnClientClick="showBigLoading(0);" />
             <asp:Button ID="btDeleteTaskReport" runat="server" Text="Delete All Task Reports" OnClick="btDeleteTaskReport_Click" OnClientClick="showBigLoading(0);" />
+            <div style="height: 4px;"></div>
             <button type="button" onclick="requestConfirmDropTables()">Drop All Tables</button>
         </asp:Panel>
         <asp:Panel ID="panelConfirmDelete" runat="server">

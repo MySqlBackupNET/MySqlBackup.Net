@@ -15,24 +15,6 @@ namespace System.pages
     {
 
         /// <summary>
-        /// txtConnStr control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtConnStr;
-
-        /// <summary>
-        /// btSaveConnStr control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btSaveConnStr;
-
-        /// <summary>
         /// btCreateSampleData control.
         /// </summary>
         /// <remarks>

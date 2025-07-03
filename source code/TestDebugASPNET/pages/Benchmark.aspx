@@ -2,6 +2,14 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <style>
+        .divconfig textarea {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            word-break: break-all;
+            width: 800px;
+            height: 40px;
+        }
+
         .maintb tr td:first-child {
             text-align: right;
         }
@@ -260,7 +268,7 @@
             <hr />
 
             Please manually enter the file path of the following instance:
-            <table class="maintb">
+            <table class="maintb divconfig">
                 <tr>
                     <td style="padding-top: 10px; padding-bottom: 0; vertical-align: top;">Initial Schema</td>
                     <td>
@@ -285,14 +293,14 @@
                 <tr>
                     <td style="padding-top: 10px; padding-bottom: 0; vertical-align: top;">Output Folder</td>
                     <td>
-                        <asp:TextBox ID="txtOutputFolder" runat="server" Width="800px"></asp:TextBox><br />
+                        <asp:TextBox ID="txtOutputFolder" runat="server" TextMode="MultiLine"></asp:TextBox><br />
                         *Destination folder of exported dump files
                     </td>
                 </tr>
                 <tr>
                     <td style="padding-top: 10px; padding-bottom: 0; vertical-align: top;">Report File</td>
                     <td>
-                        <asp:TextBox ID="txtReportFilePath" runat="server" TextMode="MultiLine" Style="white-space: pre-wrap; word-wrap: break-word; word-break: break-all; width: 800px; height: 40px;"></asp:TextBox><br />
+                        <asp:TextBox ID="txtReportFilePath" runat="server" TextMode="MultiLine"></asp:TextBox><br />
                         *Full file path location for saving the report
                     </td>
                 </tr>
