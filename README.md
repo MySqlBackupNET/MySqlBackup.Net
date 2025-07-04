@@ -113,20 +113,8 @@ MySqlBackup.NET requires one of these MySQL connectors:
 ## Configuration Tips
 
 ### Unicode Support
-For databases with UTF-8 or Unicode characters (e.g., `À`, `Ñ`, Cyrillic, Chinese), use:
-```
-server=localhost;user=root;pwd=qwerty;charset=utf8;
-```
-Or, for broader support:
-```
-server=localhost;user=root;pwd=qwerty;charset=utf8mb4;
-```
-
-### DateTime Handling (MySql.Data Only)
-To avoid conversion errors with null or date-only values, add:
-```
-server=localhost;user=root;pwd=qwerty;charset=utf8;convertzerodatetime=true;
-```
+* Always use the default character set of `utf8mb4`, or `utf8` in older MySQL versions that do not support `utf8mb4`.
+* It is recommended to use `convertzerodatetime=true` in the connection string for compatibility when handling null datetime values.
 
 ---
 
