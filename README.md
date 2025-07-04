@@ -59,41 +59,29 @@ See the detailed guide:
 
 #### Backup a Database
 ```csharp
-string connString = "server=localhost;user=root;pwd=qwerty;database=test;";
+string constr = "server=localhost;user=root;pwd=1234;database=test1;convertzerodatetime=true;";
 string filePath = @"C:\backup.sql";
 
-using (var conn = new MySqlConnection(connString))
+using (var conn = new MySqlConnection(constr))
+using (var cmd = conn.CreateCommand())
+using (var mb = new MySqlBackup(cmd))
 {
-    using (var cmd = new MySqlCommand())
-    {
-        using (var mb = new MySqlBackup(cmd))
-        {
-            cmd.Connection = conn;
-            conn.Open();
-            mb.ExportToFile(filePath);
-            conn.Close();
-        }
-    }
+    conn.Open();
+    mb.ExportToFile(filePath);
 }
 ```
 
 #### Restore a Database
 ```csharp
-string connString = "server=localhost;user=root;pwd=qwerty;database=test;";
+string constr = "server=localhost;user=root;pwd=1234;database=test1;convertzerodatetime=true;";
 string filePath = @"C:\backup.sql";
 
-using (var conn = new MySqlConnection(connString))
+using (var conn = new MySqlConnection(constr))
+using (var cmd = conn.CreateCommand())
+using (var mb = new MySqlBackup(cmd))
 {
-    using (var cmd = new MySqlCommand())
-    {
-        using (var mb = new MySqlBackup(cmd))
-        {
-            cmd.Connection = conn;
-            conn.Open();
-            mb.ImportFromFile(filePath);
-            conn.Close();
-        }
-    }
+    conn.Open();
+    mb.ImportFromFile(filePath);
 }
 ```
 
