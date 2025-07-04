@@ -2,7 +2,7 @@
 
 *A versatile tool for backing up and restoring MySQL databases in C#, VB.NET, and ASP.NET.*
 
-*Latest Release: v2.3.9 (March 13, 2025)*  
+*Latest Release: v2.6 (July 04, 2025)*  
 [Change Log](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/Change-Log)
 
 ---
