@@ -11,12 +11,8 @@ using System.Timers;
 
 namespace MySqlConnector
 {
-    //public partial class MySqlBackup_ParallelPipelineProcessing : IDisposable
     public partial class MySqlBackup : IDisposable
     {
-        
-
-
         public static string Version =>
             typeof(MySqlBackup).Assembly.GetName().Version.ToString();
 
@@ -2002,8 +1998,7 @@ namespace MySqlConnector
 
                         ms.Position = 0L;
 
-                        if (_calculateBytes)
-                            _totalBytes = ms.Length;
+                        _totalBytes = ms.Length;
 
                         using (var sr = new StreamReader(ms))
                         {
@@ -2031,11 +2026,8 @@ namespace MySqlConnector
                 textReader = null;
                 useStreamReader = true;
 
-                if (_calculateBytes)
-                {
-                    System.IO.FileInfo fi = new FileInfo(filePath);
-                    _totalBytes = fi.Length;
-                }
+                System.IO.FileInfo fi = new FileInfo(filePath);
+                _totalBytes = fi.Length;
 
                 using (var sr = new StreamReader(filePath))
                 {
@@ -2066,11 +2058,8 @@ namespace MySqlConnector
                 if (ms == null)
                     throw new ArgumentNullException(nameof(ms), "MemoryStream cannot be null.");
 
-                if (_calculateBytes)
-                {
-                    if (bytesTotal < 0L)
-                        throw new ArgumentException("Total bytes cannot be negative.", nameof(bytesTotal));
-                }
+                if (bytesTotal < 0L)
+                    throw new ArgumentException("Total bytes cannot be negative.", nameof(bytesTotal));
 
                 if (ms.Length == 0)
                     throw new ArgumentException("MemoryStream is empty.", nameof(ms));
@@ -2131,7 +2120,7 @@ namespace MySqlConnector
 
                     sm.Seek(0, SeekOrigin.Begin);
 
-                    if (_calculateBytes && bytesTotal == 0L)
+                    if (bytesTotal == 0L)
                     {
                         _totalBytes = sm.Length;
                     }
@@ -2174,14 +2163,11 @@ namespace MySqlConnector
                 if (tr == null)
                     throw new ArgumentNullException(nameof(tr), "TextReader cannot be null.");
 
-                if (_calculateBytes)
-                {
-                    if (bytesTotal < 0L)
-                        throw new ArgumentException("Total bytes cannot be negative.", nameof(bytesTotal));
+                if (bytesTotal < 0L)
+                    throw new ArgumentException("Total bytes cannot be negative.", nameof(bytesTotal));
 
-                    if (bytesTotal > 0L)
-                        _totalBytes = bytesTotal;
-                }
+                if (bytesTotal > 0L)
+                    _totalBytes = bytesTotal;
 
                 useStreamReader = false;
                 streamReader = null;

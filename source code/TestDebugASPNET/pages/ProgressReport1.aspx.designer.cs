@@ -11,7 +11,7 @@ namespace System.pages
 {
 
 
-    public partial class ReportProgress
+    public partial class ProgressReport1
     {
     }
 }

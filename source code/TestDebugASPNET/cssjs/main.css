@@ -16,6 +16,14 @@ body, input, button, a, textarea, select, option, pre, div, span, table, th, td 
     line-height: 150%;
 }
 
+a {
+    color: #1741cb;
+}
+
+a:hover {
+    color: #0094cc;
+}
+
 form {
     padding: 0;
     margin: 0;

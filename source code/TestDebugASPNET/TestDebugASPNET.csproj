@@ -127,6 +127,7 @@
     <Content Include="cssjs\main.css" />
     <Content Include="cssjs\main.js" />
     <Content Include="pages\About.aspx" />
+    <Content Include="pages\apiProgressReport2.aspx" />
     <Content Include="pages\Default.aspx" />
     <Content Include="Global.asax" />
     <Content Include="pages\apiBenchmark.aspx" />
@@ -136,6 +137,9 @@
     <Content Include="pages\CreateSampleTableRows.aspx" />
     <Content Include="pages\MemoryStreamDemo.aspx" />
     <Content Include="pages\ParallelPipelineExport.aspx" />
+    <Content Include="pages\ProgressReport2.aspx" />
+    <Content Include="pages\ProgressReportMenu.aspx" />
+    <Content Include="pages\ProgressReportSimple.aspx" />
     <Content Include="pages\QuickTestAdjustColumnValue.aspx" />
     <Content Include="pages\apiProgressReport.aspx" />
     <Content Include="pages\BackupRestoreOptions.aspx" />
@@ -147,19 +151,27 @@
     <Content Include="pages\QueryBrowserSQLite.aspx" />
     <Content Include="pages\QuickTestEscapeCharacters.aspx" />
     <Content Include="pages\QuickTestWithAllDataType.aspx" />
-    <Content Include="pages\ReportProgress.aspx" />
+    <Content Include="pages\ProgressReport1.aspx" />
     <Content Include="pages\ReportProgressRestoreFileUpload.aspx" />
     <Content Include="pages\ShaFilesCompute.aspx" />
     <Content Include="pages\Typography.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="engine\TimeDisplayHelper.cs" />
     <Compile Include="pages\About.aspx.cs">
       <DependentUpon>About.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="pages\About.aspx.designer.cs">
       <DependentUpon>About.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\apiProgressReport2.aspx.cs">
+      <DependentUpon>apiProgressReport2.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\apiProgressReport2.aspx.designer.cs">
+      <DependentUpon>apiProgressReport2.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
@@ -276,6 +288,27 @@
     <Compile Include="pages\ParallelPipelineExport.aspx.designer.cs">
       <DependentUpon>ParallelPipelineExport.aspx</DependentUpon>
     </Compile>
+    <Compile Include="pages\ProgressReport2.aspx.cs">
+      <DependentUpon>ProgressReport2.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\ProgressReport2.aspx.designer.cs">
+      <DependentUpon>ProgressReport2.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\ProgressReportMenu.aspx.cs">
+      <DependentUpon>ProgressReportMenu.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\ProgressReportMenu.aspx.designer.cs">
+      <DependentUpon>ProgressReportMenu.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\ProgressReportSimple.aspx.cs">
+      <DependentUpon>ProgressReportSimple.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\ProgressReportSimple.aspx.designer.cs">
+      <DependentUpon>ProgressReportSimple.aspx</DependentUpon>
+    </Compile>
     <Compile Include="pages\QuickTestAdjustColumnValue.aspx.cs">
       <DependentUpon>QuickTestAdjustColumnValue.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -353,12 +386,12 @@
     <Compile Include="pages\QuickTestWithAllDataType.aspx.designer.cs">
       <DependentUpon>QuickTestWithAllDataType.aspx</DependentUpon>
     </Compile>
-    <Compile Include="pages\ReportProgress.aspx.cs">
-      <DependentUpon>ReportProgress.aspx</DependentUpon>
+    <Compile Include="pages\ProgressReport1.aspx.cs">
+      <DependentUpon>ProgressReport1.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="pages\ReportProgress.aspx.designer.cs">
-      <DependentUpon>ReportProgress.aspx</DependentUpon>
+    <Compile Include="pages\ProgressReport1.aspx.designer.cs">
+      <DependentUpon>ProgressReport1.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\ReportProgressRestoreFileUpload.aspx.cs">
       <DependentUpon>ReportProgressRestoreFileUpload.aspx</DependentUpon>

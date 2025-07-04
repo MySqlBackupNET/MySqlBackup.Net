@@ -109,26 +109,5 @@ MySqlBackup.NET relies on the following component to work.
 
 ### Reminder 1
 
-MySqlBackup.NET (or MySqlBackup.DLL) stands on top of MySql.Data.DLL which also stands on top of .NET Framework, which uses UTF8 encoding by default.
-If your database involves any UTF8 or Unicode Characters. You must use a MySQL database with default character of **UTF8** while handling Unicode Characters, such as
-
-* Western European specific languages, the character of 'À', 'ë', 'õ', 'Ñ'.
-* Russian, Hebrew, India, Arabic, Chinese, Korean, Japanese characters, etc.
-
-You are recommended to apply the connection string option of charset=utf8. Example:
-
-```
-server=localhost;user=root;pwd=mypwd;charset=utf8;
-```
-or
-```
-server=localhost;user=root;pwd=mypwd;charset=utf8mb4;
-```
-### Reminder 2
-
-(For MySql.Data connector only)
-DateTime conversion between MySQL and .NET Framework. In MySQL, there are various of DateTime format, such as null value or Date only data. But, in .NET Framework, there is no null value (or Date only) for DateTime. This error is not caused by MySqlBackup.DLL. MySql.Data.DLL (developed by Oracle) has decided to throw an exception of Data Conversion Error. Therefore, you are strongly recommended to apply the connection string option of **convertzerodatetime=true**. Example:
-
-```
-server=localhost;user=root;pwd=mypwd;charset=utf8mb4;convertzerodatetime=true;
-```
+* Always use the default character set of `utf8mb4`, or `utf8` in older MySQL versions that do not support `utf8mb4`.
+* It is recommended to use `convertzerodatetime=true` in the connection string for compatibility when handling null datetime values..

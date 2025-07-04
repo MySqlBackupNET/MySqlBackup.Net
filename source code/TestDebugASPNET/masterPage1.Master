@@ -24,7 +24,7 @@
             <a href="/QuickTestEscapeCharacters">Quick Test - Backup/Restore Escape Characters</a>
             <a href="/QuickTestAdjustColumnValue">Quick Test - Adjust Column Value</a>
             <a href="/ConditionalTablesExport">Conditional Tables Export</a>
-            <a href="/ReportProgress">Progress Report</a>
+            <a href="/ProgressReportMenu">Progress Report</a>
             <a href="/QueryBrowser">Query Browser (MySQL)</a>
             <a href="/QueryBrowserSQLite">Query Browser (SQLite)</a>
             <a href="/DatabaseRecordList">Database Records</a>
