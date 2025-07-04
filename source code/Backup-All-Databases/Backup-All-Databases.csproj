@@ -97,23 +97,33 @@
     </Compile>
     <Compile Include="Config.cs" />
     <Compile Include="EncryptionHelper.cs" />
-    <Compile Include="Form1.cs" />
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormBackup.cs" />
+    <Compile Include="FormBackup.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FormBackup.Designer.cs">
       <DependentUpon>FormBackup.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormInfo.cs" />
+    <Compile Include="FormInfo.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FormInfo.Designer.cs">
       <DependentUpon>FormInfo.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormPwd.cs" />
+    <Compile Include="FormPwd.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FormPwd.Designer.cs">
       <DependentUpon>FormPwd.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormTaskScheduler.cs" />
+    <Compile Include="FormTaskScheduler.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FormTaskScheduler.Designer.cs">
       <DependentUpon>FormTaskScheduler.cs</DependentUpon>
     </Compile>
