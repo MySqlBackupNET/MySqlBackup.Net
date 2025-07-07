@@ -111,7 +111,7 @@ MySqlBackup.NET requires one of these MySQL connectors:
 
 ## Compatibility
 
-We aim for MySqlBackup.NET to achieve 100% SQL compliance, ensuring seamless compatibility with `mysqldump` and `mysql.exe` for both backup and restore operations. Version 2.6 introduces key improvements, including enhanced delimiter detection (Issue #52) and proper handling of foreign key references (Issue #31), addressing previous compatibility challenges with `mysqldump`-generated files. If you encounter any incompatibilities, we welcome feedback via [GitHub Issues](https://github.com/MySqlBackupNET/MySqlBackup.Net/issues) to help us refine and uphold this goal.
+We aim for MySqlBackup.NET to achieve 100% SQL compliance, ensuring seamless compatibility with `mysqldump` and `mysql.exe` for both backup and restore operations. Version 2.6 introduces key improvements, addressing some flaws in previous version and compatibility challenges with `mysqldump`-generated files. If you encounter any incompatibilities, we welcome feedback via [GitHub Issues](https://github.com/MySqlBackupNET/MySqlBackup.Net/issues) to help us refine and uphold this goal.
 
 ---
 
