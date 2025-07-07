@@ -122,13 +122,7 @@ MySqlBackup.NET requires one of these MySQL connectors:
 
 For a 416 MB database (400,000 rows, 4 tables, InnoDB) on an Intel Core i7-4770S (3.10GHz, 16GB RAM, SSD Samsung 870 Evo 500GB):
 
-| Task         | Tool              | Avg. Time | File Size  |
-|--------------|-------------------|-----------|------------|
-| **Backup**   | MySqlBackup.NET (Parallel) | ~10.21s | 571.588 MB |
-| **Backup**   | MySqlBackup.NET (Single)   | ~15.72s | 571.588 MB |
-| **Backup**   | mysqldump.exe     | ~6.76s  | 566.976 MB |
-| **Restore**  | MySqlBackup.NET   | ~35.87s | -          |
-| **Restore**  | mysql.exe         | ~32.76s | -          |
+![graph benchmark mysqlbackup.net 2025-07-04](https://raw.githubusercontent.com/MySqlBackupNET/MySqlBackup.Net/refs/heads/master/wiki/graph-benchmark-2025-07-04.png)
 
 MySqlBackup.NET v2.6 offers competitive performance, especially in parallel mode, with significant improvements over previous versions. Full details: [Performance Benchmark Wiki](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/Performance-Benchmark-(MySqlDump-vs-MySqlBackup.NET)). (Date: July 4th, 2025)
 
