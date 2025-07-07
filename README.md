@@ -134,14 +134,6 @@ MySqlBackup.NET v2.6 offers competitive performance, especially in parallel mode
 
 ---
 
-## Additional Tools
-
-**Backup All Databases**  
-Export all databases to separate SQL files with this sub-project:  
-[MySqlBackup_All_DB](https://github.com/MySqlBackupNET/MySqlBackup_All_DB)
-
----
-
 ## License
 
 MySqlBackup.NET is released under [The Unlicense](https://github.com/MySqlBackupNET/MySqlBackup.Net/blob/master/LICENSE), making it free for any use.
