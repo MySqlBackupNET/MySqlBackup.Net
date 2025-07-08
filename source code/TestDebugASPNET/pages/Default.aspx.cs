@@ -33,7 +33,14 @@ namespace System
 
         void LoadConstr()
         {
-            txtConnStr.Text = config.ConnString;
+            if (string.IsNullOrEmpty(config.ConnString))
+            {
+                txtConnStr.Text = "server=localhost;user=root;pwd=;convertzerodatetime=true;treattinyasboolean=true;";
+            }
+            else
+            {
+                txtConnStr.Text = config.ConnString;
+            }
         }
 
         protected void btSaveConnStr_Click(object sender, EventArgs e)

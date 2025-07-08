@@ -377,13 +377,19 @@
                     <td></td>
                     <td>
                         <asp:CheckBox ID="cbRunStage4" runat="server" Checked="true" />
-                        Run Stage 4: Restore/Import - MySqlBackup.NET</td>
+                        Run Stage 4: Restore/Import - MySqlBackup.NET - Single Thread</td>
                 </tr>
                 <tr>
                     <td></td>
                     <td>
                         <asp:CheckBox ID="cbRunStage5" runat="server" Checked="true" />
-                        Run Stage 5: Restore/Import - mysql.exe</td>
+                        Run Stage 5: Restore/Import - MySqlBackup.NET - Parallel Processing</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <asp:CheckBox ID="cbRunStage6" runat="server" Checked="true" />
+                        Run Stage 6: Restore/Import - mysql.exe</td>
                 </tr>
                 <tr>
                     <td></td>
@@ -419,7 +425,8 @@
                     2: "Export/Backup - MySqlBackup.NET - Parallel Processing",
                     3: "Export/Backup - MySqlDump (mysqldump.exe)",
                     4: "Import/Restore - MySqlBackup.NET",
-                    5: "Import/Restore - MySql (mysql.exe) Instance"
+                    5: "Import/Restore - MySqlBackup.NET - Parallel Processing",
+                    6: "Import/Restore - MySql (mysql.exe) Instance"
                 };
 
                 function getActiveStages(pr) {

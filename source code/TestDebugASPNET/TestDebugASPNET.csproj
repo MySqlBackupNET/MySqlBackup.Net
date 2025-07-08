@@ -136,6 +136,7 @@
     <Content Include="pages\Benchmark.aspx" />
     <Content Include="pages\CreateSampleTableRows.aspx" />
     <Content Include="pages\MemoryStreamDemo.aspx" />
+    <Content Include="pages\MySqlDateTimeTester.aspx" />
     <Content Include="pages\ParallelPipelineExport.aspx" />
     <Content Include="pages\ProgressReport2.aspx" />
     <Content Include="pages\ProgressReportMenu.aspx" />
@@ -152,6 +153,7 @@
     <Content Include="pages\QuickTestEscapeCharacters.aspx" />
     <Content Include="pages\QuickTestWithAllDataType.aspx" />
     <Content Include="pages\ProgressReport1.aspx" />
+    <Content Include="pages\ReportProgress.aspx" />
     <Content Include="pages\ReportProgressRestoreFileUpload.aspx" />
     <Content Include="pages\ShaFilesCompute.aspx" />
     <Content Include="pages\Typography.aspx" />
@@ -281,6 +283,13 @@
     <Compile Include="pages\MemoryStreamDemo.aspx.designer.cs">
       <DependentUpon>MemoryStreamDemo.aspx</DependentUpon>
     </Compile>
+    <Compile Include="pages\MySqlDateTimeTester.aspx.cs">
+      <DependentUpon>MySqlDateTimeTester.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\MySqlDateTimeTester.aspx.designer.cs">
+      <DependentUpon>MySqlDateTimeTester.aspx</DependentUpon>
+    </Compile>
     <Compile Include="pages\ParallelPipelineExport.aspx.cs">
       <DependentUpon>ParallelPipelineExport.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -393,6 +402,13 @@
     <Compile Include="pages\ProgressReport1.aspx.designer.cs">
       <DependentUpon>ProgressReport1.aspx</DependentUpon>
     </Compile>
+    <Compile Include="pages\ReportProgress.aspx.cs">
+      <DependentUpon>ReportProgress.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\ReportProgress.aspx.designer.cs">
+      <DependentUpon>ReportProgress.aspx</DependentUpon>
+    </Compile>
     <Compile Include="pages\ReportProgressRestoreFileUpload.aspx.cs">
       <DependentUpon>ReportProgressRestoreFileUpload.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -418,6 +434,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="masterPage1.Master" />
+    <Compile Include="MySqlBackup.NET\MySqlBackup_v2.8_RawBytesConversion_ParallelExport.cs" />
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

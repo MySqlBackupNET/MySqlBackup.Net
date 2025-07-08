@@ -30,14 +30,14 @@ namespace System.pages
 
             if (cbNoTryCatch.Checked)
             {
-                Test1Basic t = new Test1Basic(config.ConnString, folder, cbInsert.Checked, cbInsertIgnore.Checked, cbReplace.Checked, cbUpdate.Checked, cbInsertUpdate.Checked);
+                Test1Basic t = new Test1Basic(config.ConnString, folder, cbPreserveDb1Db3.Checked, cbInsert.Checked, cbInsertIgnore.Checked, cbReplace.Checked, cbUpdate.Checked, cbInsertUpdate.Checked);
                 result = t.RunTest();
             }
             else
             {
                 try
                 {
-                    Test1Basic t = new Test1Basic(config.ConnString, folder, cbInsert.Checked, cbInsertIgnore.Checked, cbReplace.Checked, cbUpdate.Checked, cbInsertUpdate.Checked);
+                    Test1Basic t = new Test1Basic(config.ConnString, folder, cbPreserveDb1Db3.Checked, cbInsert.Checked, cbInsertIgnore.Checked, cbReplace.Checked, cbUpdate.Checked, cbInsertUpdate.Checked);
                     result = t.RunTest();
                 }
                 catch (Exception ex)
@@ -54,6 +54,8 @@ namespace System.pages
     {
         string _connectionString;
 
+        bool _preserveDb1Db3 = true;
+
         string _dbFile1;
         string _dbFile2;
         string _dbFile3;
@@ -61,9 +63,14 @@ namespace System.pages
         string _dbFile5;
         string _dbFile6;
 
+        string _dbFile7;
+        string _dbFile8;
+
         string _dbName1;
         string _dbName2;
         string _dbName3;
+        string _dbName4;
+        string _dbName5;
 
         string basePath;
 
@@ -73,10 +80,16 @@ namespace System.pages
 
         List<MySqlConnector.RowsDataExportMode> lstRowsExportMode = new List<RowsDataExportMode>();
 
-        public Test1Basic(string connstr, string baseFolder, bool rowInsert, bool rowInsertIgnore, bool rowReplaceInto, bool rowUpdate, bool rowInsertUpdate)
+        string[] dropDbArray = null;
+
+        string[] dumpFiles = null;
+
+        public Test1Basic(string connstr, string baseFolder, bool preserveDb1Db3, bool rowInsert, bool rowInsertIgnore, bool rowReplaceInto, bool rowUpdate, bool rowInsertUpdate)
         {
             _connectionString = connstr;
             basePath = baseFolder;
+
+            _preserveDb1Db3 = preserveDb1Db3;
 
             if (rowInsert)
                 lstRowsExportMode.Add(RowsDataExportMode.Insert);
@@ -130,6 +143,7 @@ namespace System.pages
             dicCategoryOperationTiming[1] = new Dictionary<int, TimeSpan>();
             dicCategoryOperationTiming[2] = new Dictionary<int, TimeSpan>();
             dicCategoryOperationTiming[3] = new Dictionary<int, TimeSpan>();
+            dicCategoryOperationTiming[4] = new Dictionary<int, TimeSpan>();
 
             // Generate random database names
             Random random = new Random();
@@ -139,6 +153,8 @@ namespace System.pages
             _dbName1 = $"{databaseBaseName}1";
             _dbName2 = $"{databaseBaseName}2";
             _dbName3 = $"{databaseBaseName}3";
+            _dbName4 = $"{databaseBaseName}4";
+            _dbName5 = $"{databaseBaseName}5";
 
             _dbFile1 = Path.Combine(basePath, $"sqldump-{mode}-1.sql");
             _dbFile2 = Path.Combine(basePath, $"sqldump-{mode}-2.sql");
@@ -148,20 +164,31 @@ namespace System.pages
             _dbFile5 = Path.Combine(basePath, $"sqldump-{mode}-5-parallel.sql");
             _dbFile6 = Path.Combine(basePath, $"sqldump-{mode}-6-parallel.sql");
 
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
-            {
-                using (var cmd = conn.CreateCommand())
-                {
-                    conn.Open();
+            _dbFile7 = Path.Combine(basePath, $"sqldump-{mode}-7-parallel.sql");
+            _dbFile8 = Path.Combine(basePath, $"sqldump-{mode}-8-single.sql");
 
-                    cmd.CommandText = $"drop database if exists {_dbName1};";
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = $"drop database if exists {_dbName2};";
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = $"drop database if exists {_dbName3};";
-                    cmd.ExecuteNonQuery();
-                }
-            }
+            dumpFiles = new string[] {
+                _dbFile1,
+                _dbFile2,
+                _dbFile3,
+                _dbFile4,
+                _dbFile5,
+                _dbFile6,
+                _dbFile7,
+                _dbFile8,
+            };
+
+            dropDbArray = new string[]{
+                    $"drop database if exists {_dbName1};",
+                    $"drop database if exists {_dbName2};",
+                    $"drop database if exists {_dbName3};",
+                    $"drop database if exists {_dbName4};",
+                    $"drop database if exists {_dbName5};"
+                };
+
+            CleanDatabase();
+
+            sb.AppendLine();
 
             sb.AppendLine("====================================================");
             sb.AppendLine($"Mode: {mode} - Starting basic functionality test...");
@@ -169,10 +196,12 @@ namespace System.pages
             sb.AppendLine($"Database 1: {_dbName1}");
             sb.AppendLine($"Database 2: {_dbName2}");
             sb.AppendLine($"Database 3: {_dbName3}");
+            sb.AppendLine($"Database 4: {_dbName4}");
+            sb.AppendLine($"Database 5: {_dbName5}");
 
             // Step 1: Drop and create test1 database
             sb.AppendLine();
-            sb.AppendLine($"Step 1: Setting up {_dbName1} database");
+            sb.Append($"Create DB1....");
 
             DropAndCreateDatabase(_dbName1);
 
@@ -192,108 +221,178 @@ namespace System.pages
                 }
             }
 
-            sb.AppendLine($"Imported sample SQL dump to {_dbName1}");
+            sb.AppendLine("Done");
 
             Stopwatch stopwatch = new Stopwatch();
 
             // Step 2: Export test1 to file1
             sb.AppendLine();
-            sb.AppendLine($"Step 2-1: Exporting {_dbName1} to file1 (Single Thread)");
+            sb.Append($"DB1 > File 1 (Single Thread)....");
 
             stopwatch.Restart();
             ExportToFile(_dbName1, _dbFile1, false);
             stopwatch.Stop();
             dicCategoryOperationTiming[1][1] = stopwatch.Elapsed;
 
-            sb.AppendLine($"Exported to: {_dbFile1}");
+            sb.AppendLine("Done");
 
             sb.AppendLine();
-            sb.AppendLine($"Step 2-2: Exporting {_dbName1} to file4 (Parallel Processing)");
+            sb.Append($"DB1 > File 4 (Parallel Processing)....");
 
             stopwatch.Restart();
             ExportToFile(_dbName1, _dbFile4, true);
             stopwatch.Stop();
             dicCategoryOperationTiming[2][1] = stopwatch.Elapsed;
 
-            sb.AppendLine($"Exported to: {_dbFile4}");
+            sb.AppendLine("Done");
 
-            // Step 3: Drop and create test2, import from file1
             sb.AppendLine();
-            sb.AppendLine($"Step 3: Setting up {_dbName2} database");
+            sb.Append($"Create DB2....");
 
             DropAndCreateDatabase(_dbName2);
 
+            sb.AppendLine("Done");
+
+            sb.AppendLine();
+            sb.Append($"DB2 < File 1 (Single Thread)....");
+
             stopwatch.Restart();
-            ImportFromFile(_dbName2, _dbFile1);
+            ImportFromFile(_dbName2, _dbFile1, false);
             stopwatch.Stop();
             dicCategoryOperationTiming[3][1] = stopwatch.Elapsed;
 
-            sb.AppendLine($"Imported file1 to {_dbName2}");
+            sb.AppendLine("Done");
 
-            // Step 4: Export test2 to file2
             sb.AppendLine();
-            sb.AppendLine($"Step 4-1: Exporting {_dbName2} to file2 (Single Thread)");
+            sb.Append($"DB2 > File 2 (Single Thread)....");
 
             stopwatch.Restart();
             ExportToFile(_dbName2, _dbFile2, false);
             stopwatch.Stop();
             dicCategoryOperationTiming[1][2] = stopwatch.Elapsed;
 
-            sb.AppendLine($"Exported to: {_dbFile2}");
+            sb.AppendLine("Done");
 
             sb.AppendLine();
-            sb.AppendLine($"Step 4-2: Exporting {_dbName2} to file5 (Parallel Processing)");
+            sb.Append($"DB2 > File 5 (Parallel Processing)....");
 
             stopwatch.Restart();
             ExportToFile(_dbName2, _dbFile5, true);
             stopwatch.Stop();
             dicCategoryOperationTiming[2][2] = stopwatch.Elapsed;
 
-            sb.AppendLine($"Exported to: {_dbFile5}");
+            sb.AppendLine("Done");
 
-            // Step 5: Drop and create test3, import from file2
             sb.AppendLine();
-            sb.AppendLine($"Step 5: Setting up {_dbName3} database");
+            sb.Append($"Create DB3");
 
             DropAndCreateDatabase(_dbName3);
 
+            sb.AppendLine("Done");
+
+            sb.AppendLine();
+            sb.Append($"DB3 < File 2 (Single Thread)....");
+
             stopwatch.Restart();
-            ImportFromFile(_dbName3, _dbFile2);
+            ImportFromFile(_dbName3, _dbFile2, false);
             stopwatch.Stop();
             dicCategoryOperationTiming[3][2] = stopwatch.Elapsed;
 
-            sb.AppendLine($"Imported file2 to {_dbName3}");
+            sb.AppendLine("Done");
 
-            // Step 6: Export test3 to file3
             sb.AppendLine();
-            sb.AppendLine($"Step 6-1: Exporting {_dbName3} to file3 (Single Thread)");
+            sb.Append($"DB3 > File 3 (Single Thread)....");
 
             stopwatch.Restart();
             ExportToFile(_dbName3, _dbFile3, false);
             stopwatch.Stop();
             dicCategoryOperationTiming[1][3] = stopwatch.Elapsed;
 
-            sb.AppendLine($"Exported to: {_dbFile3}");
+            sb.AppendLine("Done");
 
             sb.AppendLine();
-            sb.AppendLine($"Step 6-2: Exporting {_dbName3} to file6 (Parallel Processing)");
+            sb.Append($"DB3 > File 6 (Parallel Processing)....");
 
             stopwatch.Restart();
             ExportToFile(_dbName3, _dbFile6, true);
             stopwatch.Stop();
             dicCategoryOperationTiming[2][3] = stopwatch.Elapsed;
 
-            sb.AppendLine($"Exported to: {_dbFile6}");
+            sb.AppendLine("Done");
+
+            sb.AppendLine();
+            sb.Append("Create DB4....");
+
+            DropAndCreateDatabase(_dbName4);
+
+            sb.AppendLine("Done");
+
+            sb.AppendLine();
+            sb.Append($"DB4 < File 6 (Parallel Processing)....");
+
+            stopwatch.Restart();
+            ImportFromFile(_dbName4, _dbFile6, true);
+            stopwatch.Stop();
+            dicCategoryOperationTiming[4][1] = stopwatch.Elapsed;
+
+            sb.AppendLine("Done");
+
+            sb.AppendLine();
+            sb.Append($"DB4 > File 7 (Parallel Processing)....");
+            stopwatch.Restart();
+            ExportToFile(_dbName4, _dbFile7, true);
+            stopwatch.Stop();
+            dicCategoryOperationTiming[2][4] = stopwatch.Elapsed;
+
+            sb.AppendLine("Done");
+
+            sb.AppendLine();
+            sb.Append("Create DB5....");
+
+            DropAndCreateDatabase(_dbName5);
+
+            sb.AppendLine("Done");
+
+            sb.AppendLine();
+            sb.Append("DB5 < File 7 (Parallel Processing)....");
+
+            stopwatch.Restart();
+            ImportFromFile(_dbName5, _dbFile7, true);
+            stopwatch.Stop();
+            dicCategoryOperationTiming[4][2] = stopwatch.Elapsed;
+
+            sb.AppendLine("Done");
+
+            sb.AppendLine();
+            sb.AppendLine("DB5 > File 8 (Single Thread)....");
+
+            stopwatch.Restart();
+            ExportToFile(_dbName5, _dbFile8, false);
+            stopwatch.Stop();
+            dicCategoryOperationTiming[1][4] = stopwatch.Elapsed;
+
+            sb.AppendLine("Done");
+
+            sb.AppendLine();
+            sb.AppendLine("Dump Files:");
+            sb.AppendLine();
+
+            for (int fileindex = 0; fileindex < dumpFiles.Length; fileindex++)
+            {
+                sb.AppendLine($"file {(fileindex + 1)}: {dumpFiles[fileindex]}");
+            }
 
             // Step 7: Calculate SHA256 checksums
             sb.AppendLine();
-            sb.AppendLine("Step 7: Calculating SHA256 checksums");
+            sb.AppendLine("Calculating SHA256 checksums");
             string sha1 = Sha256.Compute(_dbFile1);
             string sha2 = Sha256.Compute(_dbFile2);
             string sha3 = Sha256.Compute(_dbFile3);
             string sha4 = Sha256.Compute(_dbFile4);
             string sha5 = Sha256.Compute(_dbFile5);
             string sha6 = Sha256.Compute(_dbFile6);
+            string sha7 = Sha256.Compute(_dbFile7);
+            string sha8 = Sha256.Compute(_dbFile8);
 
             sb.AppendLine();
             sb.AppendLine($"file 1: {sha1}");
@@ -302,10 +401,12 @@ namespace System.pages
             sb.AppendLine($"file 4: {sha4}");
             sb.AppendLine($"file 5: {sha5}");
             sb.AppendLine($"file 6: {sha6}");
+            sb.AppendLine($"file 7: {sha7}");
+            sb.AppendLine($"file 8: {sha8}");
 
             // Step 8: Compare checksums
             sb.AppendLine();
-            sb.AppendLine("Step 8: Comparing checksums");
+            sb.AppendLine("Comparing checksums");
             bool isMatch = sha2.Equals(sha3, StringComparison.OrdinalIgnoreCase);
 
             sb.AppendLine($"File2 SHA256: {sha2}");
@@ -326,11 +427,17 @@ namespace System.pages
                 sb.AppendLine("The SHA256 checksums do not match.");
             }
 
-            // Cleanup databases
             sb.AppendLine();
-            sb.AppendLine("Step 9: Cleaning up test databases...");
+            sb.AppendLine("================================");
+            sb.AppendLine("Running Data Integrity Test");
+            sb.AppendLine("================================");
+            sb.AppendLine();
+
+            RunDataIntegrityTest();
+
+            sb.AppendLine();
+
             CleanupDatabases();
-            sb.AppendLine("Cleanup completed");
 
             sb.AppendLine($@"
 ========================
@@ -342,20 +449,47 @@ Export (Single Thread)
 Dump File 1 - {FormatTimeSpan(dicCategoryOperationTiming[1][1])}
 Dump File 2 - {FormatTimeSpan(dicCategoryOperationTiming[1][2])}
 Dump File 3 - {FormatTimeSpan(dicCategoryOperationTiming[1][3])}
+Dump File 8 = {FormatTimeSpan(dicCategoryOperationTiming[1][4])}
 
 Export (Parallel Processing)
 ---------------------------
 Dump File 4 - {FormatTimeSpan(dicCategoryOperationTiming[2][1])}
 Dump File 5 - {FormatTimeSpan(dicCategoryOperationTiming[2][2])}
 Dump File 6 - {FormatTimeSpan(dicCategoryOperationTiming[2][3])}
+Dump File 7 - {FormatTimeSpan(dicCategoryOperationTiming[2][4])}
 
-Import
+Import (Single Thread)
 ---------------------------
-Step 3 - {FormatTimeSpan(dicCategoryOperationTiming[3][1])}
-Step 5 - {FormatTimeSpan(dicCategoryOperationTiming[3][2])}
+1 - {FormatTimeSpan(dicCategoryOperationTiming[3][1])}
+2 - {FormatTimeSpan(dicCategoryOperationTiming[3][2])}
+
+Import (Parallel Processing)
+---------------------------
+1 - {FormatTimeSpan(dicCategoryOperationTiming[4][1])}
+2 - {FormatTimeSpan(dicCategoryOperationTiming[4][2])}
 ");
 
             sb.AppendLine();
+        }
+
+        void CleanDatabase()
+        {
+
+            sb.AppendLine("Cleaning databases...");
+            sb.AppendLine();
+
+            using (var conn = new MySqlConnection(_connectionString))
+            using (var cmd = conn.CreateCommand())
+            {
+                conn.Open();
+
+                foreach (var dropDb in dropDbArray)
+                {
+                    cmd.CommandText = dropDb;
+                    cmd.ExecuteNonQuery();
+                    sb.AppendLine(dropDb);
+                }
+            }
         }
 
         private string FormatTimeSpan(TimeSpan timeSpan)
@@ -392,42 +526,38 @@ Step 5 - {FormatTimeSpan(dicCategoryOperationTiming[3][2])}
             }
         }
 
-        private void ImportFromFile(string databaseName, string filePath)
+        private void ImportFromFile(string databaseName, string filePath, bool parallel)
         {
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            using (var conn = new MySqlConnection(_connectionString))
+            using (var cmd = conn.CreateCommand())
+            using (var mb = new MySqlBackup(cmd))
             {
                 conn.Open();
-                using (var cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = $"USE `{databaseName}`";
-                    cmd.ExecuteNonQuery();
 
-                    using (MySqlBackup mb = new MySqlBackup(cmd))
-                    {
-                        mb.ImportFromFile(filePath);
-                    }
-                }
+                cmd.CommandText = $"USE `{databaseName}`";
+                cmd.ExecuteNonQuery();
+
+                mb.ImportInfo.EnableParallelProcessing = parallel;
+                mb.ImportFromFile(filePath);
             }
         }
 
         private void ExportToFile(string databaseName, string filePath, bool parallel)
         {
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            using (var conn = new MySqlConnection(_connectionString))
+            using (var cmd = conn.CreateCommand())
+            using (var mb = new MySqlBackup(cmd))
             {
                 conn.Open();
-                using (var cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = $"USE `{databaseName}`";
-                    cmd.ExecuteNonQuery();
+                cmd.CommandText = $"USE `{databaseName}`";
+                cmd.ExecuteNonQuery();
 
-                    using (MySqlBackup mb = new MySqlBackup(cmd))
-                    {
-                        mb.ExportInfo.EnableParallelProcessing = parallel;
-                        mb.ExportInfo.RowsExportMode = _currentMode;
-                        mb.ExportInfo.RecordDumpTime = false;
-                        mb.ExportToFile(filePath);
-                    }
-                }
+                mb.ExportInfo.ExportRoutinesWithoutDefiner = true;
+                mb.ExportInfo.EnableParallelProcessing = parallel;
+                mb.ExportInfo.RowsExportMode = _currentMode;
+                mb.ExportInfo.RecordDumpTime = false;
+
+                mb.ExportToFile(filePath);
             }
         }
 
@@ -438,14 +568,19 @@ Step 5 - {FormatTimeSpan(dicCategoryOperationTiming[3][2])}
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = $"DROP DATABASE IF EXISTS `{_dbName1}`";
-                    cmd.ExecuteNonQuery();
+                    for (int i = 0; i < dropDbArray.Length; i++)
+                    {
+                        var dropdb = dropDbArray[i];
 
-                    cmd.CommandText = $"DROP DATABASE IF EXISTS `{_dbName2}`";
-                    cmd.ExecuteNonQuery();
+                        if (_preserveDb1Db3)
+                        {
+                            if (i == 0 || i == 2)
+                                continue;
+                        }
 
-                    cmd.CommandText = $"DROP DATABASE IF EXISTS `{_dbName3}`";
-                    cmd.ExecuteNonQuery();
+                        cmd.CommandText = dropdb;
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
         }
@@ -2076,5 +2211,427 @@ INSERT INTO test_memory (i
 ";
             return sql;
         }
+
+        #region Data Integrity Test
+
+        public bool RunDataIntegrityTest()
+        {
+            bool isValid = true;
+            sb.AppendLine("Starting data integrity test between databases " + _dbName1 + " and " + _dbName3);
+
+            try
+            {
+                // Step 1: Compare table structures and row counts
+                isValid &= CompareTableStructuresAndCounts(_dbName1, _dbName3);
+
+                // Step 2: Compare row data for all tables
+                isValid &= CompareTableData(_dbName1, _dbName3);
+
+                // Step 3: Compare database objects (views, procedures, functions, triggers, events)
+                isValid &= CompareDatabaseObjects(_dbName1, _dbName3);
+
+                sb.AppendLine(isValid ? "SUCCESS: Data integrity test passed!" : "FAILURE: Data integrity test failed!");
+            }
+            catch (Exception ex)
+            {
+                sb.AppendLine($"ERROR during data integrity test: {ex.ToString()}");
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        private bool CompareTableStructuresAndCounts(string db1, string db2)
+        {
+            bool isValid = true;
+            using (var conn1 = new MySqlConnection(_connectionString))
+            using (var conn2 = new MySqlConnection(_connectionString))
+            {
+                conn1.Open();
+                conn2.Open();
+
+                // Get list of tables
+                var tables1 = GetTableList(conn1, db1);
+                var tables2 = GetTableList(conn2, db2);
+
+                if (tables1.Count != tables2.Count)
+                {
+                    sb.AppendLine($"Table count mismatch: {db1} has {tables1.Count} tables, {db2} has {tables2.Count} tables");
+                    return false;
+                }
+
+                foreach (var table in tables1)
+                {
+                    if (!tables2.Contains(table))
+                    {
+                        sb.AppendLine($"Table {table} exists in {db1} but not in {db2}");
+                        isValid = false;
+                        continue;
+                    }
+
+                    // Compare row counts
+                    long count1 = GetRowCount(conn1, db1, table);
+                    long count2 = GetRowCount(conn2, db2, table);
+                    if (count1 != count2)
+                    {
+                        sb.AppendLine($"Row count mismatch for table {table}: {db1} has {count1} rows, {db2} has {count2} rows");
+                        isValid = false;
+                    }
+
+                    // Compare table structure (columns)
+                    var columns1 = GetColumnDefinitions(conn1, db1, table);
+                    var columns2 = GetColumnDefinitions(conn2, db2, table);
+                    if (!columns1.SequenceEqual(columns2))
+                    {
+                        sb.AppendLine($"Column definitions mismatch for table {table}");
+                        isValid = false;
+                    }
+                }
+            }
+            return isValid;
+        }
+
+        private bool CompareTableData(string db1, string db2)
+        {
+            bool isValid = true;
+            using (var conn1 = new MySqlConnection(_connectionString))
+            using (var conn2 = new MySqlConnection(_connectionString))
+            {
+                conn1.Open();
+                conn2.Open();
+
+                var tables = GetTableList(conn1, db1);
+                foreach (var table in tables)
+                {
+                    try
+                    {
+                        using (var cmd1 = conn1.CreateCommand())
+                        using (var cmd2 = conn2.CreateCommand())
+                        {
+                            // Use a more reliable ordering approach
+                            string orderBy = HasColumn(conn1, db1, table, "id") ? "ORDER BY id" : "";
+
+                            cmd1.CommandText = $"SELECT * FROM `{db1}`.`{table}` {orderBy}";
+                            cmd2.CommandText = $"SELECT * FROM `{db2}`.`{table}` {orderBy}";
+
+                            using (var reader1 = cmd1.ExecuteReader())
+                            using (var reader2 = cmd2.ExecuteReader())
+                            {
+                                int rowNum = 0;
+                                while (reader1.Read() && reader2.Read())
+                                {
+                                    rowNum++;
+                                    for (int i = 0; i < reader1.FieldCount; i++)
+                                    {
+                                        string colName = reader1.GetName(i);
+                                        object val1 = reader1[i];
+                                        object val2 = reader2[i];
+
+                                        if (!CompareValues(val1, val2, table, rowNum, colName))
+                                        {
+                                            isValid = false;
+                                        }
+                                    }
+                                }
+
+                                if (reader1.Read() || reader2.Read())
+                                {
+                                    sb.AppendLine($"Row count mismatch in {table} during data comparison");
+                                    isValid = false;
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        sb.AppendLine($"Error comparing data in table {table}: {ex.Message}");
+                        isValid = false;
+                    }
+                }
+            }
+            return isValid;
+        }
+
+        private bool HasColumn(MySqlConnection conn, string dbName, string tableName, string columnName)
+        {
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = $"SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = @dbName AND TABLE_NAME = @tableName AND COLUMN_NAME = @columnName";
+                cmd.Parameters.AddWithValue("@dbName", dbName);
+                cmd.Parameters.AddWithValue("@tableName", tableName);
+                cmd.Parameters.AddWithValue("@columnName", columnName);
+                return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+            }
+        }
+
+        private bool CompareValues(object val1, object val2, string table, int rowNum, string colName)
+        {
+            // Handle nulls
+            if (val1 == DBNull.Value) val1 = null;
+            if (val2 == DBNull.Value) val2 = null;
+
+            if ((val1 == null) != (val2 == null))
+            {
+                sb.AppendLine($"NULL mismatch in {table}, row {rowNum}, column {colName}: {val1} vs {val2}");
+                return false;
+            }
+
+            if (val1 == null && val2 == null)
+                return true;
+
+            // Handle byte arrays (binary data)
+            if (val1 is byte[] bytes1 && val2 is byte[] bytes2)
+            {
+                if (!bytes1.SequenceEqual(bytes2))
+                {
+                    sb.AppendLine($"Binary data mismatch in {table}, row {rowNum}, column {colName}");
+                    return false;
+                }
+                return true;
+            }
+
+            // Handle geometry data
+            if (val1.GetType().Name.Contains("Geometry") && val2.GetType().Name.Contains("Geometry"))
+            {
+                if (val1.ToString() != val2.ToString())
+                {
+                    sb.AppendLine($"Geometry mismatch in {table}, row {rowNum}, column {colName}");
+                    return false;
+                }
+                return true;
+            }
+
+            // Handle floating point precision issues
+            if (val1 is float f1 && val2 is float f2)
+            {
+                if (Math.Abs(f1 - f2) > 0.0001f)
+                {
+                    sb.AppendLine($"Float mismatch in {table}, row {rowNum}, column {colName}: {val1} vs {val2}");
+                    return false;
+                }
+                return true;
+            }
+
+            if (val1 is double d1 && val2 is double d2)
+            {
+                if (Math.Abs(d1 - d2) > 0.0001)
+                {
+                    sb.AppendLine($"Double mismatch in {table}, row {rowNum}, column {colName}: {val1} vs {val2}");
+                    return false;
+                }
+                return true;
+            }
+
+            // Default comparison
+            if (!val1.ToString().Equals(val2.ToString()))
+            {
+                sb.AppendLine($"Data mismatch in {table}, row {rowNum}, column {colName}: {val1} vs {val2}");
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool CompareDatabaseObjects(string db1, string db2)
+        {
+            bool isValid = true;
+            using (var conn1 = new MySqlConnection(_connectionString))
+            using (var conn2 = new MySqlConnection(_connectionString))
+            {
+                conn1.Open();
+                conn2.Open();
+
+                // Compare views
+                var views1 = GetObjectDefinitions(conn1, db1, "VIEW", "VIEWS");
+                var views2 = GetObjectDefinitions(conn2, db2, "VIEW", "VIEWS");
+                if (!CompareObjectDefinitions(views1, views2, "Views"))
+                    isValid = false;
+
+                // Compare stored procedures
+                var procs1 = GetObjectDefinitions(conn1, db1, "PROCEDURE", "ROUTINES", "PROCEDURE");
+                var procs2 = GetObjectDefinitions(conn2, db2, "PROCEDURE", "ROUTINES", "PROCEDURE");
+                if (!CompareObjectDefinitions(procs1, procs2, "Stored Procedures"))
+                    isValid = false;
+
+                // Compare functions
+                var funcs1 = GetObjectDefinitions(conn1, db1, "FUNCTION", "ROUTINES", "FUNCTION");
+                var funcs2 = GetObjectDefinitions(conn2, db2, "FUNCTION", "ROUTINES", "FUNCTION");
+                if (!CompareObjectDefinitions(funcs1, funcs2, "Functions"))
+                    isValid = false;
+
+                // Compare triggers
+                var triggers1 = GetObjectDefinitions(conn1, db1, "TRIGGER", "TRIGGERS");
+                var triggers2 = GetObjectDefinitions(conn2, db2, "TRIGGER", "TRIGGERS");
+                if (!CompareObjectDefinitions(triggers1, triggers2, "Triggers"))
+                    isValid = false;
+
+                // Compare events
+                var events1 = GetObjectDefinitions(conn1, db1, "EVENT", "EVENTS");
+                var events2 = GetObjectDefinitions(conn2, db2, "EVENT", "EVENTS");
+                if (!CompareObjectDefinitions(events1, events2, "Events"))
+                    isValid = false;
+            }
+            return isValid;
+        }
+
+        private List<string> GetTableList(MySqlConnection conn, string dbName)
+        {
+            var tables = new List<string>();
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = $"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = @dbName AND TABLE_TYPE = 'BASE TABLE'";
+                cmd.Parameters.AddWithValue("@dbName", dbName);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        tables.Add(reader.GetString(0));
+                    }
+                }
+            }
+            return tables;
+        }
+
+        private long GetRowCount(MySqlConnection conn, string dbName, string tableName)
+        {
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = $"SELECT COUNT(*) FROM `{dbName}`.`{tableName}`";
+                return (long)cmd.ExecuteScalar();
+            }
+        }
+
+        private List<string> GetColumnDefinitions(MySqlConnection conn, string dbName, string tableName)
+        {
+            var columns = new List<string>();
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = $"SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT, EXTRA FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = @dbName AND TABLE_NAME = @tableName";
+                cmd.Parameters.AddWithValue("@dbName", dbName);
+                cmd.Parameters.AddWithValue("@tableName", tableName);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        columns.Add($"{reader.GetString(0)}:{reader.GetString(1)}:{reader.GetString(2)}:{(reader.IsDBNull(3) ? "NULL" : reader.GetString(3))}:{reader.GetString(4)}");
+                    }
+                }
+            }
+            return columns;
+        }
+
+        private Dictionary<string, string> GetObjectDefinitions(MySqlConnection conn, string dbName, string objectType, string schemaTable, string routineType = null)
+        {
+            var definitions = new Dictionary<string, string>();
+            using (var cmd = conn.CreateCommand())
+            {
+                string query;
+                string nameColumn;
+                string definitionColumn;
+
+                if (objectType == "VIEW")
+                {
+                    nameColumn = "TABLE_NAME";
+                    definitionColumn = "VIEW_DEFINITION";
+                    query = $"SELECT {nameColumn}, {definitionColumn} FROM INFORMATION_SCHEMA.{schemaTable} WHERE TABLE_SCHEMA = @dbName";
+                }
+                else if (objectType == "TRIGGER")
+                {
+                    nameColumn = "TRIGGER_NAME";
+                    definitionColumn = "ACTION_STATEMENT";
+                    query = $"SELECT {nameColumn}, {definitionColumn} FROM INFORMATION_SCHEMA.{schemaTable} WHERE TRIGGER_SCHEMA = @dbName";
+                }
+                else if (objectType == "EVENT")
+                {
+                    nameColumn = "EVENT_NAME";
+                    definitionColumn = "EVENT_DEFINITION";
+                    query = $"SELECT {nameColumn}, {definitionColumn} FROM INFORMATION_SCHEMA.{schemaTable} WHERE EVENT_SCHEMA = @dbName";
+                }
+                else // PROCEDURE or FUNCTION
+                {
+                    nameColumn = "ROUTINE_NAME";
+                    definitionColumn = "ROUTINE_DEFINITION";
+                    query = $"SELECT {nameColumn}, {definitionColumn} FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = @dbName AND ROUTINE_TYPE = @routineType";
+                }
+
+                cmd.CommandText = query;
+                cmd.Parameters.AddWithValue("@dbName", dbName);
+                if (routineType != null)
+                    cmd.Parameters.AddWithValue("@routineType", routineType);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        definitions[reader.GetString(0)] = reader.IsDBNull(1) ? "" : reader.GetString(1);
+                    }
+                }
+            }
+            return definitions;
+        }
+
+        private bool CompareObjectDefinitions(Dictionary<string, string> objects1, Dictionary<string, string> objects2, string objectType)
+        {
+            bool isValid = true;
+
+            if (objects1.Count != objects2.Count)
+            {
+                sb.AppendLine($"{objectType} count mismatch: DB1 has {objects1.Count}, DB2 has {objects2.Count}");
+                isValid = false;
+            }
+
+            foreach (var kvp in objects1)
+            {
+                if (!objects2.ContainsKey(kvp.Key))
+                {
+                    sb.AppendLine($"{objectType} '{kvp.Key}' exists in DB1 but not in DB2");
+                    isValid = false;
+                }
+                else
+                {
+                    string original1 = kvp.Value ?? "";
+                    string original2 = objects2[kvp.Key] ?? "";
+
+                    if (NormalizeDefinition(original1) != NormalizeDefinition(original2))
+                    {
+                        sb.AppendLine($"{objectType} '{kvp.Key}' definition differs between databases");
+                        sb.AppendLine();
+                        sb.AppendLine($"Version DB1:");
+                        sb.AppendLine(original1);
+                        sb.AppendLine();
+                        sb.AppendLine($"Version DB2:");
+                        sb.AppendLine(original2);
+                        sb.AppendLine();
+                        sb.AppendLine("--- End of comparison ---");
+                        sb.AppendLine();
+                        isValid = false;
+                    }
+                }
+            }
+
+            foreach (var kvp in objects2)
+            {
+                if (!objects1.ContainsKey(kvp.Key))
+                {
+                    sb.AppendLine($"{objectType} '{kvp.Key}' exists in DB2 but not in DB1");
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        private string NormalizeDefinition(string definition)
+        {
+            if (string.IsNullOrEmpty(definition))
+                return "";
+
+            // Normalize whitespace and remove comments for comparison
+            return definition.Trim()
+                .Replace("\r\n", "\n")
+                .Replace("\r", "\n")
+                .Replace("\t", " ");
+        }
+        #endregion
     }
 }

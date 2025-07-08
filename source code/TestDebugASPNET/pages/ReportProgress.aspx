@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ReportProgress.aspx.cs" Inherits="System.pages.ReportProgress" %>

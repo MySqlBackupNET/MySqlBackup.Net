@@ -13,6 +13,9 @@
         <asp:Button ID="btRun" runat="server" ClientIDMode="Static" Text="Run Test" OnClick="btRun_Click" OnClientClick="showBigLoading(0); hideButton(this);" />
         <asp:CheckBox ID="cbNoTryCatch" runat="server" />
         Run Without Try Catch
+        <asp:CheckBox ID="cbPreserveDb1Db3" runat="server" Checked="true" />
+        Preserve DB1 and DB3 (Used for Data Integrity Test)
+        <hr />
         Rows Export Mode:
         <asp:CheckBox ID="cbInsert" runat="server" Checked="true" />
         Insert

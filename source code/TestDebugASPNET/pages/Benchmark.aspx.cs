@@ -103,6 +103,7 @@ namespace System.pages
                     RunStage3 = cbRunStage3.Checked,
                     RunStage4 = cbRunStage4.Checked,
                     RunStage5 = cbRunStage5.Checked,
+                    RunStage6 = cbRunStage6.Checked,
                     DeleteDumpFileAfterProcess = cbDeleteDumpFile.Checked,
                     TotalRounds = totalRounds
                 };
@@ -118,7 +119,7 @@ var taskid = {newTaskId};
 </script>
 ";
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ((masterPage1)this.Master).WriteTopMessageBar("Error: " + ex.Message, false);
             }
@@ -187,6 +188,12 @@ var taskid = {newTaskId};
                 {
                     RunStage = bc.RunStage5,
                     StageId = 5,
+                    StageName = "Import/Restore - MySqlBackup.NET - Parallel Processing"
+                };
+                bti.dicStageInfo[6] = new StageInfo()
+                {
+                    RunStage = bc.RunStage6,
+                    StageId = 6,
                     StageName = "Restore/Import - mysql.exe"
                 };
 
@@ -217,15 +224,17 @@ var taskid = {newTaskId};
                 List<string> dumpFiles2 = new List<string>();  // MySqlBackup.NET Parallel
                 List<string> dumpFiles3 = new List<string>();  // MySqlDump
                 List<string> dbNames1 = new List<string>();    // MySqlBackup.NET restore
-                List<string> dbNames2 = new List<string>();    // MySQL Instance restore
+                List<string> dbNames2 = new List<string>();    // MySqlBackup.NET restore Parallel
+                List<string> dbNames3 = new List<string>();    // MySQL Instance restore
 
                 for (int i = 1; i <= bc.TotalRounds; i++)
                 {
                     dumpFiles1.Add(Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-{i}.txt"));
-                    dumpFiles2.Add(Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-{i + bc.TotalRounds}-parallel.txt"));
+                    dumpFiles2.Add(Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqlbackupnet-parallel-{i}.txt"));
                     dumpFiles3.Add(Path.Combine(bc.BaseFolder, $"benchmark-backup-mysqldump-{i}.txt"));
                     dbNames1.Add($"test_benchmark_restore_mysqlbackupnet_{i}");
-                    dbNames2.Add($"test_benchmark_restore_mysql_{i}");
+                    dbNames2.Add($"test_benchmark_restore_mysqlbackupnet_parallel_{i}");
+                    dbNames3.Add($"test_benchmark_restore_mysql_{i}");
                 }
 
                 sb.AppendLine();
@@ -267,7 +276,7 @@ var taskid = {newTaskId};
                     }
                 }
 
-                if (bc.RunStage4 || bc.RunStage5)
+                if (bc.RunStage4 || bc.RunStage5 || bc.RunStage6)
                     sb.AppendLine();
 
                 if (bc.RunStage4)
@@ -283,11 +292,22 @@ var taskid = {newTaskId};
 
                 if (bc.RunStage5)
                 {
+                    // restore - MySqlBackup.NET - Parallel Processing
+                    for (int i = 0; i < bc.TotalRounds; i++)
+                    {
+                        dicProgress[bc.TaskId].dicTask[taskCounter] = new BenchmarkTask(5, i + 1, dbNames1[i], dumpFiles1[0], bc.RunStage5, true); // Use first dump file for all restore tests
+                        sb.AppendLine($"Database {taskCounter}: {dbNames2[i]}");
+                        taskCounter++;
+                    }
+                }
+
+                if (bc.RunStage6)
+                {
                     // restore - MySQL Instance
                     for (int i = 0; i < bc.TotalRounds; i++)
                     {
-                        dicProgress[bc.TaskId].dicTask[taskCounter] = new BenchmarkTask(5, i + 1, dbNames2[i], dumpFiles1[0], bc.RunStage5); // Use first dump file for all restore tests
-                        sb.AppendLine($"Database {taskCounter}: {dbNames2[i]}");
+                        dicProgress[bc.TaskId].dicTask[taskCounter] = new BenchmarkTask(6, i + 1, dbNames3[i], dumpFiles1[0], bc.RunStage6); // Use first dump file for all restore tests
+                        sb.AppendLine($"Database {taskCounter}: {dbNames3[i]}");
                         taskCounter++;
                     }
                 }
@@ -330,13 +350,14 @@ var taskid = {newTaskId};
                                     ExportMySqlDump(bt.DatabaseName, bt.DumpFile);
                                     break;
                                 case 4:
+                                case 5:
                                     if (!File.Exists(bt.DumpFile))
                                     {
                                         throw new Exception("Dump File 1 is not created yet. Please run Stage 1 first.");
                                     }
-                                    ImportMySqlBackupNet(bt.DatabaseName, bt.DumpFile);
+                                    ImportMySqlBackupNet(bt.DatabaseName, bt.DumpFile, bt.IsParallel);
                                     break;
-                                case 5:
+                                case 6:
                                     if (!File.Exists(bt.DumpFile))
                                     {
                                         throw new Exception("Dump File 1 is not created yet. Please run Stage 1 first.");
@@ -356,7 +377,7 @@ var taskid = {newTaskId};
                             bt.TimeEnd = DateTime.Now;
                             bt.TimeUsed = bt.TimeEnd - bt.TimeStart;
 
-                            if ((bt.Stage == 4 || bt.Stage == 5) && bc.CleanUpDatabase)
+                            if ((bt.Stage == 4 || bt.Stage == 5 || bt.Stage == 6) && bc.CleanUpDatabase)
                             {
                                 sb.AppendLine(" -- Deleting database / Clean up...");
                                 DropAndCreateDatabase(bt.DatabaseName, true, false);
@@ -373,7 +394,7 @@ var taskid = {newTaskId};
                                     bt.Sha256 = Sha256.Compute(bt.DumpFile);
                                     if (bc.DeleteDumpFileAfterProcess)
                                     {
-                                        if ((bc.RunStage4 || bc.RunStage5) && bt.DumpFile == dumpFiles1[0])
+                                        if ((bc.RunStage4 || bc.RunStage5 || bc.RunStage6) && bt.DumpFile == dumpFiles1[0])
                                         {
                                             // do not delete the first dump file, required for the import test    
                                         }
@@ -560,7 +581,7 @@ default-character-set={dbCharacterSet}";
             }
         }
 
-        void ImportMySqlBackupNet(string dbName, string dumpFilePath)
+        void ImportMySqlBackupNet(string dbName, string dumpFilePath, bool parallel)
         {
             DropAndCreateDatabase(dbName, true, true);
 
@@ -575,6 +596,7 @@ default-character-set={dbCharacterSet}";
 
                     using (MySqlBackup mb = new MySqlBackup(cmd))
                     {
+                        mb.ImportInfo.EnableParallelProcessing = parallel;
                         mb.ImportFromFile(dumpFilePath);
                     }
                 }
@@ -1428,6 +1450,8 @@ default-character-set={dbCharacterSet}";
                     case 4:
                         return "Import/Restore - MySqlBackup.NET";
                     case 5:
+                        return "Import/Restore - MySqlBackup.NET - Parallel Processing";
+                    case 6:
                         return "Import/Restore - MySql Instance";
                 }
                 return "";
@@ -1526,6 +1550,7 @@ default-character-set={dbCharacterSet}";
         public bool RunStage3 { get; set; }
         public bool RunStage4 { get; set; }
         public bool RunStage5 { get; set; }
+        public bool RunStage6 { get; set; }
         public bool DeleteDumpFileAfterProcess { get; set; }
         public int TotalRounds { get; set; }
 
@@ -1554,6 +1579,7 @@ default-character-set={dbCharacterSet}";
                 case 3: return RunStage3;
                 case 4: return RunStage4;
                 case 5: return RunStage5;
+                case 6: return RunStage6;
             }
             return false;
         }

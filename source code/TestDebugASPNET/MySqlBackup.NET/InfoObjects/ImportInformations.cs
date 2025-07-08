@@ -10,6 +10,8 @@ namespace MySqlConnector
         /// </summary>
         public int IntervalForProgressReport { get { if (_interval == 0) return 250; return _interval; } set { _interval = value; } }
 
+        public bool EnableParallelProcessing { get; set; } = true;
+
         /// <summary>
         /// Gets or Sets a value indicates whether SQL errors occurs in import process should be ignored.
         /// </summary>
