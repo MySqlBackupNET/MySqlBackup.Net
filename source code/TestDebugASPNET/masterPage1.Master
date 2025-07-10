@@ -5,6 +5,7 @@
 <html>
 <head runat="server">
     <title>MySqlBackup.NET - Tester / Debugger</title>
+    <meta charset="utf-8" />
     <link rel="stylesheet" href="/cssjs/main.css" />
     <script type="text/javascript" src="/cssjs/main.js"></script>
     <asp:ContentPlaceHolder ID="head" runat="server">
@@ -16,7 +17,8 @@
             MySqlBackup.NET - Tester / Debugger
         </div>
         <div class="menubar">
-            <a href="/">Basic Demo</a>
+            <a href="/">Setup & Simple Demo</a>
+            <a href="/DatabaseDumpViewer">Database Structure/Dump Viewer</a>
             <a href="/Benchmark">Benchmark</a>
             <a href="/BackupRestoreOptions">Backup/Restore With Options</a>
             <a href="/MemoryStreamDemo">Memory Stream / Compression / Encryption</a>

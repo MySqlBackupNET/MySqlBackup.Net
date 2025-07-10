@@ -16,7 +16,20 @@ namespace System.pages
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!IsPostBack)
+            {
+                string info = @"This page tests the reliability and performance of MySQL backup and restore operations using different data export modes.
 
+- Creates test databases with sample data including tables, views, stored procedures, and triggers
+- Tests all MySQL data types including numeric, string, date/time, JSON, spatial, and binary types
+- Performs multiple backup/restore cycles to verify data integrity
+- Compares export methods: INSERT, INSERT IGNORE, REPLACE, UPDATE, and ON DUPLICATE KEY UPDATE
+- Tests both single-threaded and parallel processing performance
+- Validates that data remains identical after multiple backup/restore operations
+
+The test will create 5 temporary databases, perform various backup/restore operations between them, and verify that all data, structures, and database objects are preserved correctly. Results will show performance metrics and data integrity validation.This page tests the MySqlBackup.NET library for reliable MySQL database backup and restore:";
+                ph1.Controls.Add(new LiteralControl(info));
+            }
         }
 
         protected void btRun_Click(object sender, EventArgs e)

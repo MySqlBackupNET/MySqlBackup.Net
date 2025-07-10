@@ -17,12 +17,13 @@ body, input, button, a, textarea, select, option, pre, div, span, table, th, td 
 }
 
 a {
-    color: #1741cb;
+    color: #3498db;
+    text-decoration: none;
 }
 
-a:hover {
-    color: #0094cc;
-}
+    a:hover {
+        text-decoration: underline;
+    }
 
 form {
     padding: 0;

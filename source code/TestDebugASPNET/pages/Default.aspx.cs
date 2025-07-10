@@ -19,75 +19,34 @@ namespace System
         {
             if (!IsPostBack)
             {
-                LoadConstr();
-            }
-            else
-            {
-                string action = Request["postbackAction"] + "";
-                if (action == "restore-memory")
+                config.GetMySqlInstancePath(out string mysqld_path, out string mysqladmin_path);
+
+                if (string.IsNullOrEmpty(mysqld_path))
                 {
-                    RestoreInMemory();
+                    txtMysqldExePath.Text = @"C:\mysql\bin\mysqld.exe";
                 }
-            }
-        }
-
-        void LoadConstr()
-        {
-            if (string.IsNullOrEmpty(config.ConnString))
-            {
-                txtConnStr.Text = "server=localhost;user=root;pwd=;convertzerodatetime=true;treattinyasboolean=true;";
-            }
-            else
-            {
-                txtConnStr.Text = config.ConnString;
-            }
-        }
-
-        protected void btSaveConnStr_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                config.SaveConnStr(txtConnStr.Text);
-
-                MySqlConnectionStringBuilder consb = new MySqlConnectionStringBuilder(txtConnStr.Text);
-                string database = consb.Database;
-
-                if (database != "")
+                else
                 {
-                    consb.Database = "";
-
-                    using (var conn = new MySqlConnection(consb.ConnectionString))
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        conn.Open();
-                        string dbName = QueryExpress.ExecuteScalarStr(cmd, $"show databases like '{QueryExpress.EscapeIdentifier(database)}';");
-                        if (dbName != database)
-                        {
-                            cmd.CommandText = $"create database if not exists `{QueryExpress.EscapeIdentifier(database)}`";
-                            cmd.ExecuteNonQuery();
-                            ((masterPage1)this.Master).WriteTopMessageBar($"New database created: {database}", true);
-                        }
-                    }
+                    txtMysqldExePath.Text = mysqld_path;
                 }
 
-                string timenow = "";
-
-                using (var conn = config.GetNewConnection())
+                if (string.IsNullOrEmpty(mysqladmin_path))
                 {
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        conn.Open();
-                        cmd.CommandText = "select now();";
-                        timenow = cmd.ExecuteScalar() + "";
-                    }
+                    txtMySqlAdminExePath.Text = @"C:\mysql\bin\mysqladmin.exe";
+                }
+                else
+                {
+                    txtMySqlAdminExePath.Text = mysqladmin_path;
                 }
 
-                ((masterPage1)this.Master).ShowMessage("Ok", "Connection Success", true);
-                ((masterPage1)this.Master).WriteTopMessageBar($"Connection string saved and the connection test is success. {timenow}", true);
-            }
-            catch (Exception ex)
-            {
-                ((masterPage1)this.Master).ShowMessage("Error", $"Connection Failed. Error: {ex.Message}", false);
+                if (string.IsNullOrEmpty(config.ConnString))
+                {
+                    txtConnStr.Text = "server=localhost;user=root;pwd=;convertzerodatetime=true;treattinyasboolean=true;";
+                }
+                else
+                {
+                    txtConnStr.Text = config.ConnString;
+                }
             }
         }
 
@@ -197,62 +156,6 @@ Download File: <a href='/apiFiles?folder=temp&filename={filename}'>{filename}</a
 <br />
 File saved at: {filePath}</span>";
 
-                phRestore.Controls.Add(new LiteralControl(result));
-                ((masterPage1)this.Master).ShowMessage("Restore", "Restore Success", true);
-            }
-            catch (Exception ex)
-            {
-                phRestore.Controls.Add(new LiteralControl($"<pre style='color: maroon;'>Task Failed: {ex.Message}</pre>"));
-                ((masterPage1)this.Master).ShowMessage("Error", "Restore Failed", false);
-            }
-        }
-
-        protected void btBackupMemory_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                string filename = $"backup-{DateTime.Now:yyyy-MM-dd_HHmmss}.sql";
-
-                using (var conn = config.GetNewConnection())
-                using (var cmd = conn.CreateCommand())
-                using (var mb = new MySqlBackup(cmd))
-                {
-                    conn.Open();
-
-                    Response.Clear();
-                    Response.ContentType = "application/octet-stream";
-                    Response.Headers.Add("Content-Disposition", $"attachment; filename=\"{filename}\"");
-                    Response.BufferOutput = false; // Important for streaming
-
-                    mb.ExportToStream(Response.OutputStream);
-
-                    conn.Close();
-
-                    Response.Flush();
-                    Response.End();
-                }
-            }
-            catch (Exception ex)
-            {
-                phBackup.Controls.Add(new LiteralControl($"<pre style='color: maroon;'>Task Failed: {ex.Message}</pre>"));
-                ((masterPage1)this.Master).ShowMessage("Error", "Backup Failed", false);
-            }
-        }
-
-        void RestoreInMemory()
-        {
-            try
-            {
-                using (var ms = new MemoryStream(fileUploadSql.FileBytes))
-                using (var conn = config.GetNewConnection())
-                using (var cmd = conn.CreateCommand())
-                using (var mb = new MySqlBackup(cmd))
-                {
-                    conn.Open();
-                    mb.ImportFromMemoryStream(ms);
-                }
-
-                string result = $@"<span style='color: darkgreen;'>Restore Success!<br /><br />File processed in memory</span>";
                 phRestore.Controls.Add(new LiteralControl(result));
                 ((masterPage1)this.Master).ShowMessage("Restore", "Restore Success", true);
             }
