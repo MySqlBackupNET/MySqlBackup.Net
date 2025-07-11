@@ -6,8 +6,8 @@
 
     <div class="div-center-framed-content">
 
-        <h1>Quick Test With All MySQL Data Type</h1>
-        *This test requires MySQL Root user or user with CREATE DATABASE privilege.<br />
+        <h1>Quick Test With All MySQL Data Types</h1>
+        *This is one of the most important tests of all. This test requires MySQL Root user or user with CREATE DATABASE privilege.<br />
         <br />
 
         <asp:Button ID="btRun" runat="server" ClientIDMode="Static" Text="Run Test" OnClick="btRun_Click" OnClientClick="showBigLoading(0); hideButton(this);" />

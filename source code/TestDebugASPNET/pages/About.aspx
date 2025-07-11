@@ -9,6 +9,7 @@
             border-left: 4px solid #3498db;
             margin: 20px 0;
         }
+
     </style>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">

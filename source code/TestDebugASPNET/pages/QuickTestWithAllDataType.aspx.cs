@@ -2227,6 +2227,20 @@ INSERT INTO test_memory (i
 
         #region Data Integrity Test
 
+        private class ColumnInfo
+        {
+            public string Name { get; set; }
+            public string DataType { get; set; }
+            public string IsNullable { get; set; }
+            public string DefaultValue { get; set; }
+            public string Extra { get; set; }
+            public string CharacterSet { get; set; }
+            public string Collation { get; set; }
+            public string ColumnKey { get; set; }
+            public string Comment { get; set; }
+        }
+
+
         public bool RunDataIntegrityTest()
         {
             bool isValid = true;
@@ -2267,17 +2281,38 @@ INSERT INTO test_memory (i
                 var tables1 = GetTableList(conn1, db1);
                 var tables2 = GetTableList(conn2, db2);
 
+                sb.AppendLine($"=== TABLE STRUCTURE COMPARISON ===");
+                sb.AppendLine($"Tables in {db1}: {tables1.Count}");
+                sb.AppendLine($"Tables in {db2}: {tables2.Count}");
+                sb.AppendLine();
+
                 if (tables1.Count != tables2.Count)
                 {
-                    sb.AppendLine($"Table count mismatch: {db1} has {tables1.Count} tables, {db2} has {tables2.Count} tables");
+                    sb.AppendLine($"❌ ERROR: Table count mismatch: {db1} has {tables1.Count} tables, {db2} has {tables2.Count} tables");
+
+                    // Show which tables are missing
+                    var missingInDb2 = tables1.Except(tables2).ToList();
+                    var missingInDb1 = tables2.Except(tables1).ToList();
+
+                    if (missingInDb2.Any())
+                    {
+                        sb.AppendLine($"Tables in {db1} but not in {db2}: {string.Join(", ", missingInDb2)}");
+                    }
+                    if (missingInDb1.Any())
+                    {
+                        sb.AppendLine($"Tables in {db2} but not in {db1}: {string.Join(", ", missingInDb1)}");
+                    }
+
                     return false;
                 }
 
                 foreach (var table in tables1)
                 {
+                    sb.AppendLine($"--- Checking table: {table} ---");
+
                     if (!tables2.Contains(table))
                     {
-                        sb.AppendLine($"Table {table} exists in {db1} but not in {db2}");
+                        sb.AppendLine($"❌ ERROR: Table {table} exists in {db1} but not in {db2}");
                         isValid = false;
                         continue;
                     }
@@ -2285,23 +2320,179 @@ INSERT INTO test_memory (i
                     // Compare row counts
                     long count1 = GetRowCount(conn1, db1, table);
                     long count2 = GetRowCount(conn2, db2, table);
+
+                    sb.AppendLine($"Row counts: {db1}={count1}, {db2}={count2}");
+
                     if (count1 != count2)
                     {
-                        sb.AppendLine($"Row count mismatch for table {table}: {db1} has {count1} rows, {db2} has {count2} rows");
+                        sb.AppendLine($"❌ ERROR: Row count mismatch for table {table}: {db1} has {count1} rows, {db2} has {count2} rows");
                         isValid = false;
                     }
 
-                    // Compare table structure (columns)
-                    var columns1 = GetColumnDefinitions(conn1, db1, table);
-                    var columns2 = GetColumnDefinitions(conn2, db2, table);
-                    if (!columns1.SequenceEqual(columns2))
+                    // Compare table structure (columns) with detailed information
+                    var detailedColumns1 = GetDetailedColumnDefinitions(conn1, db1, table);
+                    var detailedColumns2 = GetDetailedColumnDefinitions(conn2, db2, table);
+
+                    sb.AppendLine($"Column counts: {db1}={detailedColumns1.Count}, {db2}={detailedColumns2.Count}");
+
+                    if (detailedColumns1.Count != detailedColumns2.Count)
                     {
-                        sb.AppendLine($"Column definitions mismatch for table {table}");
+                        sb.AppendLine($"❌ ERROR: Column count mismatch for table {table}");
                         isValid = false;
                     }
+
+                    // Detailed column-by-column comparison
+                    bool columnsMatch = true;
+                    int maxCols = Math.Max(detailedColumns1.Count, detailedColumns2.Count);
+
+                    sb.AppendLine($"📋 Detailed column comparison for table {table}:");
+                    sb.AppendLine($"{'=' * 80}");
+
+                    for (int i = 0; i < maxCols; i++)
+                    {
+                        var col1 = i < detailedColumns1.Count ? detailedColumns1[i] : null;
+                        var col2 = i < detailedColumns2.Count ? detailedColumns2[i] : null;
+
+                        if (col1 == null)
+                        {
+                            sb.AppendLine($"❌ Column {i + 1}: MISSING in {db1}, but exists in {db2}: {col2.Name}");
+                            columnsMatch = false;
+                            continue;
+                        }
+
+                        if (col2 == null)
+                        {
+                            sb.AppendLine($"❌ Column {i + 1}: EXISTS in {db1}: {col1.Name}, but MISSING in {db2}");
+                            columnsMatch = false;
+                            continue;
+                        }
+
+                        // Compare each aspect of the column
+                        bool columnMatches = true;
+                        var differences = new List<string>();
+
+                        if (col1.Name != col2.Name)
+                        {
+                            differences.Add($"NAME: '{col1.Name}' vs '{col2.Name}'");
+                            columnMatches = false;
+                        }
+
+                        if (col1.DataType != col2.DataType)
+                        {
+                            differences.Add($"TYPE: '{col1.DataType}' vs '{col2.DataType}'");
+                            columnMatches = false;
+                        }
+
+                        if (col1.IsNullable != col2.IsNullable)
+                        {
+                            differences.Add($"NULLABLE: '{col1.IsNullable}' vs '{col2.IsNullable}'");
+                            columnMatches = false;
+                        }
+
+                        if (col1.DefaultValue != col2.DefaultValue)
+                        {
+                            differences.Add($"DEFAULT: '{col1.DefaultValue}' vs '{col2.DefaultValue}'");
+                            columnMatches = false;
+                        }
+
+                        if (col1.Extra != col2.Extra)
+                        {
+                            differences.Add($"EXTRA: '{col1.Extra}' vs '{col2.Extra}'");
+                            columnMatches = false;
+                        }
+
+                        if (col1.CharacterSet != col2.CharacterSet)
+                        {
+                            differences.Add($"CHARSET: '{col1.CharacterSet}' vs '{col2.CharacterSet}'");
+                            columnMatches = false;
+                        }
+
+                        if (col1.Collation != col2.Collation)
+                        {
+                            differences.Add($"COLLATION: '{col1.Collation}' vs '{col2.Collation}'");
+                            columnMatches = false;
+                        }
+
+                        if (columnMatches)
+                        {
+                            sb.AppendLine($"✅ Column {i + 1}: {col1.Name} - MATCHES");
+                        }
+                        else
+                        {
+                            sb.AppendLine($"❌ Column {i + 1}: {col1.Name} - DIFFERENCES FOUND:");
+                            foreach (var diff in differences)
+                            {
+                                sb.AppendLine($"     {diff}");
+                            }
+                            columnsMatch = false;
+                        }
+                    }
+
+                    sb.AppendLine($"{'=' * 80}");
+
+                    if (!columnsMatch)
+                    {
+                        sb.AppendLine($"❌ Table {table}: Column structure MISMATCH");
+                        isValid = false;
+                    }
+                    else
+                    {
+                        sb.AppendLine($"✅ Table {table}: Column structure MATCHES");
+                    }
+
+                    sb.AppendLine();
                 }
             }
             return isValid;
+        }
+
+        private List<ColumnInfo> GetDetailedColumnDefinitions(MySqlConnection conn, string dbName, string tableName)
+        {
+            var columns = new List<ColumnInfo>();
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = @"
+            SELECT 
+                COLUMN_NAME,
+                COLUMN_TYPE,
+                IS_NULLABLE,
+                COLUMN_DEFAULT,
+                EXTRA,
+                CHARACTER_SET_NAME,
+                COLLATION_NAME,
+                COLUMN_KEY,
+                COLUMN_COMMENT
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = @dbName AND TABLE_NAME = @tableName 
+            ORDER BY ORDINAL_POSITION";
+
+                cmd.Parameters.AddWithValue("@dbName", dbName);
+                cmd.Parameters.AddWithValue("@tableName", tableName);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string COLUMN_DEFAULT = reader["COLUMN_DEFAULT"] + "";
+                        string CHARACTER_SET_NAME = reader["CHARACTER_SET_NAME"] + "";
+                        string COLLATION_NAME = reader["COLLATION_NAME"] + "";
+
+                        columns.Add(new ColumnInfo
+                        {
+                            Name = reader.GetString("COLUMN_NAME"),
+                            DataType = reader.GetString("COLUMN_TYPE"),
+                            IsNullable = reader.GetString("IS_NULLABLE"),
+                            DefaultValue = COLUMN_DEFAULT,
+                            Extra = reader.GetString("EXTRA"),
+                            CharacterSet = CHARACTER_SET_NAME,
+                            Collation = COLLATION_NAME,
+                            ColumnKey = reader.GetString("COLUMN_KEY"),
+                            Comment = reader.GetString("COLUMN_COMMENT")
+                        });
+                    }
+                }
+            }
+            return columns;
         }
 
         private bool CompareTableData(string db1, string db2)
@@ -2313,9 +2504,13 @@ INSERT INTO test_memory (i
                 conn1.Open();
                 conn2.Open();
 
+                sb.AppendLine($"=== TABLE DATA COMPARISON ===");
+
                 var tables = GetTableList(conn1, db1);
                 foreach (var table in tables)
                 {
+                    sb.AppendLine($"--- Comparing data in table: {table} ---");
+
                     try
                     {
                         using (var cmd1 = conn1.CreateCommand())
@@ -2330,7 +2525,21 @@ INSERT INTO test_memory (i
                             using (var reader1 = cmd1.ExecuteReader())
                             using (var reader2 = cmd2.ExecuteReader())
                             {
+                                // Check column structure first
+                                if (reader1.FieldCount != reader2.FieldCount)
+                                {
+                                    sb.AppendLine($"❌ ERROR: Column count mismatch in {table}: {db1} has {reader1.FieldCount}, {db2} has {reader2.FieldCount}");
+                                    isValid = false;
+                                    continue;
+                                }
+
+                                // Display column names for reference
+                                sb.AppendLine($"📋 Columns: {string.Join(", ", Enumerable.Range(0, reader1.FieldCount).Select(i => reader1.GetName(i)))}");
+
                                 int rowNum = 0;
+                                int errorCount = 0;
+                                const int MAX_ERRORS_PER_TABLE = 10; // Show more errors for debugging
+
                                 while (reader1.Read() && reader2.Read())
                                 {
                                     rowNum++;
@@ -2340,26 +2549,59 @@ INSERT INTO test_memory (i
                                         object val1 = reader1[i];
                                         object val2 = reader2[i];
 
-                                        if (!CompareValues(val1, val2, table, rowNum, colName))
+                                        if (!CompareValuesDetailed(val1, val2, table, rowNum, colName))
                                         {
                                             isValid = false;
+                                            errorCount++;
+
+                                            if (errorCount >= MAX_ERRORS_PER_TABLE)
+                                            {
+                                                sb.AppendLine($"⚠️  (stopping after {MAX_ERRORS_PER_TABLE} errors for table {table}, but more may exist)");
+                                                break;
+                                            }
                                         }
                                     }
+
+                                    if (errorCount >= MAX_ERRORS_PER_TABLE)
+                                        break;
                                 }
 
-                                if (reader1.Read() || reader2.Read())
+                                // Check for additional rows in either database
+                                int extraRows1 = 0, extraRows2 = 0;
+                                while (reader1.Read()) extraRows1++;
+                                while (reader2.Read()) extraRows2++;
+
+                                if (extraRows1 > 0 || extraRows2 > 0)
                                 {
-                                    sb.AppendLine($"Row count mismatch in {table} during data comparison");
+                                    sb.AppendLine($"❌ ERROR: Row count mismatch in {table}:");
+                                    sb.AppendLine($"  {db1} has {extraRows1} extra rows after row {rowNum}");
+                                    sb.AppendLine($"  {db2} has {extraRows2} extra rows after row {rowNum}");
                                     isValid = false;
+                                }
+
+                                if (errorCount == 0)
+                                {
+                                    sb.AppendLine($"✅ Table {table}: All data matches ({rowNum} rows checked)");
+                                }
+                                else
+                                {
+                                    sb.AppendLine($"❌ Table {table}: Found {errorCount} data mismatches out of {rowNum} rows");
                                 }
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        sb.AppendLine($"Error comparing data in table {table}: {ex.Message}");
+                        sb.AppendLine($"❌ EXCEPTION comparing data in table {table}:");
+                        sb.AppendLine($"   Error: {ex.Message}");
+                        if (ex.InnerException != null)
+                        {
+                            sb.AppendLine($"   Inner: {ex.InnerException.Message}");
+                        }
                         isValid = false;
                     }
+
+                    sb.AppendLine();
                 }
             }
             return isValid;
@@ -2377,6 +2619,146 @@ INSERT INTO test_memory (i
             }
         }
 
+        private bool CompareValuesDetailed(object val1, object val2, string table, int rowNum, string colName)
+        {
+            // Handle nulls
+            if (val1 == DBNull.Value) val1 = null;
+            if (val2 == DBNull.Value) val2 = null;
+
+            if ((val1 == null) != (val2 == null))
+            {
+                sb.AppendLine($"❌ NULL mismatch in {table}.{colName} row {rowNum}:");
+                sb.AppendLine($"   {table}1: {(val1 == null ? "NULL" : $"'{val1}' ({val1.GetType().Name})")}");
+                sb.AppendLine($"   {table}2: {(val2 == null ? "NULL" : $"'{val2}' ({val2.GetType().Name})")}");
+                return false;
+            }
+
+            if (val1 == null && val2 == null)
+                return true;
+
+            // Type information for debugging
+            string type1 = val1?.GetType().Name ?? "null";
+            string type2 = val2?.GetType().Name ?? "null";
+
+            // Handle byte arrays (binary data)
+            if (val1 is byte[] bytes1 && val2 is byte[] bytes2)
+            {
+                if (!bytes1.SequenceEqual(bytes2))
+                {
+                    sb.AppendLine($"❌ Binary data mismatch in {table}.{colName} row {rowNum}:");
+                    sb.AppendLine($"   Length: {bytes1.Length} vs {bytes2.Length}");
+                    if (bytes1.Length <= 20 && bytes2.Length <= 20)
+                    {
+                        sb.AppendLine($"   Bytes1: {BitConverter.ToString(bytes1)}");
+                        sb.AppendLine($"   Bytes2: {BitConverter.ToString(bytes2)}");
+                    }
+                    return false;
+                }
+                return true;
+            }
+
+            // Handle geometry data
+            if (type1.Contains("Geometry") && type2.Contains("Geometry"))
+            {
+                string geo1 = val1?.ToString() ?? "";
+                string geo2 = val2?.ToString() ?? "";
+                if (geo1 != geo2)
+                {
+                    sb.AppendLine($"❌ Geometry mismatch in {table}.{colName} row {rowNum}:");
+                    sb.AppendLine($"   Geo1: '{geo1}'");
+                    sb.AppendLine($"   Geo2: '{geo2}'");
+                    return false;
+                }
+                return true;
+            }
+
+            // Handle floating point precision issues
+            if (val1 is float f1 && val2 is float f2)
+            {
+                double diff = Math.Abs(f1 - f2);
+                if (diff > 0.0001f)
+                {
+                    sb.AppendLine($"❌ Float mismatch in {table}.{colName} row {rowNum}:");
+                    sb.AppendLine($"   Value1: {f1:F10}");
+                    sb.AppendLine($"   Value2: {f2:F10}");
+                    sb.AppendLine($"   Difference: {diff:F10}");
+                    return false;
+                }
+                return true;
+            }
+
+            if (val1 is double d1 && val2 is double d2)
+            {
+                double diff = Math.Abs(d1 - d2);
+                if (diff > 0.0001)
+                {
+                    sb.AppendLine($"❌ Double mismatch in {table}.{colName} row {rowNum}:");
+                    sb.AppendLine($"   Value1: {d1:F10}");
+                    sb.AppendLine($"   Value2: {d2:F10}");
+                    sb.AppendLine($"   Difference: {diff:F10}");
+                    return false;
+                }
+                return true;
+            }
+
+            // Handle DateTime precision issues
+            if (val1 is DateTime dt1 && val2 is DateTime dt2)
+            {
+                var diff = Math.Abs((dt1 - dt2).TotalMilliseconds);
+                if (diff > 1) // Allow 1ms difference
+                {
+                    sb.AppendLine($"❌ DateTime mismatch in {table}.{colName} row {rowNum}:");
+                    sb.AppendLine($"   DateTime1: {dt1:yyyy-MM-dd HH:mm:ss.ffffff}");
+                    sb.AppendLine($"   DateTime2: {dt2:yyyy-MM-dd HH:mm:ss.ffffff}");
+                    sb.AppendLine($"   Difference: {diff:F3}ms");
+                    return false;
+                }
+                return true;
+            }
+
+            // Handle TimeSpan
+            if (val1 is TimeSpan ts1 && val2 is TimeSpan ts2)
+            {
+                var diff = Math.Abs((ts1 - ts2).TotalMilliseconds);
+                if (diff > 1)
+                {
+                    sb.AppendLine($"❌ TimeSpan mismatch in {table}.{colName} row {rowNum}:");
+                    sb.AppendLine($"   TimeSpan1: {ts1}");
+                    sb.AppendLine($"   TimeSpan2: {ts2}");
+                    sb.AppendLine($"   Difference: {diff:F3}ms");
+                    return false;
+                }
+                return true;
+            }
+
+            // Default string comparison with detailed output
+            string str1 = val1?.ToString() ?? "";
+            string str2 = val2?.ToString() ?? "";
+
+            if (!str1.Equals(str2))
+            {
+                sb.AppendLine($"❌ Data mismatch in {table}.{colName} row {rowNum}:");
+                sb.AppendLine($"   Type1: {type1}, Type2: {type2}");
+
+                // Show truncated values if they're very long
+                string display1 = str1.Length > 100 ? str1.Substring(0, 100) + $"... ({str1.Length} chars)" : str1;
+                string display2 = str2.Length > 100 ? str2.Substring(0, 100) + $"... ({str2.Length} chars)" : str2;
+
+                sb.AppendLine($"   Value1: '{display1}'");
+                sb.AppendLine($"   Value2: '{display2}'");
+
+                // Show length difference if significant
+                if (Math.Abs(str1.Length - str2.Length) > 0)
+                {
+                    sb.AppendLine($"   Length: {str1.Length} vs {str2.Length}");
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
         private bool CompareValues(object val1, object val2, string table, int rowNum, string colName)
         {
             // Handle nulls
@@ -2385,7 +2767,7 @@ INSERT INTO test_memory (i
 
             if ((val1 == null) != (val2 == null))
             {
-                sb.AppendLine($"NULL mismatch in {table}, row {rowNum}, column {colName}: {val1} vs {val2}");
+                sb.AppendLine($"ERROR: NULL mismatch in {table}, row {rowNum}, column {colName}: DB1='{val1}' vs DB2='{val2}'");
                 return false;
             }
 
@@ -2397,7 +2779,7 @@ INSERT INTO test_memory (i
             {
                 if (!bytes1.SequenceEqual(bytes2))
                 {
-                    sb.AppendLine($"Binary data mismatch in {table}, row {rowNum}, column {colName}");
+                    sb.AppendLine($"ERROR: Binary data mismatch in {table}, row {rowNum}, column {colName} (length: {bytes1.Length} vs {bytes2.Length})");
                     return false;
                 }
                 return true;
@@ -2408,7 +2790,7 @@ INSERT INTO test_memory (i
             {
                 if (val1.ToString() != val2.ToString())
                 {
-                    sb.AppendLine($"Geometry mismatch in {table}, row {rowNum}, column {colName}");
+                    sb.AppendLine($"ERROR: Geometry mismatch in {table}, row {rowNum}, column {colName}: '{val1}' vs '{val2}'");
                     return false;
                 }
                 return true;
@@ -2419,7 +2801,7 @@ INSERT INTO test_memory (i
             {
                 if (Math.Abs(f1 - f2) > 0.0001f)
                 {
-                    sb.AppendLine($"Float mismatch in {table}, row {rowNum}, column {colName}: {val1} vs {val2}");
+                    sb.AppendLine($"ERROR: Float mismatch in {table}, row {rowNum}, column {colName}: {f1} vs {f2} (diff: {Math.Abs(f1 - f2)})");
                     return false;
                 }
                 return true;
@@ -2429,16 +2811,50 @@ INSERT INTO test_memory (i
             {
                 if (Math.Abs(d1 - d2) > 0.0001)
                 {
-                    sb.AppendLine($"Double mismatch in {table}, row {rowNum}, column {colName}: {val1} vs {val2}");
+                    sb.AppendLine($"ERROR: Double mismatch in {table}, row {rowNum}, column {colName}: {d1} vs {d2} (diff: {Math.Abs(d1 - d2)})");
                     return false;
                 }
                 return true;
             }
 
-            // Default comparison
-            if (!val1.ToString().Equals(val2.ToString()))
+            // Handle DateTime precision issues
+            if (val1 is DateTime dt1 && val2 is DateTime dt2)
             {
-                sb.AppendLine($"Data mismatch in {table}, row {rowNum}, column {colName}: {val1} vs {val2}");
+                // MySQL TIMESTAMP precision can vary
+                var diff = Math.Abs((dt1 - dt2).TotalMilliseconds);
+                if (diff > 1) // Allow 1ms difference
+                {
+                    sb.AppendLine($"ERROR: DateTime mismatch in {table}, row {rowNum}, column {colName}: '{dt1:yyyy-MM-dd HH:mm:ss.ffffff}' vs '{dt2:yyyy-MM-dd HH:mm:ss.ffffff}' (diff: {diff}ms)");
+                    return false;
+                }
+                return true;
+            }
+
+            // Handle TimeSpan
+            if (val1 is TimeSpan ts1 && val2 is TimeSpan ts2)
+            {
+                var diff = Math.Abs((ts1 - ts2).TotalMilliseconds);
+                if (diff > 1)
+                {
+                    sb.AppendLine($"ERROR: TimeSpan mismatch in {table}, row {rowNum}, column {colName}: '{ts1}' vs '{ts2}' (diff: {diff}ms)");
+                    return false;
+                }
+                return true;
+            }
+
+            // Default string comparison
+            string str1 = val1?.ToString() ?? "";
+            string str2 = val2?.ToString() ?? "";
+
+            if (!str1.Equals(str2))
+            {
+                // Show truncated values if they're very long
+                string display1 = str1.Length > 100 ? str1.Substring(0, 100) + "..." : str1;
+                string display2 = str2.Length > 100 ? str2.Substring(0, 100) + "..." : str2;
+
+                sb.AppendLine($"ERROR: Data mismatch in {table}, row {rowNum}, column {colName}:");
+                sb.AppendLine($"  DB1 ({val1?.GetType().Name}): '{display1}'");
+                sb.AppendLine($"  DB2 ({val2?.GetType().Name}): '{display2}'");
                 return false;
             }
 
@@ -2454,37 +2870,161 @@ INSERT INTO test_memory (i
                 conn1.Open();
                 conn2.Open();
 
-                // Compare views
-                var views1 = GetObjectDefinitions(conn1, db1, "VIEW", "VIEWS");
-                var views2 = GetObjectDefinitions(conn2, db2, "VIEW", "VIEWS");
-                if (!CompareObjectDefinitions(views1, views2, "Views"))
+                // Compare views by DATA OUTPUT (not SQL definition)
+                if (!CompareViewsData(conn1, conn2, db1, db2))
                     isValid = false;
 
-                // Compare stored procedures
+                // Compare stored procedures (definitions only - these shouldn't have DB names embedded)
                 var procs1 = GetObjectDefinitions(conn1, db1, "PROCEDURE", "ROUTINES", "PROCEDURE");
                 var procs2 = GetObjectDefinitions(conn2, db2, "PROCEDURE", "ROUTINES", "PROCEDURE");
                 if (!CompareObjectDefinitions(procs1, procs2, "Stored Procedures"))
                     isValid = false;
 
-                // Compare functions
+                // Compare functions (definitions only)
                 var funcs1 = GetObjectDefinitions(conn1, db1, "FUNCTION", "ROUTINES", "FUNCTION");
                 var funcs2 = GetObjectDefinitions(conn2, db2, "FUNCTION", "ROUTINES", "FUNCTION");
                 if (!CompareObjectDefinitions(funcs1, funcs2, "Functions"))
                     isValid = false;
 
-                // Compare triggers
+                // Compare triggers (definitions only - may need normalization)
                 var triggers1 = GetObjectDefinitions(conn1, db1, "TRIGGER", "TRIGGERS");
                 var triggers2 = GetObjectDefinitions(conn2, db2, "TRIGGER", "TRIGGERS");
                 if (!CompareObjectDefinitions(triggers1, triggers2, "Triggers"))
                     isValid = false;
 
-                // Compare events
+                // Compare events (definitions only)
                 var events1 = GetObjectDefinitions(conn1, db1, "EVENT", "EVENTS");
                 var events2 = GetObjectDefinitions(conn2, db2, "EVENT", "EVENTS");
                 if (!CompareObjectDefinitions(events1, events2, "Events"))
                     isValid = false;
             }
             return isValid;
+        }
+
+        private bool CompareViewsData(MySqlConnection conn1, MySqlConnection conn2, string db1, string db2)
+        {
+            bool isValid = true;
+
+            // Get list of views from both databases
+            var views1 = GetViewList(conn1, db1);
+            var views2 = GetViewList(conn2, db2);
+
+            if (views1.Count != views2.Count)
+            {
+                sb.AppendLine($"View count mismatch: {db1} has {views1.Count} views, {db2} has {views2.Count} views");
+                return false;
+            }
+
+            foreach (var viewName in views1)
+            {
+                if (!views2.Contains(viewName))
+                {
+                    sb.AppendLine($"View '{viewName}' exists in {db1} but not in {db2}");
+                    isValid = false;
+                    continue;
+                }
+
+                try
+                {
+                    // Compare the actual data output from each view
+                    if (!CompareViewData(conn1, conn2, db1, db2, viewName))
+                    {
+                        isValid = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    sb.AppendLine($"Error comparing view '{viewName}' data: {ex.Message}");
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        private List<string> GetViewList(MySqlConnection conn, string dbName)
+        {
+            var views = new List<string>();
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = @dbName";
+                cmd.Parameters.AddWithValue("@dbName", dbName);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        views.Add(reader.GetString(0));
+                    }
+                }
+            }
+            return views;
+        }
+
+        private bool CompareViewData(MySqlConnection conn1, MySqlConnection conn2, string db1, string db2, string viewName)
+        {
+            using (var cmd1 = conn1.CreateCommand())
+            using (var cmd2 = conn2.CreateCommand())
+            {
+                // Query the view data from both databases
+                cmd1.CommandText = $"SELECT * FROM `{db1}`.`{viewName}` ORDER BY 1";
+                cmd2.CommandText = $"SELECT * FROM `{db2}`.`{viewName}` ORDER BY 1";
+
+                using (var reader1 = cmd1.ExecuteReader())
+                using (var reader2 = cmd2.ExecuteReader())
+                {
+                    // First check if both views have the same column structure
+                    if (reader1.FieldCount != reader2.FieldCount)
+                    {
+                        sb.AppendLine($"View '{viewName}' column count mismatch: {db1} has {reader1.FieldCount} columns, {db2} has {reader2.FieldCount} columns");
+                        return false;
+                    }
+
+                    // Check column names and types
+                    for (int i = 0; i < reader1.FieldCount; i++)
+                    {
+                        if (reader1.GetName(i) != reader2.GetName(i))
+                        {
+                            sb.AppendLine($"View '{viewName}' column name mismatch at position {i}: {reader1.GetName(i)} vs {reader2.GetName(i)}");
+                            return false;
+                        }
+
+                        if (reader1.GetFieldType(i) != reader2.GetFieldType(i))
+                        {
+                            sb.AppendLine($"View '{viewName}' column type mismatch for '{reader1.GetName(i)}': {reader1.GetFieldType(i)} vs {reader2.GetFieldType(i)}");
+                            return false;
+                        }
+                    }
+
+                    // Compare data row by row
+                    int rowNumber = 0;
+                    while (reader1.Read() && reader2.Read())
+                    {
+                        rowNumber++;
+                        for (int i = 0; i < reader1.FieldCount; i++)
+                        {
+                            string columnName = reader1.GetName(i);
+                            object val1 = reader1[i];
+                            object val2 = reader2[i];
+
+                            if (!CompareValues(val1, val2, $"View '{viewName}'", rowNumber, columnName))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+
+                    // Check if one view has more rows than the other
+                    if (reader1.Read() || reader2.Read())
+                    {
+                        sb.AppendLine($"View '{viewName}' row count mismatch after row {rowNumber}");
+                        return false;
+                    }
+
+                    sb.AppendLine($"View '{viewName}' data comparison: PASSED ({rowNumber} rows)");
+                }
+            }
+
+            return true;
         }
 
         private List<string> GetTableList(MySqlConnection conn, string dbName)
