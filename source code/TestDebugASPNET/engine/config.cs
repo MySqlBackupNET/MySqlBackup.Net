@@ -174,7 +174,7 @@ namespace System
             {
                 try
                 {
-                    MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(ConnString);
+                    //MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(ConnString);
 
                     // Create new process start info
                     ProcessStartInfo processInfo = new ProcessStartInfo
@@ -192,6 +192,8 @@ namespace System
                         // Optionally, you can wait for the process to initialize
                         // process.WaitForExit(); // Uncomment if you need to wait for completion
                     }
+
+                    System.Threading.Thread.Sleep(5000);
                 }
                 catch (Exception ex)
                 {
@@ -237,6 +239,8 @@ namespace System
                         // Optionally, you can wait for the process to initialize
                         process.WaitForExit(); // Uncomment if you need to wait for completion
                     }
+
+                    System.Threading.Thread.Sleep(5000);
 
                     for (int checkMySqlStateAttemp = 0; checkMySqlStateAttemp < 3; checkMySqlStateAttemp++)
                     {

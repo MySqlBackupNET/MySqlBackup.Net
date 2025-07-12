@@ -15,10 +15,13 @@ namespace System.pages
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            if (!IsPostBack)
+            {
+                LoadData();
+            }
         }
 
-        protected void btGetTotalRows_Click(object sender, EventArgs e)
+        void LoadData()
         {
             string databaseName = "";
             string datadir = "";
@@ -100,6 +103,11 @@ namespace System.pages
             sb.AppendLine("</table>");
 
             ltResult.Text = sb.ToString();
+        }
+
+        protected void btGetTotalRows_Click(object sender, EventArgs e)
+        {
+            LoadData();
         }
 
         string FormatBytes(long bytes)
