@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
@@ -2193,6 +2191,56 @@ namespace MySqlConnector
 
             try
             {
+                if (ImportInfo.EnableParallelProcessing)
+                {
+                    Import_StartParallel();
+                }
+                else
+                {
+                    Import_Phase1();
+                }
+            }
+            finally
+            {
+                ReportEndProcess();
+            }
+        }
+
+        void Import_StartParallel()
+        {
+            // Initialize BlockingCollection
+            _importQueryCollection = new BlockingCollection<string>(500);
+
+            // Reset completion flags
+            _importPhase1Complete = false;
+            _importPhase2Complete = false;
+
+            try
+            {
+                // Start both phases as tasks
+                _importPhase1Task = Task.Run(() => Import_Phase1());
+                _importPhase2Task = Task.Run(() => Import_Phase2ExecuteQueries());
+
+                // Wait for BOTH phases to complete - this is the key fix!
+                Task.WaitAll(_importPhase1Task, _importPhase2Task);
+            }
+            catch (Exception ex)
+            {
+                // Signal stop to all phases
+                stopProcess = true;
+                throw;
+            }
+            finally
+            {
+                // Cleanup
+                _importQueryCollection?.Dispose();
+            }
+        }
+
+        void Import_Phase1()
+        {
+            try
+            {
                 string line = string.Empty;
 
                 while (line != null)
@@ -2231,8 +2279,6 @@ namespace MySqlConnector
 
                         _sb.Clear();
 
-                        //GC.Collect();
-
                         if (!ImportInfo.IgnoreSqlError)
                         {
                             StopAllProcess();
@@ -2243,7 +2289,8 @@ namespace MySqlConnector
             }
             finally
             {
-                ReportEndProcess();
+                _importPhase1Complete = true;
+                _importQueryCollection?.CompleteAdding();
             }
         }
 
@@ -2284,6 +2331,52 @@ namespace MySqlConnector
             if (ImportProgressChanged != null)
                 timerReport.Start();
 
+        }
+
+        bool Import_IsEmptyLine(string line)
+        {
+            if (line == null)
+                return true;
+            if (line == string.Empty)
+                return true;
+            if (line.Length == 0)
+                return true;
+            if (line.StartsWith("--"))
+                return true;
+            if (line == Environment.NewLine)
+                return true;
+            if (line == "\r")
+                return true;
+            if (line == "\n")
+                return true;
+            if (line == "\r\n")
+                return true;
+
+            return false;
+        }
+
+        void Import_RaiseCompletionEvent()
+        {
+            if (ImportCompleted != null)
+            {
+                MySqlBackup.ProcessEndType completedType = MySqlBackup.ProcessEndType.UnknownStatus;
+
+                switch (processCompletionType)
+                {
+                    case MySqlBackup.ProcessEndType.Complete:
+                        completedType = MySqlBackup.ProcessEndType.Complete;
+                        break;
+                    case MySqlBackup.ProcessEndType.Error:
+                        completedType = MySqlBackup.ProcessEndType.Error;
+                        break;
+                    case MySqlBackup.ProcessEndType.Cancelled:
+                        completedType = MySqlBackup.ProcessEndType.Cancelled;
+                        break;
+                }
+
+                ImportCompleteArgs arg = new ImportCompleteArgs(completedType, timeStart, timeEnd, _lastError);
+                ImportCompleted(this, arg);
+            }
         }
 
         string Import_GetLineStreamReader()
@@ -2410,71 +2503,88 @@ namespace MySqlConnector
                 _query = lastIndex != -1 ? trimmed.Remove(lastIndex, _delimiter.Length) : trimmed;
             }
 
-            Command.CommandText = _query;
-            Command.ExecuteNonQuery();
-
-            //if (_delimiter != ";")
-            //{
-            //    _mySqlScript.Query = $"DELIMITER {_delimiter}{Environment.NewLine}{_query}";
-            //    _mySqlScript.Delimiter = _delimiter;
-            //    _mySqlScript.Execute();
-            //}
-            //else
-            //{
-            //    Command.CommandText = _query;
-            //    Command.ExecuteNonQuery();
-            //}
+            if (!stopProcess)
+            {
+                if (ImportInfo.EnableParallelProcessing)
+                {
+                    try
+                    {
+                        _importQueryCollection.Add(_query);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // Collection might be completed - this can happen during shutdown
+                        // Don't treat this as an error
+                    }
+                }
+                else
+                {
+                    Command.CommandText = _query;
+                    Command.ExecuteNonQuery();
+                }
+            }
 
             _sb.Clear();
-
-            //GC.Collect();
         }
 
-        bool Import_IsEmptyLine(string line)
-        {
-            if (line == null)
-                return true;
-            if (line == string.Empty)
-                return true;
-            if (line.Length == 0)
-                return true;
-            if (line.StartsWith("--"))
-                return true;
-            if (line == Environment.NewLine)
-                return true;
-            if (line == "\r")
-                return true;
-            if (line == "\n")
-                return true;
-            if (line == "\r\n")
-                return true;
+        // for the use of parallel import
+        private BlockingCollection<string> _importQueryCollection;
+        private Task _importPhase1Task;
+        private Task _importPhase2Task;
+        private volatile bool _importPhase1Complete = false;
+        private volatile bool _importPhase2Complete = false;
 
-            return false;
-        }
-
-        void Import_RaiseCompletionEvent()
+        void Import_Phase2ExecuteQueries()
         {
-            if (ImportCompleted != null)
+            try
             {
-                MySqlBackup.ProcessEndType completedType = MySqlBackup.ProcessEndType.UnknownStatus;
-
-                switch (processCompletionType)
+                foreach (string query in _importQueryCollection.GetConsumingEnumerable())
                 {
-                    case MySqlBackup.ProcessEndType.Complete:
-                        completedType = MySqlBackup.ProcessEndType.Complete;
+                    if (stopProcess)
                         break;
-                    case MySqlBackup.ProcessEndType.Error:
-                        completedType = MySqlBackup.ProcessEndType.Error;
-                        break;
-                    case MySqlBackup.ProcessEndType.Cancelled:
-                        completedType = MySqlBackup.ProcessEndType.Cancelled;
-                        break;
-                }
 
-                ImportCompleteArgs arg = new ImportCompleteArgs(completedType, timeStart, timeEnd, _lastError);
-                ImportCompleted(this, arg);
+                    try
+                    {
+                        Command.CommandText = query;
+                        Command.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        _lastError = ex;
+                        _lastErrorSql = query;
+
+                        if (!string.IsNullOrEmpty(ImportInfo.ErrorLogFile))
+                        {
+                            File.AppendAllText(ImportInfo.ErrorLogFile,
+                                ex.Message + Environment.NewLine +
+                                Environment.NewLine +
+                                _lastErrorSql + Environment.NewLine +
+                                Environment.NewLine);
+                        }
+
+                        if (!ImportInfo.IgnoreSqlError)
+                        {
+                            StopAllProcess();
+                            throw;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (!stopProcess)
+                {
+                    _lastError = ex;
+                    StopAllProcess();
+                    throw;
+                }
+            }
+            finally
+            {
+                _importPhase2Complete = true;
             }
         }
+
 
         #endregion
 
@@ -2533,6 +2643,7 @@ namespace MySqlConnector
             {
                 _rowDataCollection?.CompleteAdding();
                 _sqlStatementCollection?.CompleteAdding();
+                _importQueryCollection?.CompleteAdding();
             }
             catch
             {
@@ -2554,6 +2665,8 @@ namespace MySqlConnector
                     if (_phase1Task != null) tasks.Add(_phase1Task);
                     if (_phase2Task != null) tasks.Add(_phase2Task);
                     if (_phase3Task != null) tasks.Add(_phase3Task);
+                    if (_importPhase1Task != null) tasks.Add(_importPhase1Task);
+                    if (_importPhase2Task != null) tasks.Add(_importPhase2Task);
 
                     Task.WaitAll(tasks.ToArray(), TimeSpan.FromSeconds(10));
                 }
@@ -2566,6 +2679,7 @@ namespace MySqlConnector
             // Dispose BlockingCollections
             _rowDataCollection?.Dispose();
             _sqlStatementCollection?.Dispose();
+            _importQueryCollection?.Dispose();
 
             if (timerReport != null)
             {

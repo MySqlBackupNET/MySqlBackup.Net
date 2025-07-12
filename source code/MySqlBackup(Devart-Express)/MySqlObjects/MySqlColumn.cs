@@ -39,8 +39,8 @@ namespace Devart.Data.MySql
         public bool IsGeneratedColumn { get { return _isGeneratedColumn; } }
 
         public MySqlColumn(string name, Type type, string mySqlDataType,
-            string collation, bool allowNull, string key, string defaultValue,
-            string extra, string privileges, string comment)
+    string collation, bool allowNull, string key, string defaultValue,
+    string extra, string privileges, string comment)
         {
             _name = name;
             _dataType = type;
@@ -58,9 +58,10 @@ namespace Devart.Data.MySql
                 _isPrimaryKey = true;
             }
 
-            if (_dataType == typeof(DateTime))
+            if (_dataType == typeof(DateTime) || _dataType == typeof(TimeSpan) ||
+                _mySqlDataType.StartsWith("time") || _mySqlDataType.StartsWith("datetime") || _mySqlDataType.StartsWith("timestamp"))
             {
-                if (_mySqlDataType.Length > 8)
+                if (_mySqlDataType.Length > 4) // Changed from 8 to 4 to catch "time(6)"
                 {
                     string _fractionLength = string.Empty;
                     foreach (var __dL in _mySqlDataType)
@@ -77,7 +78,7 @@ namespace Devart.Data.MySql
                 }
             }
 
-            if (_extra.ToUpper() == "VIRTUAL GENERATED" || _extra.ToUpper()== "STORED GENERATED")
+            if (_extra.ToUpper() == "VIRTUAL GENERATED" || _extra.ToUpper() == "STORED GENERATED")
             {
                 _isGeneratedColumn = true;
             }

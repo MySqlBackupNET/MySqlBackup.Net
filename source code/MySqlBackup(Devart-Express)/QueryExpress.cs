@@ -127,49 +127,67 @@ namespace Devart.Data.MySql
 
         public static string EraseDefiner(string input)
         {
-            StringBuilder sb = new StringBuilder();
-            string definer = " DEFINER=";
-            int dIndex = input.IndexOf(definer);
+            if (string.IsNullOrEmpty(input))
+                return input;
 
-            sb.AppendFormat(definer);
+            // Pattern explanation:
+            // \s*DEFINER\s*=\s*   - "DEFINER=" with optional whitespace
+            // `[^`]+`             - backtick-quoted username (any chars except backtick)
+            // @                   - literal @ symbol  
+            // `[^`]+`             - backtick-quoted hostname (any chars except backtick)
+            // \s*                 - optional trailing whitespace
 
-            bool pointAliasReached = false;
-            bool point3rdQuoteReached = false;
+            string pattern = @"\s*DEFINER\s*=\s*`[^`]+`@`[^`]+`\s*";
 
-            for (int i = dIndex + definer.Length; i < input.Length; i++)
-            {
-                if (!pointAliasReached)
-                {
-                    if (input[i] == '@')
-                        pointAliasReached = true;
-
-                    sb.Append(input[i]);
-                    continue;
-                }
-
-                if (!point3rdQuoteReached)
-                {
-                    if (input[i] == '`')
-                        point3rdQuoteReached = true;
-
-                    sb.Append(input[i]);
-                    continue;
-                }
-
-                if (input[i] != '`')
-                {
-                    sb.Append(input[i]);
-                    continue;
-                }
-                else
-                {
-                    sb.Append(input[i]);
-                    break;
-                }
-            }
-
-            return input.Replace(sb.ToString(), string.Empty);
+            return System.Text.RegularExpressions.Regex.Replace(input, pattern, " ",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         }
+
+        //public static string EraseDefiner(string input)
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    string definer = " DEFINER=";
+        //    int dIndex = input.IndexOf(definer);
+
+        //    sb.AppendFormat(definer);
+
+        //    bool pointAliasReached = false;
+        //    bool point3rdQuoteReached = false;
+
+        //    for (int i = dIndex + definer.Length; i < input.Length; i++)
+        //    {
+        //        if (!pointAliasReached)
+        //        {
+        //            if (input[i] == '@')
+        //                pointAliasReached = true;
+
+        //            sb.Append(input[i]);
+        //            continue;
+        //        }
+
+        //        if (!point3rdQuoteReached)
+        //        {
+        //            if (input[i] == '`')
+        //                point3rdQuoteReached = true;
+
+        //            sb.Append(input[i]);
+        //            continue;
+        //        }
+
+        //        if (input[i] != '`')
+        //        {
+        //            sb.Append(input[i]);
+        //            continue;
+        //        }
+        //        else
+        //        {
+        //            sb.Append(input[i]);
+        //            break;
+        //        }
+        //    }
+
+        //    return input.Replace(sb.ToString(), string.Empty);
+        //}
 
         /// <summary>
         /// This method is left here for legacy purpose, just not to break any old project that depends on this method
@@ -440,6 +458,14 @@ namespace Devart.Data.MySql
                 sb.AppendFormat(ts.Duration().Minutes.ToString().PadLeft(2, '0'));
                 sb.AppendFormat(":");
                 sb.AppendFormat(ts.Duration().Seconds.ToString().PadLeft(2, '0'));
+
+                if (col != null && col.TimeFractionLength > 0)
+                {
+                    sb.Append(".");
+                    long totalMicroseconds = ts.Ticks / 10;
+                    long microsecondPart = totalMicroseconds % 1000000;
+                    sb.Append(microsecondPart.ToString().PadLeft(col.TimeFractionLength, '0'));
+                }
 
                 if (wrapStringWithSingleQuote)
                     sb.AppendFormat("'");

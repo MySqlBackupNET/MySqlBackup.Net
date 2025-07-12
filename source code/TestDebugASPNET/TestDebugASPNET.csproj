@@ -238,7 +238,7 @@
     <Compile Include="MySqlBackup.NET\InfoObjects\enumRowsDataExportMode.cs" />
     <Compile Include="MySqlBackup.NET\InfoObjects\ExportInformations.cs" />
     <Compile Include="MySqlBackup.NET\InfoObjects\ImportInformations.cs" />
-    <Compile Include="MySqlBackup.NET\MySqlBackup_v2.6_ParallelImport.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlBackup_v2.6_ParallelExport.cs" />
     <Compile Include="MySqlBackup.NET\MySqlBackup_v2.5.cs" />
     <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlColumn.cs" />
     <Compile Include="MySqlBackup.NET\MySqlObjects\MySqlColumnList.cs" />
@@ -450,7 +450,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="masterPage1.Master" />
-    <Compile Include="MySqlBackup.NET\MySqlBackup_v2.6.2_ParallelExport.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlBackup_v2.6.2_ParallelImport.cs" />
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
