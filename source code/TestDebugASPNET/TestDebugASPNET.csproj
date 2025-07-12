@@ -158,6 +158,7 @@
     <Content Include="pages\ReportProgress.aspx" />
     <Content Include="pages\ReportProgressRestoreFileUpload.aspx" />
     <Content Include="pages\ShaFilesCompute.aspx" />
+    <Content Include="pages\TotalRows.aspx" />
     <Content Include="pages\Typography.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -438,6 +439,13 @@
     </Compile>
     <Compile Include="pages\ShaFilesCompute.aspx.designer.cs">
       <DependentUpon>ShaFilesCompute.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\TotalRows.aspx.cs">
+      <DependentUpon>TotalRows.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\TotalRows.aspx.designer.cs">
+      <DependentUpon>TotalRows.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\Typography.aspx.cs">
       <DependentUpon>Typography.aspx</DependentUpon>
