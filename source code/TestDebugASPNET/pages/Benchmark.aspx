@@ -254,7 +254,7 @@
             <br />
             Notes:
             <ul>
-                <li>Running this test in the Visual Studio debugging environment will slow down the process by 2-4 times.</li>
+                <li>Running this test in the Visual Studio IDE debugging environment will slow down the process by 2-4 times.</li>
                 <li>For optimum speed, build this project with the [Release] profile and publish it to a folder. Use Windows IIS to run this ASP.NET app.</li>
                 <li>Executing mysqldump.exe and mysql.exe in ASP.NET:
                     <ul>

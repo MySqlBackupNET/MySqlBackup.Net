@@ -103,8 +103,11 @@ namespace System.pages
                 {
                     t.FileName = fileNameSql;
                     t.SHA256 = Sha256.Compute(filePathSql);
-                    t.PercentCompleted = 100;
-                    t.CurrentRowIndex = t.TotalRows;
+
+                    // do not alter the accurancy of progress report,
+                    // let the value be updated in Mb_ExportProgressChanged to test the accurancy of progress report by MySqlBackup.NET
+                    //t.PercentCompleted = 100;
+                    //t.CurrentRowIndex = t.TotalRows;
                 }
                 
                 t.TimeEnd = DateTime.Now;
@@ -243,8 +246,10 @@ namespace System.pages
                     }
                     else
                     {
-                        t.PercentCompleted = 100;
-                        t.CurrentBytes = t.TotalBytes;
+                        // do not alter the accurancy of progress report,
+                        // let the value be updated in Mb_ExportProgressChanged to test the accurancy of progress report by MySqlBackup.NET
+                        //t.PercentCompleted = 100;
+                        //t.CurrentBytes = t.TotalBytes;
                     }
                     
                     t.TimeEnd = DateTime.Now;

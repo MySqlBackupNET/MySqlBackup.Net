@@ -7,7 +7,10 @@
 
         <h1>Total Rows</h1>
 
-        <asp:Button ID="btGetTotalRows" runat="server" Text="Get Total Rows and Database Size" OnClick="btGetTotalRows_Click" OnClientClick="showBigLoading(0);" />
+        <asp:Button ID="btGetTotalRows" runat="server" Text="Get Current Connected Database" OnClick="btGetTotalRows_Click" OnClientClick="showBigLoading(0);" />
+        <asp:Button ID="btGetAllDatabases" runat="server" Text="Get All Databases" OnClick="btGetAllDatabases_Click" OnClientClick="showBigLoading(0);" />
+
+        <hr />
 
         <asp:Literal ID="ltResult" runat="server"></asp:Literal>
 
