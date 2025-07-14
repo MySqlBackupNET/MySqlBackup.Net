@@ -55,6 +55,9 @@ namespace System.pages
 
             output.Clear();
 
+            Random rd = new Random();
+            string dbName = $"test_mysqldatetime_{rd.Next(1000,9999)}";
+
             try
             {
                 using (var conn = new MySqlConnection(connectionString))
@@ -62,6 +65,15 @@ namespace System.pages
                 using (var mb = new MySqlBackup(cmd))
                 {
                     conn.Open();
+
+                    cmd.CommandText = $"DROP DATABASE IF EXISTS `{dbName}`";
+                    cmd.ExecuteNonQuery();
+
+                    cmd.CommandText = $"CREATE DATABASE IF NOT EXISTS `{dbName}`";
+                    cmd.ExecuteNonQuery();
+
+                    cmd.CommandText = $"USE `{dbName}`";
+                    cmd.ExecuteNonQuery();
 
                     AppendLine("=== SETTING TIMEZONE CONSISTENCY ===");
                     cmd.CommandText = "SET time_zone = '+00:00'";
@@ -289,6 +301,9 @@ namespace System.pages
 
             output.Clear();
 
+            Random rd = new Random();
+            string dbName = $"test_mysqldatetime_{rd.Next(1000, 9999)}";
+
             try
             {
                 using (var conn = new MySqlConnection(connectionString))
@@ -296,6 +311,15 @@ namespace System.pages
                 using (var mb = new MySqlBackup(cmd))
                 {
                     conn.Open();
+
+                    cmd.CommandText = $"DROP DATABASE IF EXISTS `{dbName}`";
+                    cmd.ExecuteNonQuery();
+
+                    cmd.CommandText = $"CREATE DATABASE IF NOT EXISTS `{dbName}`";
+                    cmd.ExecuteNonQuery();
+
+                    cmd.CommandText = $"USE `{dbName}`";
+                    cmd.ExecuteNonQuery();
 
                     // adjust the session time zone to UTC to export actual value without time zone offset
                     cmd.CommandText = "SET time_zone = '+00:00'";

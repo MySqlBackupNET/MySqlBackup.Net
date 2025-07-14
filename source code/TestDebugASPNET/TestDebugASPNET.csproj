@@ -137,6 +137,7 @@
     <Content Include="pages\apiParallelPipelineExport.aspx" />
     <Content Include="pages\Benchmark.aspx" />
     <Content Include="pages\CreateSampleTableRows.aspx" />
+    <Content Include="pages\HeadersAndFootersTest.aspx" />
     <Content Include="pages\MemoryStreamDemo.aspx" />
     <Content Include="pages\MySqlDateTimeTester.aspx" />
     <Content Include="pages\ParallelPipelineExport.aspx" />
@@ -164,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="engine\TimeDisplayHelper.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlBackup_RawBytes.cs" />
     <Compile Include="pages\About.aspx.cs">
       <DependentUpon>About.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -292,6 +294,13 @@
     </Compile>
     <Compile Include="pages\CreateSampleTableRows.aspx.designer.cs">
       <DependentUpon>CreateSampleTableRows.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\HeadersAndFootersTest.aspx.cs">
+      <DependentUpon>HeadersAndFootersTest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\HeadersAndFootersTest.aspx.designer.cs">
+      <DependentUpon>HeadersAndFootersTest.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\MemoryStreamDemo.aspx.cs">
       <DependentUpon>MemoryStreamDemo.aspx</DependentUpon>

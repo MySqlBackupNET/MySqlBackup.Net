@@ -24,6 +24,8 @@ namespace Devart.Data.MySql
 
         private Dictionary<string, Dictionary<string, Func<object, object>>> _columnAdjustments;
 
+        private bool _setTimeZoneUTC = true;
+
         public bool EnableParallelProcessing { get; set; } = true;
 
         /// <summary>
@@ -61,18 +63,41 @@ namespace Devart.Data.MySql
         }
 
         /// <summary>
-        /// Set the Timezone to UTC (+00:00). Default true. Essential for exporting timestamp related values.
+        /// [DEPRECATED] This property has been moved to document headers management. 
+        /// Use ExportInfo.GetDocumentHeaders() and ExportInfo.GetDocumentFooters() methods instead.
+        /// Timezone settings are now consistently handled through the headers/footers system.
         /// </summary>
-        public bool SetTimeZoneUTC { get; set; } = true;
+        [Obsolete("SetTimeZoneUTC has been deprecated. Timezone settings are now managed through document headers. Modify the headers directly if you need custom timezone behavior.", true)]
+        public bool SetTimeZoneUTC
+        {
+            get => _setTimeZoneUTC;
+            set => throw new NotSupportedException(
+                "SetTimeZoneUTC property has been deprecated and moved to document headers management. " +
+                "Timezone settings are now automatically handled through ExportInfo.GetDocumentHeaders() and GetDocumentFooters() methods. " +
+                "If you need to customize timezone behavior, modify the document headers directly using SetDocumentHeaders() method. " +
+                "For most users, no action is required as timezone is handled automatically."
+            );
+        }
 
         /// <summary>
-        /// Get the list of document headers. Set timezone to UTC (+00:00)
+        /// Gets the document headers as a single string with line breaks, ready for writing to dump files.
+        /// Contains MySQL session setup statements for consistent exports (charset, timezone, SQL mode, etc.).
         /// </summary>
-        /// <param name="cmd"></param>
-        /// <returns></returns>
-        public List<string> GetDocumentHeaders(MySqlCommand cmd)
+        /// <param name="cmd">The MySqlCommand used to retrieve database configuration.</param>
+        /// <returns>Formatted header statements as a single string.</returns>
+        public string GetDocumentHeadersString(MySqlCommand cmd)
         {
-            return GetDocumentHeaders(cmd, true);
+            var docStatements = GetDocumentHeaders(cmd);
+
+            StringBuilder sb = new StringBuilder();
+            foreach (var h in docStatements)
+            {
+                if (sb.Length > 0)
+                    sb.AppendLine();
+                sb.Append(h);
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>
@@ -80,11 +105,8 @@ namespace Devart.Data.MySql
         /// </summary>
         /// <param name="cmd">The MySqlCommand that will be used to retrieve the database default character set.</param>
         /// <returns>List of document headers.</returns>
-        public List<string> GetDocumentHeaders(MySqlCommand cmd, bool setTimezoneUtc)
+        public List<string> GetDocumentHeaders(MySqlCommand cmd)
         {
-            const string SaveTimeZoneStatement = "/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;";
-            const string SetTimeZoneUtcStatement = "/*!40103 SET TIME_ZONE='+00:00' */;";
-
             if (_documentHeaders == null)
             {
                 string databaseCharSet = QueryExpress.ExecuteScalarStr(cmd, "SHOW VARIABLES LIKE 'character_set_database';", 1);
@@ -98,47 +120,12 @@ namespace Devart.Data.MySql
                 _documentHeaders.Add("/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;");
                 _documentHeaders.Add("/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;");
                 _documentHeaders.Add($"/*!40101 SET NAMES {databaseCharSet} */;");
-                if (setTimezoneUtc)
-                {
-                    _documentHeaders.Add(SaveTimeZoneStatement);
-                    _documentHeaders.Add(SetTimeZoneUtcStatement);
-                }
+                _documentHeaders.Add("/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;");
+                _documentHeaders.Add("/*!40103 SET TIME_ZONE='+00:00' */;");
                 _documentHeaders.Add("/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;");
                 _documentHeaders.Add("/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;");
                 _documentHeaders.Add("/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;");
                 _documentHeaders.Add("/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;");
-            }
-            else
-            {
-                Regex SaveTimeZoneRegex = new Regex(@"^/\*!\d{5}\s+SET\s+@OLD_TIME_ZONE\s*=\s*@@TIME_ZONE\s*\*/\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-                Regex SetTimeZoneUtcRegex = new Regex(@"^/\*!\d{5}\s+SET\s+TIME_ZONE\s*=\s*'\+00:00'\s*\*/\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-                if (!setTimezoneUtc)
-                {
-                    for (int i = _documentHeaders.Count - 1; i >= 0; i--)
-                    {
-                        if (SaveTimeZoneRegex.IsMatch(_documentHeaders[i]) || SetTimeZoneUtcRegex.IsMatch(_documentHeaders[i]))
-                            _documentHeaders.RemoveAt(i);
-                    }
-                }
-                else
-                {
-                    bool hasSaveTimeZone = false;
-                    bool hasSetTimeZone = false;
-
-                    foreach (string header in _documentHeaders)
-                    {
-                        if (SaveTimeZoneRegex.IsMatch(header))
-                            hasSaveTimeZone = true;
-                        if (SetTimeZoneUtcRegex.IsMatch(header))
-                            hasSetTimeZone = true;
-                    }
-
-                    if (!hasSaveTimeZone)
-                        _documentHeaders.Add(SaveTimeZoneStatement);
-                    if (!hasSetTimeZone)
-                        _documentHeaders.Add(SetTimeZoneUtcStatement);
-                }
             }
 
             return _documentHeaders;
@@ -154,29 +141,35 @@ namespace Devart.Data.MySql
         }
 
         /// <summary>
-        /// Get the document footers. Reset timezone.
+        /// Gets the document footers as a single string with line breaks, ready for writing to dump files.
+        /// Contains MySQL session restoration statements to return database to original state.
         /// </summary>
-        /// <returns></returns>
-        public List<string> GetDocumentFooters()
+        /// <returns>Formatted footer statements as a single string.</returns>
+        public string GetDocumentFootersString()
         {
-            return GetDocumentFooters(true);
+            var docStatements = GetDocumentFooters();
+
+            StringBuilder sb = new StringBuilder();
+            foreach (var h in docStatements)
+            {
+                if (sb.Length > 0)
+                    sb.AppendLine();
+                sb.Append(h);
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>
         /// Gets the document footers.
         /// </summary>
         /// <returns>List of document footers.</returns>
-        public List<string> GetDocumentFooters(bool resetTimeZone)
+        public List<string> GetDocumentFooters()
         {
-            const string TimeZoneStatement = "/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;";
-
             if (_documentFooters == null)
             {
                 _documentFooters = new List<string>();
-                if (resetTimeZone)
-                {
-                    _documentFooters.Add(TimeZoneStatement);
-                }
+                _documentFooters.Add("/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;");
                 _documentFooters.Add("/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;");
                 _documentFooters.Add("/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;");
                 _documentFooters.Add("/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;");
@@ -184,39 +177,6 @@ namespace Devart.Data.MySql
                 _documentFooters.Add("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;");
                 _documentFooters.Add("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;");
                 _documentFooters.Add("/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;");
-            }
-            else
-            {
-                var timeZoneRegex = new Regex(@"^/\*!\d{5}\s+SET\s+TIME_ZONE\s*=\s*@OLD_TIME_ZONE\s*\*/\s*$", RegexOptions.IgnoreCase);
-
-                if (!resetTimeZone)
-                {
-                    for (int i = _documentFooters.Count - 1; i >= 0; i--)
-                    {
-                        if (timeZoneRegex.IsMatch(_documentFooters[i]))
-                        {
-                            _documentFooters.RemoveAt(i);
-                        }
-                    }
-                }
-                else
-                {
-                    bool hasTimeZoneStatement = false;
-
-                    foreach (string footer in _documentFooters)
-                    {
-                        if (timeZoneRegex.IsMatch(footer))
-                        {
-                            hasTimeZoneStatement = true;
-                            break;
-                        }
-                    }
-
-                    if (!hasTimeZoneStatement)
-                    {
-                        _documentFooters.Insert(0, TimeZoneStatement);
-                    }
-                }
             }
 
             return _documentFooters;
@@ -387,7 +347,7 @@ namespace Devart.Data.MySql
         /// <summary>
         /// Gets or Sets a value indicates the method of how the total rows value is being obtained. InformationSchema = Fast, but approximate value; SelectCount = Slow but accurate; Skip = Skip obtaining total rows.
         /// </summary>
-        public GetTotalRowsMethod GetTotalRowsMode { get; set; } = GetTotalRowsMethod.Skip;
+        public GetTotalRowsMethod GetTotalRowsMode { get; set; } = GetTotalRowsMethod.Auto;
 
         /// <summary>
         /// Gets or Sets a value indicates whether comments should be included in the dump content.

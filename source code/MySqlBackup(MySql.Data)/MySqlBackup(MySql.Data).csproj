@@ -14,9 +14,9 @@
 		<PackageProjectUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/MySqlBackupNET/MySqlBackup.Net</RepositoryUrl>
-		<Version>2.6.3</Version>
-		<AssemblyVersion>2.6.3</AssemblyVersion>
-		<FileVersion>2.6.3</FileVersion>
+		<Version>2.6.4</Version>
+		<AssemblyVersion>2.6.4</AssemblyVersion>
+		<FileVersion>2.6.4</FileVersion>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<AssemblyName>MySqlBackup</AssemblyName>
 		<PackageTags>mysql;backup;restore;database;mysql.data;oracle;csharp;dotnet;sql;export;import</PackageTags>

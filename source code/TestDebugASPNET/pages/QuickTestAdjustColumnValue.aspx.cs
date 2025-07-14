@@ -200,6 +200,8 @@ namespace System.pages
                 sb.AppendLine("The SHA256 checksums do not match.");
             }
 
+            string dumpContentFile3 = File.ReadAllText(dumpFile3);
+
             // Cleanup
             sb.AppendLine();
             sb.AppendLine("Step 7: Cleaning up test databases...");
@@ -228,6 +230,14 @@ namespace System.pages
                 sb.AppendLine(">> Skipped, user requests not to clean up database.");
             }
 
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendLine("===========================================");
+            sb.AppendLine("Displaying dump content of file 3:");
+            sb.AppendLine("===========================================");
+            sb.AppendLine();
+            sb.AppendLine(dumpContentFile3);
+            sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine($"--- End of {mode} Test ---");
         }

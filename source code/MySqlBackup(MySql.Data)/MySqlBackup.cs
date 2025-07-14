@@ -140,7 +140,6 @@ namespace MySql.Data.MySqlClient
 
         #region Export Entry Point
 
-
         public string ExportToString()
         {
             try
@@ -352,12 +351,7 @@ namespace MySql.Data.MySqlClient
                     stage++;
                 }
 
-                if (ExportInfo.SetTimeZoneUTC)
-                {
-                    string safeTimeZone = _originalTimeZone.Replace("'", "''");
-                    Command.CommandText = $"/*!40103 SET TIME_ZONE='{safeTimeZone}' */;";
-                    Command.ExecuteNonQuery();
-                }
+                Export_RestoreOriginalVariables();
 
                 if (stopProcess) processCompletionType = MySqlBackup.ProcessEndType.Cancelled;
                 else processCompletionType = MySqlBackup.ProcessEndType.Complete;
@@ -403,19 +397,49 @@ namespace MySql.Data.MySqlClient
                 throw new Exception("Script delimeter cannot be ';'");
             }
 
-            if (ExportInfo.SetTimeZoneUTC)
+            //if (ExportInfo.SetTimeZoneUTC)
+            //{
+            //    // Cache the timezone
+            //    Command.CommandText = "SELECT @@session.time_zone;";
+            //    _originalTimeZone = Command.ExecuteScalar() + "";
+            //    if (string.IsNullOrEmpty(_originalTimeZone))
+            //    {
+            //        _originalTimeZone = "SYSTEM";
+            //    }
+            //    // Important step, set the timezone to UTC 00:00 to ensure consistent timestamp values export
+            //    // Without this, the exported timestamp value will be shifted by timezone, resulting inaccurancy during import of data
+            //    Command.CommandText = "/*!40103 SET TIME_ZONE='+00:00' */;";
+            //    Command.ExecuteNonQuery();
+            //}
+
+            List<string> lstHeadersFooters = new List<string>();
+
+            // round 1: save the initial values
+            lstHeadersFooters.AddRange(ExportInfo.GetDocumentHeaders(Command));
+
+            // round 2: attempt to restore values
+            lstHeadersFooters.AddRange(ExportInfo.GetDocumentFooters());
+
+            // round 3: real execution
+            lstHeadersFooters.AddRange(ExportInfo.GetDocumentHeaders(Command));
+
+            foreach (string header in lstHeadersFooters)
             {
-                // Cache the timezone
-                Command.CommandText = "SELECT @@session.time_zone;";
-                _originalTimeZone = Command.ExecuteScalar() + "";
-                if (string.IsNullOrEmpty(_originalTimeZone))
+                if (!header.StartsWith("--") && !string.IsNullOrWhiteSpace(header))
                 {
-                    _originalTimeZone = "SYSTEM";
+                    try
+                    {
+                        Command.CommandText = header;
+                        Command.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidOperationException(
+                            $"Document headers/footers validation failed. Failed statement: '{header}'. " +
+                            "If you have customized headers/footers, verify all SQL statements are valid.",
+                            ex);
+                    }
                 }
-                // Important step, set the timezone to UTC 00:00 to ensure consistent timestamp values export
-                // Without this, the exported timestamp value will be shifted by timezone, resulting inaccurancy during import of data
-                Command.CommandText = "/*!40103 SET TIME_ZONE='+00:00' */;";
-                Command.ExecuteNonQuery();
             }
 
             ExportInfo.ScriptsDelimiter = ExportInfo.ScriptsDelimiter.Trim();
@@ -428,7 +452,32 @@ namespace MySql.Data.MySqlClient
 
             textEncoding = ExportInfo.TextEncoding;
 
-            _database.GetDatabaseInfo(Command, ExportInfo.GetTotalRowsMode);
+            GetTotalRowsMethod _getRowsMode;
+
+            // First check if user explicitly set a mode
+            if (ExportInfo.GetTotalRowsMode == GetTotalRowsMethod.Auto)
+            {
+                // Auto mode: decide based on event subscriptions
+                if (ExportProgressChanged == null &&
+                    ExportCompleted == null &&
+                    GetTotalRowsProgressChanged == null)
+                {
+                    _getRowsMode = GetTotalRowsMethod.Skip;
+                }
+                else
+                {
+                    _getRowsMode = GetTotalRowsMethod.SelectCount;
+                }
+            }
+            else
+            {
+                // User explicitly set a mode, respect it
+                _getRowsMode = ExportInfo.GetTotalRowsMode;
+            }
+
+            //_database.GetDatabaseInfo(Command, ExportInfo.GetTotalRowsMode);
+            _database.GetDatabaseInfo(Command, _getRowsMode);
+
             _server.GetServerInfo(Command);
             _hasAdjustedValueRule = ExportInfo.TableColumnValueAdjustments != null;
             _currentTableName = string.Empty;
@@ -915,10 +964,30 @@ namespace MySql.Data.MySqlClient
         {
             try
             {
-                Command.CommandText = $"SET @@session.time_zone= '{_originalTimeZone}';";
-                Command.ExecuteNonQuery();
+                // Execute ALL footers to restore everything
+                // Swallow errors - cleanup is best effort
+                List<string> footers = ExportInfo.GetDocumentFooters();
+                foreach (string footer in footers)
+                {
+                    if (!footer.StartsWith("--") && !string.IsNullOrWhiteSpace(footer))
+                    {
+                        try
+                        {
+                            Command.CommandText = footer;
+                            Command.ExecuteNonQuery();
+                        }
+                        catch
+                        {
+                            // Ignore footer errors - this is cleanup, best effort only
+                            // The export has already completed successfully
+                        }
+                    }
+                }
             }
-            catch { }
+            catch
+            {
+                // Ignore any errors in cleanup
+            }
         }
 
 

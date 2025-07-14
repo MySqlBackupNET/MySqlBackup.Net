@@ -18,7 +18,9 @@ namespace System.pages
         {
             if (!IsPostBack)
             {
-                string info = @"This page tests the reliability and performance of MySQL backup and restore operations using different data export modes.
+                string info = @"This test is considered one of the most important and crucial test of all.
+
+This page tests the reliability and performance of MySQL backup and restore operations using different data export modes.
 
 - Creates test databases with sample data including tables, views, stored procedures, and triggers
 - Tests all MySQL data types including numeric, string, date/time, JSON, spatial, and binary types
