@@ -29,8 +29,6 @@
 
         <button type="button" onclick="changeTheme();">Change Theme</button>
 
-
-
         <div id="divThemes">
             <button type="button" onclick="loadThemeLight(); changeTheme();">Light</button>
             <button type="button" onclick="loadThemeDark(); changeTheme();">Dark</button>
