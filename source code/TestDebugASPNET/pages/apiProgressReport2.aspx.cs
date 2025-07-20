@@ -15,11 +15,18 @@ namespace System.pages
 {
     public partial class apiProgressReport2 : System.Web.UI.Page
     {
-        volatile static int LatestTaskId = 0;
         static ConcurrentDictionary<int, ProgressReport2Task> dicTask = new ConcurrentDictionary<int, ProgressReport2Task>();
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!IsUserAuthorized())
+            {
+                Response.StatusCode = 401;
+                Response.Write("0|Unauthorized access");
+                Response.End();
+                return;
+            }
+
             string action = (Request["action"] + "").ToLower();
 
             switch (action)
@@ -45,14 +52,32 @@ namespace System.pages
                 case "gettaskstatus":
                     GetTaskStatus();
                     break;
+                default:
+                    Response.StatusCode = 400;
+                    Response.Write("0|Invalid action");
+                    break;
             }
+        }
+
+        bool IsUserAuthorized()
+        {
+            // User authentication logic here
+            // Check if user is logged in and has backup permissions
+            // TEMPORARY - for testing and debugging use
+            return true;
+        }
+
+        int GetNewTaskId()
+        {
+            // Use Guid to prevent collisions
+            return Math.Abs(Guid.NewGuid().GetHashCode());
         }
 
         void Backup()
         {
-            LatestTaskId++;
-            _ = Task.Run(() => { BeginExport(LatestTaskId); });
-            Response.Write(LatestTaskId.ToString());
+            var taskid = GetNewTaskId();
+            _ = Task.Run(() => { BeginExport(taskid); });
+            Response.Write(taskid.ToString());
         }
 
         int thisTaskId = 0;
@@ -84,7 +109,7 @@ namespace System.pages
                 using (var mb = new MySqlBackup(cmd))
                 {
                     conn.Open();
-                    mb.ExportInfo.IntervalForProgressReport = 250;
+                    mb.ExportInfo.IntervalForProgressReport = 100;
                     mb.ExportProgressChanged += Mb_ExportProgressChanged;
                     mb.ExportToFile(filePathSql);
                 }
@@ -163,15 +188,17 @@ namespace System.pages
 
         void Restore()
         {
-            LatestTaskId++;
+            var taskid = GetNewTaskId();
+
             ProgressReport2Task t = new ProgressReport2Task()
             {
-                TaskId = LatestTaskId,
+                TaskId = taskid,
                 TaskType = 2, // restore
                 TimeStart = DateTime.Now,
                 IsStarted = true
             };
-            dicTask[LatestTaskId] = t;
+
+            dicTask[taskid] = t;
 
             // Handle file validation in main thread (where Request is available)
             if (Request.Files.Count == 0)
@@ -214,8 +241,8 @@ namespace System.pages
             }
 
             // Now start background task with file path (no Request access needed)
-            _ = Task.Run(() => { BeginRestore(LatestTaskId, filePathSql); });
-            Response.Write(LatestTaskId.ToString());
+            _ = Task.Run(() => { BeginRestore(taskid, filePathSql); });
+            Response.Write(taskid.ToString());
         }
 
         void BeginRestore(int newtaskid, string filePathSql)
@@ -234,7 +261,7 @@ namespace System.pages
                     using (var mb = new MySqlBackup(cmd))
                     {
                         conn.Open();
-                        mb.ImportInfo.IntervalForProgressReport = 250;
+                        mb.ImportInfo.IntervalForProgressReport = 100;
                         mb.ImportProgressChanged += Mb_ImportProgressChanged;
                         mb.ImportFromFile(filePathSql);
                     }
@@ -304,7 +331,16 @@ namespace System.pages
                 if (dicTask.TryGetValue(taskid, out ProgressReport2Task task))
                 {
                     task.RequestCancel = true;
+                    Response.Write("1");
                 }
+                else
+                {
+                    Response.Write("0|Task not found");
+                }
+            }
+            else
+            {
+                Response.Write("0|Invalid task id");
             }
         }
 
@@ -374,11 +410,7 @@ namespace System.pages
                 {
                     if (dicTask.TryGetValue(taskid, out ProgressReport2Task t))
                     {
-                        var tasks = new
-                        {
-                            apicallid = apicallid,
-                            task = t
-                        };
+                        t.ApiCallIndex = apicallid;
 
                         string json = JsonSerializer.Serialize(t);
                         Response.Clear();
@@ -432,7 +464,6 @@ namespace System.pages
 
 class ProgressReport2Task
 {
-    // for api call index
     public int ApiCallIndex { get; set; }
 
     public int TaskId { get; set; }

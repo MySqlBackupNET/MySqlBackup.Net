@@ -126,6 +126,7 @@
   <ItemGroup>
     <Content Include="cssjs\main.css" />
     <Content Include="cssjs\main.js" />
+    <Content Include="cssjs\ProgressReport2-2-Theme.js" />
     <Content Include="pages\About.aspx" />
     <Content Include="pages\apiMain.aspx" />
     <Content Include="pages\apiProgressReport2.aspx" />
@@ -141,6 +142,7 @@
     <Content Include="pages\MemoryStreamDemo.aspx" />
     <Content Include="pages\MySqlDateTimeTester.aspx" />
     <Content Include="pages\ParallelPipelineExport.aspx" />
+    <Content Include="pages\ProgressReport2-2.aspx" />
     <Content Include="pages\ProgressReport2.aspx" />
     <Content Include="pages\ProgressReportMenu.aspx" />
     <Content Include="pages\ProgressReportSimple.aspx" />
@@ -164,6 +166,7 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="engine\DumpContentSample.cs" />
     <Compile Include="engine\TimeDisplayHelper.cs" />
     <Compile Include="MySqlBackup.NET\MySqlBackup_RawBytes.cs" />
     <Compile Include="pages\About.aspx.cs">
@@ -322,6 +325,13 @@
     </Compile>
     <Compile Include="pages\ParallelPipelineExport.aspx.designer.cs">
       <DependentUpon>ParallelPipelineExport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\ProgressReport2-2.aspx.cs">
+      <DependentUpon>ProgressReport2-2.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\ProgressReport2-2.aspx.designer.cs">
+      <DependentUpon>ProgressReport2-2.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\ProgressReport2.aspx.cs">
       <DependentUpon>ProgressReport2.aspx</DependentUpon>

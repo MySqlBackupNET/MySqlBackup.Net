@@ -5,14 +5,21 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
 
     <div class="div-center-framed-content">
-        
+
         <h1>Progress Report Demo</h1>
-        <br />
-        <a href="/ProgressReportSimple">Progress Report - Simple API Demo</a> - Using <code>ConcurrentDictionary</code> as an intermediary to store progress information<br />
-        <br />
-        <a href="/ProgressReport1">Progress Report 1 - Demo Version 1</a> - Using SQLite as an intermediary to store progress information<br />
-        <br />
-        <a href="/ProgressReport2">Progress Report 2 - Demo Version 2</a> - Using <code>ConcurrentDictionary</code> as an intermediary to store progress information<br />
+        <div style="line-height: 200%;">
+            Recommended Basic Demo:<br />
+            <a href="/ProgressReport2-2">Progress Report 2-2</a> - Using <code>ConcurrentDictionary</code> as an intermediary to store progress information
+
+            <div style="border: 1px solid #c8e8ff; max-width: 900px; padding: 10px; background: #e4f4ff;">
+                Demo Theme: Light | Dark | Cyberpunk | Alien 1986 Terminal | Steampunk Victorian | Solar Fire | Futuristic HUD
+            </div>
+            <hr />
+            Other Demo:<br />
+            <a href="/ProgressReportSimple">Progress Report - Simple API Demo</a> - Using <code>ConcurrentDictionary</code> as an intermediary to store progress information<br />
+            <a href="/ProgressReport1">Progress Report 1 - Demo Version 1</a> - Using SQLite as an intermediary to store progress information<br />
+            <a href="/ProgressReport2">Progress Report 2-1 - Demo Version 2</a> - Using <code>ConcurrentDictionary</code> as an intermediary to store progress information<br />
+        </div>
 
     </div>
 

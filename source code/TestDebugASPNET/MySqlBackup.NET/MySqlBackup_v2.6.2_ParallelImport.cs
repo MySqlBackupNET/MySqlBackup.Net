@@ -2728,7 +2728,7 @@ namespace MySqlConnector
             // Wait for tasks to complete with timeout
             try
             {
-                if (_phase1Task != null || _phase2Task != null || _phase3Task != null)
+                if (_phase1Task != null || _phase2Task != null || _phase3Task != null || _importPhase1Task != null || _importPhase2Task != null)
                 {
                     var tasks = new List<Task>();
                     if (_phase1Task != null) tasks.Add(_phase1Task);
@@ -2742,10 +2742,9 @@ namespace MySqlConnector
             }
             catch
             {
-                // Ignore timeout exceptions
+
             }
 
-            // Dispose BlockingCollections
             _rowDataCollection?.Dispose();
             _sqlStatementCollection?.Dispose();
             _importQueryCollection?.Dispose();
@@ -2769,36 +2768,5 @@ namespace MySqlConnector
                 textReader = null;
             }
         }
-
-        //public void StopAllProcess()
-        //{
-        //    stopProcess = true;
-        //    Command?.Cancel();
-        //    timerReport.Stop();
-        //}
-
-        //public void Dispose()
-        //{
-        //    StopAllProcess();
-
-        //    if (timerReport != null)
-        //    {
-        //        timerReport.Stop();
-        //        timerReport.Dispose();
-        //        timerReport = null;
-        //    }
-
-        //    if (textWriter != null)
-        //    {
-        //        textWriter.Dispose();
-        //        textWriter = null;
-        //    }
-
-        //    if (textReader != null)
-        //    {
-        //        textReader.Dispose();
-        //        textReader = null;
-        //    }
-        //}
     }
 }

@@ -476,7 +476,21 @@ namespace MySqlConnector
                 if (wrapStringWithSingleQuote)
                     sb.AppendFormat("'");
 
-                sb.AppendFormat(((DateTime)ob).ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
+                if (col != null)
+                {
+                    if (col.MySqlDataType == "date")
+                    {
+                        sb.AppendFormat(((DateTime)ob).ToString("yyyy-MM-dd", _dateFormatInfo));
+                    }
+                    else if(col.MySqlDataType == "datetime")
+                    {
+                        sb.AppendFormat(((DateTime)ob).ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
+                    }
+                }
+                else
+                {
+                    sb.AppendFormat(((DateTime)ob).ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
+                }
 
                 if (col != null && col.TimeFractionLength > 0)
                 {
