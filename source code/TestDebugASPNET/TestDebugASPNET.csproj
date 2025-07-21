@@ -126,6 +126,13 @@
   <ItemGroup>
     <Content Include="cssjs\main.css" />
     <Content Include="cssjs\main.js" />
+    <Content Include="cssjs\MySqlBackup-Progress-Widget-Theme\cyberpunk.css" />
+    <Content Include="cssjs\MySqlBackup-Progress-Widget-Theme\dark.css" />
+    <Content Include="cssjs\MySqlBackup-Progress-Widget-Theme\hud.css" />
+    <Content Include="cssjs\MySqlBackup-Progress-Widget-Theme\light.css" />
+    <Content Include="cssjs\MySqlBackup-Progress-Widget-Theme\retro.css" />
+    <Content Include="cssjs\MySqlBackup-Progress-Widget-Theme\solarfire.css" />
+    <Content Include="cssjs\MySqlBackup-Progress-Widget-Theme\steampunk.css" />
     <Content Include="cssjs\ProgressReport2-2-Theme.js" />
     <Content Include="pages\About.aspx" />
     <Content Include="pages\apiMain.aspx" />

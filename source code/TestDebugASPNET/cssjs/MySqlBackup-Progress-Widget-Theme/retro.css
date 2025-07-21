@@ -1,0 +1,529 @@
+﻿/* Retro Terminal/Mainframe Theme - Phosphor CRT Style */
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+/* Global phosphor green theme */
+* {
+}
+
+body {
+    background: #000;
+    position: relative;
+    overflow-x: hidden;
+}
+
+    /* Horizontal scan lines */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient( 0deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 2px );
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    /* Falling glitch lines */
+    body::after {
+        content: '';
+        position: fixed;
+        top: -100%;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(180deg, transparent 0%, transparent 10%, rgba(65, 255, 0, 0.03) 11%, rgba(65, 255, 0, 0.05) 12%, rgba(65, 255, 0, 0.03) 13%, transparent 14%, transparent 40%, rgba(65, 255, 0, 0.02) 41%, rgba(65, 255, 0, 0.04) 41.5%, rgba(65, 255, 0, 0.02) 42%, transparent 43%, transparent 65%, rgba(65, 255, 0, 0.03) 66%, rgba(65, 255, 0, 0.06) 67%, rgba(65, 255, 0, 0.03) 68%, transparent 69%, transparent 85%, rgba(65, 255, 0, 0.02) 86%, rgba(65, 255, 0, 0.03) 87%, transparent 88%, transparent 100% );
+        animation: scanLineFall 8s linear infinite;
+        pointer-events: none;
+        z-index: 2;
+        filter: blur(1px);
+    }
+
+@keyframes scanLineFall {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(200%);
+        opacity: 0;
+    }
+}
+
+.div-center-framed-content {
+    font-family: 'VT323', 'Courier New', monospace !important;
+    font-size: 12pt !important;
+    background: #0a0a0a;
+    color: #b3b3b3;
+    font-family: 'VT323', monospace;
+    border: 2px solid #41ff00;
+    border-style: double;
+    border-width: 4px;
+    box-shadow: inset 0 0 50px rgba(65, 255, 0, 0.1), 0 0 20px rgba(65, 255, 0, 0.3);
+    position: relative;
+    z-index: 10;
+}
+
+    .div-center-framed-content, .div-center-framed-content span, .div-center-framed-content td, .div-center-framed-content button, .div-center-framed-content input {
+        font-family: 'VT323', 'Courier New', monospace !important;
+        font-size: 12pt;
+    }
+
+        /* CRT curve effect */
+        .div-center-framed-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient( ellipse at center, transparent 0%, rgba(0, 0, 0, 0.4) 100% );
+            pointer-events: none;
+        }
+
+        /* Phosphor burn-in effect */
+        .div-center-framed-content::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient( 90deg, transparent, transparent 2px, rgba(65, 255, 0, 0.03) 2px, rgba(65, 255, 0, 0.03) 4px );
+            pointer-events: none;
+            animation: phosphorFlicker 0.05s infinite;
+        }
+
+@keyframes phosphorFlicker {
+    0% {
+        opacity: 0.95;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.98;
+    }
+}
+
+.div-center-framed-content h1 {
+    color: #41ff00;
+    text-align: center;
+    font-size: 36px !important;
+    letter-spacing: 2px;
+    text-shadow: 0 0 5px #41ff00, 0 0 10px #41ff00, 0 0 15px #41ff00;
+    animation: textGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes textGlow {
+    from {
+        text-shadow: 0 0 5px #41ff00, 0 0 10px #41ff00;
+    }
+
+    to {
+        text-shadow: 0 0 10px #41ff00, 0 0 20px #41ff00, 0 0 30px #41ff00;
+    }
+}
+
+input[type="file"] {
+    margin: 0 0 20px 10px;
+    padding: 8px;
+    border: 1px dashed #41ff00;
+    background: #000;
+    color: #41ff00;
+    font-size: 18px !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+    input[type="file"]:hover {
+        background: rgba(65, 255, 0, 0.1);
+        box-shadow: 0 0 10px rgba(65, 255, 0, 0.5);
+    }
+
+    input[type="file"]::file-selector-button {
+        background: #000;
+        color: #41ff00;
+        border: 1px solid #41ff00;
+        padding: 4px 8px;
+        font-family: 'VT323', monospace;
+    }
+
+input[type=submit], button, .buttonmain, a.buttonmain {
+    background: #000;
+    border: 1px solid #41ff00;
+    color: #41ff00;
+    font-size: 20px !important;
+    text-transform: uppercase;
+    position: relative;
+    box-shadow: inset 0 0 0 0 #41ff00;
+    transition: all 0.3s;
+    text-shadow: 0 0 5px #41ff00;
+}
+
+    input[type=submit]:hover, button:hover, .buttonmain:hover, a.buttonmain:hover {
+        background: #41ff00;
+        color: #000;
+        box-shadow: inset 0 0 10px #000, 0 0 20px #41ff00;
+        text-shadow: none;
+        animation: buttonBlink 0.2s infinite;
+    }
+
+@keyframes buttonBlink {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+}
+
+#progress_bar_container {
+    background: #000;
+    border: 1px solid #41ff00;
+    height: 30px;
+    position: relative;
+    overflow: hidden;
+    margin: 20px 0;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+    /* ASCII-style progress markers */
+    #progress_bar_container::after {
+        content: '|--------10--------20--------30--------40--------50--------60--------70--------80--------90-------|';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        transform: translateY(-50%);
+        color: #41ff00;
+        opacity: 0.3;
+        font-size: 12px;
+        text-align: center;
+        letter-spacing: 0;
+        pointer-events: none;
+    }
+
+#progress_bar_indicator {
+    background: #41ff00;
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 0 10px #41ff00, 0 0 20px #41ff00, inset 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+    /* Animated block characters */
+    #progress_bar_indicator::before {
+        content: '████████████████████████████████████████████████████████████████████████████████';
+        position: absolute;
+        left: 0;
+        color: rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        white-space: nowrap;
+        animation: blockScroll 2s linear infinite;
+    }
+
+@keyframes blockScroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+#labelPercent {
+    color: #000;
+    background: #41ff00;
+    padding: 2px 6px;
+    font-weight: normal;
+    font-size: 20px !important;
+    z-index: 10;
+    border: 1px solid #000;
+    animation: percentBlink 1s infinite;
+}
+
+@keyframes percentBlink {
+    0%, 90% {
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.div_task_status {
+    position: relative;
+    margin-top: 20px;
+    padding: 20px;
+    background: #000;
+    border: 1px solid #41ff00;
+    font-size: 12pt;
+}
+
+    .div_task_status::before {
+        content: '╔═══════════════════════════════════════════════════════════════════════════════════════════════╗';
+        display: block;
+        color: #41ff00;
+        margin-bottom: 10px;
+    }
+
+    .div_task_status::after {
+        content: '╚═══════════════════════════════════════════════════════════════════════════════════════════════╝';
+        display: block;
+        color: #41ff00;
+        margin-top: 10px;
+    }
+
+    .div_task_status table {
+        border-collapse: collapse;
+        font-size: 18px !important;
+        line-height: 1.4;
+        color: #41ff00;
+    }
+
+    .div_task_status td {
+        padding: 6px 15px;
+        border: none;
+        vertical-align: top;
+        color: #41ff00;
+        text-shadow: 0 0 5px #41ff00;
+        font-size: 12pt;
+    }
+
+        .div_task_status td:first-child {
+            font-weight: normal;
+            color: #41ff00;
+            background: none;
+            border-right: none;
+            width: 200px;
+            text-align: left;
+            text-transform: uppercase;
+        }
+
+            .div_task_status td:first-child::before {
+                content: '▶ ';
+                animation: caretBlink 1s infinite;
+            }
+
+@keyframes caretBlink {
+    0%, 49% {
+        opacity: 1;
+    }
+
+    50%, 100% {
+        opacity: 0;
+    }
+}
+
+.div_task_status td:nth-child(2) {
+    background: none;
+    min-width: 150px;
+}
+
+    .div_task_status td:nth-child(2)::before {
+        content: ': ';
+    }
+
+.div_task_status tr {
+    border-bottom: 1px dashed #41ff00;
+}
+
+    .div_task_status tr:last-child {
+        border-bottom: none;
+    }
+
+.status-complete {
+    animation: statusComplete 0.5s infinite !important;
+}
+
+    .status-complete::before {
+        content: '[OK] ';
+    }
+
+.status-running {
+    animation: statusRunning 0.3s infinite !important;
+}
+
+    .status-running::before {
+        content: '[>>>] ';
+        animation: runningArrows 1s infinite;
+    }
+
+@keyframes runningArrows {
+    0% {
+        content: '[>  ] ';
+    }
+
+    33% {
+        content: '[>> ] ';
+    }
+
+    66% {
+        content: '[>>>] ';
+    }
+
+    100% {
+        content: '[>  ] ';
+    }
+}
+
+.status-error {
+    color: #41ff00 !important;
+    animation: errorFlash 0.2s infinite !important;
+}
+
+    .status-error::before {
+        content: '[ERR] ';
+    }
+
+@keyframes statusComplete {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+}
+
+@keyframes statusRunning {
+    0%, 100% {
+        text-shadow: 0 0 5px #41ff00;
+    }
+
+    50% {
+        text-shadow: 0 0 15px #41ff00, 0 0 25px #41ff00;
+    }
+}
+
+@keyframes errorFlash {
+    0%, 100% {
+        background: #41ff00;
+        color: #000 !important;
+        padding: 0 5px;
+    }
+
+    50% {
+        background: #000;
+        color: #41ff00 !important;
+        padding: 0 5px;
+    }
+}
+
+/* Links in terminal theme */
+.div_task_status a,
+.div_task_status a.mainbutton {
+    color: #41ff00;
+    background: #000;
+    border: 1px solid #41ff00;
+    text-decoration: underline;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    display: inline-block;
+}
+
+    .div_task_status a:hover,
+    .div_task_status a.mainbutton:hover {
+        background: #41ff00;
+        color: #000;
+        text-decoration: none;
+        animation: linkBlink 0.1s infinite;
+    }
+
+@keyframes linkBlink {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Additional terminal elements */
+span {
+    color: #41ff00;
+    text-shadow: 0 0 3px #41ff00;
+}
+
+/* Terminal cursor effect */
+*:focus {
+    outline: 1px solid #41ff00;
+    outline-offset: 2px;
+    box-shadow: 0 0 10px #41ff00;
+}
+
+/* Old CRT monitor effect */
+@keyframes crtFlicker {
+    0% {
+        opacity: 0.97;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    20% {
+        opacity: 0.95;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    40% {
+        opacity: 0.98;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    60% {
+        opacity: 0.96;
+    }
+
+    70% {
+        opacity: 0.99;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 0.97;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.div-center-framed-content {
+    animation: crtFlicker 10s infinite;
+}

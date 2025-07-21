@@ -1,0 +1,253 @@
+﻿/* Dark theme overrides */
+body {
+    background: #1a1a1a;
+}
+
+.div-center-framed-content {
+    background-color: #2a2a2a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    border: 1px solid #3a3a3a;
+}
+
+    .div-center-framed-content h1 {
+        color: #e0e0e0;
+    }
+
+input[type="file"] {
+    margin: 0 0 20px 10px;
+    padding: 8px;
+    border: 2px dashed #555;
+    border-radius: 6px;
+    background: #333;
+    color: #e0e0e0;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+    input[type="file"]:hover {
+        border-color: #00ff88;
+    }
+
+input[type=submit], button, .buttonmain, a.buttonmain {
+    background: #1e4a7d;
+    border: 1px solid #2a5a8d;
+}
+
+    input[type=submit]:hover, button:hover, .buttonmain:hover, a.buttonmain:hover {
+        background: #2a5a8d;
+        box-shadow: 0 0 10px rgba(0, 150, 255, 0.3);
+    }
+
+#progress_bar_container {
+    background: linear-gradient(90deg, #0a0a0a, #151515, #0a0a0a);
+    background-size: 200% 100%;
+    animation: backgroundShift 3s ease-in-out infinite;
+    border-radius: 25px;
+    margin: 0 0 10px 0;
+    box-shadow: inset 0 2px 12px rgba(0,0,0,0.8);
+    height: 30px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #1a1a1a;
+    padding: 1px;
+}
+
+#progress_bar_indicator {
+    background: linear-gradient(90deg, #00ff88, #00cc6a, #00ff88, #00ffaa);
+    background-size: 300% 100%;
+    height: 100%;
+    border-radius: 20px;
+    width: 0%;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    animation: ambientBreathing 2s ease-in-out infinite, gradientFlow 4s linear infinite;
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.8), 0 0 50px rgba(0, 255, 136, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+@keyframes ambientBreathing {
+    0%, 100% {
+        box-shadow: 0 0 25px rgba(0, 255, 136, 0.8), 0 0 50px rgba(0, 255, 136, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        filter: brightness(1);
+    }
+
+    50% {
+        box-shadow: 0 0 35px rgba(0, 255, 136, 1), 0 0 70px rgba(0, 255, 136, 0.6), 0 0 100px rgba(0, 255, 136, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        filter: brightness(1.3);
+    }
+}
+
+@keyframes backgroundShift {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes gradientFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 300% 50%;
+    }
+}
+
+#labelPercent {
+    color: #0a0a0a;
+    font-weight: bold;
+    font-size: 14px;
+    text-shadow: 0 0 15px rgba(0, 255, 136, 1), 0 0 5px rgba(255,255,255,0.8), 1px 1px 2px rgba(0,0,0,0.5);
+    z-index: 10;
+    mix-blend-mode: normal;
+}
+
+.div_task_status {
+    color: #e0e0e0;
+}
+
+    .div_task_status table {
+        border-collapse: collapse;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #e0e0e0;
+    }
+
+    .div_task_status td {
+        padding: 12px 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        vertical-align: top;
+        color: #e0e0e0;
+    }
+
+        .div_task_status td:first-child {
+            font-weight: 600;
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            border-right: 3px solid #00ff88;
+            width: 150px;
+            text-align: right;
+            text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+        }
+
+        .div_task_status td:nth-child(2) {
+            background: rgba(255,255,255,0.02);
+            min-width: 150px;
+        }
+
+    .div_task_status tr:last-child td {
+        border-bottom: none;
+    }
+
+.status-complete {
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 136, 0.05)) !important;
+    border-left: 4px solid #00ff88 !important;
+    color: #00ff88 !important;
+    font-weight: bold;
+    animation: statusGlowGreen 2s ease-in-out infinite;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+}
+
+.status-running {
+    background: linear-gradient(135deg, rgba(0, 150, 255, 0.2), rgba(0, 150, 255, 0.05)) !important;
+    border-left: 4px solid #0096ff !important;
+    color: #00b4ff !important;
+    font-weight: bold;
+    animation: statusPulseBlue 1.5s ease-in-out infinite;
+    text-shadow: 0 0 10px rgba(0, 150, 255, 0.8);
+}
+
+.status-error {
+    background: linear-gradient(135deg, rgba(255, 67, 54, 0.2), rgba(255, 67, 54, 0.05)) !important;
+    border-left: 4px solid #ff4336 !important;
+    color: #ff6b6b !important;
+    font-weight: bold;
+    animation: statusShake 0.5s ease-in-out;
+    text-shadow: 0 0 10px rgba(255, 67, 54, 0.8);
+}
+
+@keyframes statusGlowGreen {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 25px rgba(0, 255, 136, 0.8), 0 0 40px rgba(0, 255, 136, 0.4);
+    }
+}
+
+@keyframes statusPulseBlue {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(0, 150, 255, 0.5);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 25px rgba(0, 150, 255, 0.8), 0 0 40px rgba(0, 150, 255, 0.4);
+        transform: scale(1.02);
+    }
+}
+
+@keyframes statusShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-2px);
+    }
+
+    75% {
+        transform: translateX(2px);
+    }
+}
+
+/* Links in dark theme */
+.div_task_status a,
+.div_task_status a.mainbutton {
+    color: #00b4ff;
+    background: #1e4a7d;
+    border: 1px solid #2a5a8d;
+}
+
+    .div_task_status a:hover,
+    .div_task_status a.mainbutton:hover {
+        color: #00d4ff;
+        background: #2a5a8d;
+        text-decoration: none;
+        box-shadow: 0 0 15px rgba(0, 180, 255, 0.5);
+    }
+
+/* Additional dark theme specific styles */
+span {
+    color: #e0e0e0;
+}
+
+/* Progress bar container subtle animation for dark theme */
+#progress_bar_container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 100%;
+    }
+}

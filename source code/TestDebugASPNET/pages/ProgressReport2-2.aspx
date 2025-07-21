@@ -9,7 +9,7 @@
         }
     </style>
 
-    <style id="styleTheme"></style>
+    <link id="linkThemeFile" href="/cssjs/MySqlBackup-Progress-Widget-Theme/steampunk.css" rel="stylesheet" />
 
     <script src="/cssjs/ProgressReport2-2-Theme.js"></script>
 
@@ -30,19 +30,19 @@
         <button type="button" onclick="changeTheme();">Change Theme</button>
 
         <div id="divThemes">
-            <button type="button" onclick="loadThemeLight(); changeTheme();">Light</button>
-            <button type="button" onclick="loadThemeDark(); changeTheme();">Dark</button>
-            <button type="button" onclick="loadThemeCyberpunk(); changeTheme();">Cyberpunk</button>
-            <button type="button" onclick="loadThemeTerminalAlien1986(); changeTheme();">
+            <button type="button" onclick="changeTheme('light');">Light</button>
+            <button type="button" onclick="changeTheme('dark');">Dark</button>
+            <button type="button" onclick="changeTheme('cyberpunk');">Cyberpunk</button>
+            <button type="button" onclick="changeTheme('retro');">
                 Terminal<br />
                 Alien 1986</button>
-            <button type="button" onclick="loadThemeSteampunkVictorian(); changeTheme();">
+            <button type="button" onclick="changeTheme('steampunk');">
                 Steampunk<br />
                 Victorian</button>
-            <button type="button" onclick="loadThemeSolarFire(); changeTheme();">
+            <button type="button" onclick="changeTheme('solarfire');">
                 Solar<br />
                 Fire</button>
-            <button type="button" onclick="loadThemeFuturisticHUD(); changeTheme();">
+            <button type="button" onclick="changeTheme('hud');">
                 Futuristic<br />
                 HUD</button>
         </div>
@@ -121,7 +121,7 @@
 
         let divThemes = document.querySelector("#divThemes");
 
-        let styleTheme = document.getElementById("styleTheme");
+        let linkThemeFile = document.getElementById("linkThemeFile");
         let fileRestore = document.querySelector("#fileRestore");
 
         let labelSqlFilename = document.querySelector("#labelSqlFilename");
@@ -506,7 +506,10 @@
             }
         }
 
-        function changeTheme() {
+        function changeTheme(themename) {
+
+            if (themename)
+                linkThemeFile.href = `/cssjs/MySqlBackup-Progress-Widget-Theme/${themename}.css`;
 
             divThemes.style.display = divThemes.style.display == "block" ? "none" : "block";
         }

@@ -1,0 +1,617 @@
+/* Futuristic HUD Terminal Theme - Advanced Holographic Interface */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap');
+
+body {
+    background: #000;
+    background-image: radial-gradient(ellipse at center, #001a33 0%, #000511 40%, #000 70%), repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 136, 204, 0.03) 2px, rgba(0, 136, 204, 0.03) 4px);
+    position: relative;
+    overflow-x: hidden;
+}
+
+    /* Scanning line effect */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 200px;
+        background: linear-gradient(180deg, transparent 0%, rgba(0, 170, 255, 0.1) 50%, transparent 100%);
+        animation: scanDown 6s linear infinite;
+        pointer-events: none;
+    }
+
+@keyframes scanDown {
+    0% {
+        transform: translateY(-200px);
+    }
+
+    100% {
+        transform: translateY(100vh);
+    }
+}
+
+/* Grid overlay */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(rgba(0, 136, 204, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 136, 204, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    animation: gridPulse 4s ease-in-out infinite;
+}
+
+@keyframes gridPulse {
+    0%, 100% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.1;
+    }
+}
+
+.div-center-framed-content {
+    background: rgba(0, 11, 22, 0.8);
+    border: 1px solid #0088cc;
+    box-shadow: 0 0 50px rgba(0, 136, 204, 0.5), inset 0 0 50px rgba(0, 136, 204, 0.1), 0 0 150px rgba(0, 170, 255, 0.2);
+    position: relative;
+    backdrop-filter: blur(10px);
+    clip-path: polygon( 0 20px, 20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px) );
+    padding: 40px 30px;
+    font-size: 12px;
+}
+
+    /* Corner markers */
+    .div-center-framed-content::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        border: 1px solid #0088cc;
+        border-radius: 0;
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    /* Animated corner brackets */
+    .div-center-framed-content::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, #00aaff 30px, transparent 30px) top left, linear-gradient(180deg, #00aaff 30px, transparent 30px) top left, linear-gradient(270deg, #00aaff 30px, transparent 30px) top right, linear-gradient(180deg, #00aaff 30px, transparent 30px) top right, linear-gradient(90deg, #00aaff 30px, transparent 30px) bottom left, linear-gradient(0deg, #00aaff 30px, transparent 30px) bottom left, linear-gradient(270deg, #00aaff 30px, transparent 30px) bottom right, linear-gradient(0deg, #00aaff 30px, transparent 30px) bottom right;
+        background-size: 2px 2px;
+        background-repeat: no-repeat;
+        pointer-events: none;
+        animation: cornerGlow 3s ease-in-out infinite;
+    }
+
+@keyframes cornerGlow {
+    0%, 100% {
+        opacity: 0.8;
+    }
+
+    50% {
+        opacity: 1;
+        filter: drop-shadow(0 0 10px #00aaff);
+    }
+}
+
+.div-center-framed-content h1 {
+    font-family: 'Orbitron', monospace;
+    color: #00aaff;
+    text-align: center;
+    font-size: 32px !important;
+    font-weight: 900;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(0, 170, 255, 0.8), 0 0 40px rgba(0, 170, 255, 0.4), 0 0 60px rgba(0, 170, 255, 0.2);
+    margin: 30px 0;
+    position: relative;
+    animation: dataStream 0.1s infinite;
+}
+
+@keyframes dataStream {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.98;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.div-center-framed-content h1::before,
+.div-center-framed-content h1::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 100px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #00aaff, transparent);
+    animation: expandLine 3s ease-in-out infinite;
+}
+
+.div-center-framed-content h1::before {
+    left: -120px;
+}
+
+.div-center-framed-content h1::after {
+    right: -120px;
+}
+
+@keyframes expandLine {
+    0%, 100% {
+        width: 100px;
+        opacity: 0.5;
+    }
+
+    50% {
+        width: 150px;
+        opacity: 1;
+    }
+}
+
+input[type="file"] {
+    margin: 0 0 20px 10px;
+    padding: 10px 15px;
+    border: 1px solid #0088cc;
+    background: rgba(0, 136, 204, 0.1);
+    color: #00aaff;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px !important;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+    input[type="file"]:hover {
+        background: rgba(0, 136, 204, 0.2);
+        box-shadow: 0 0 20px rgba(0, 170, 255, 0.6), inset 0 0 20px rgba(0, 170, 255, 0.1);
+        border-color: #00aaff;
+        text-shadow: 0 0 10px rgba(0, 170, 255, 0.8);
+    }
+
+    input[type="file"]::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 170, 255, 0.4), transparent);
+        transition: left 0.5s;
+    }
+
+    input[type="file"]:hover::before {
+        left: 100%;
+    }
+
+    input[type="file"]::file-selector-button {
+        border: 1px solid #0088cc;
+        background: rgba(0, 136, 204, 0.1);
+        color: #00aaff;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 16px !important;
+        padding: 8px;
+    }
+
+input[type=submit], button, .buttonmain, a.buttonmain {
+    font-family: 'Orbitron', monospace;
+    background: transparent;
+    border: 1px solid #00aaff;
+    color: #00aaff;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    font-size: 11px;
+}
+
+    input[type=submit]::before, button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 170, 255, 0.1);
+        transform: translateX(-100%);
+        transition: transform 0.3s;
+    }
+
+    input[type=submit]:hover::before, button:hover::before {
+        transform: translateX(0);
+    }
+
+    input[type=submit]:hover, button:hover, .buttonmain:hover, a.buttonmain:hover {
+        color: #fff;
+        border-color: #00d4ff;
+        box-shadow: 0 0 30px rgba(0, 170, 255, 0.8), inset 0 0 20px rgba(0, 170, 255, 0.3);
+        text-shadow: 0 0 10px rgba(0, 212, 255, 1);
+        transform: translateY(-2px);
+    }
+
+#progress_bar_container {
+    background: linear-gradient(90deg, rgba(0, 11, 22, 0.9) 0%, rgba(0, 22, 44, 0.9) 50%, rgba(0, 11, 22, 0.9) 100%);
+    border: 1px solid #0088cc;
+    height: 40px;
+    position: relative;
+    overflow: hidden;
+    margin: 30px 0;
+    clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px);
+}
+
+    /* Tech pattern overlay */
+    #progress_bar_container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: repeating-linear-gradient(90deg, transparent 0px, transparent 20px, rgba(0, 136, 204, 0.1) 20px, rgba(0, 136, 204, 0.1) 21px), repeating-linear-gradient(0deg, transparent 0px, transparent 10px, rgba(0, 136, 204, 0.05) 10px, rgba(0, 136, 204, 0.05) 11px);
+        animation: techGrid 5s linear infinite;
+    }
+
+@keyframes techGrid {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        transform: translate(21px, 11px);
+    }
+}
+
+/* Measurement marks */
+#progress_bar_container::after {
+    content: '0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%';
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    right: 0;
+    color: #0088cc;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 10px;
+    display: flex;
+    justify-content: space-between;
+    opacity: 0.5;
+    letter-spacing: 1px;
+}
+
+#progress_bar_indicator {
+    background: linear-gradient(90deg, #0088cc 0%, #00aaff 25%, #00d4ff 50%, #00aaff 75%, #0088cc 100%);
+    background-size: 200% 100%;
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    animation: hudGlow 2s linear infinite;
+    box-shadow: 0 0 30px rgba(0, 170, 255, 0.8), inset 0 0 20px rgba(0, 212, 255, 0.4);
+    filter: brightness(1.2);
+}
+
+@keyframes hudGlow {
+    0% {
+        background-position: 0% 50%;
+        filter: brightness(1.2);
+    }
+
+    50% {
+        filter: brightness(1.4);
+    }
+
+    100% {
+        background-position: 200% 50%;
+        filter: brightness(1.2);
+    }
+}
+
+/* Data flow effect */
+#progress_bar_indicator::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+    animation: dataFlow 1s linear infinite;
+}
+
+@keyframes dataFlow {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+#labelPercent {
+    color: #000;
+    background: linear-gradient(135deg, #00d4ff 0%, #00aaff 100%);
+    padding: 6px 15px;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 18px !important;
+    font-size: 16px !important;
+    z-index: 10;
+    border: 1px solid #00d4ff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+    animation: percentData 0.5s infinite;
+}
+
+@keyframes percentData {
+    0%, 90% {
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.div_task_status {
+    margin-top: 30px;
+    padding: 25px;
+    background: rgba(0, 11, 22, 0.8);
+    border: 1px solid #0088cc;
+    position: relative;
+    backdrop-filter: blur(5px);
+    clip-path: polygon( 0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px) );
+}
+
+    /* HUD frame effect */
+    .div_task_status::before {
+        content: 'SYSTEM STATUS';
+        position: absolute;
+        top: -15px;
+        left: 30px;
+        background: #000;
+        padding: 0 20px;
+        color: #00aaff;
+        font-family: 'Orbitron', monospace;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-shadow: 0 0 10px rgba(0, 170, 255, 0.8);
+    }
+
+    /* Holographic shimmer */
+    .div_task_status::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent 0%, rgba(0, 170, 255, 0.1) 50%, transparent 100%);
+        animation: holoSweep 8s linear infinite;
+        pointer-events: none;
+    }
+
+@keyframes holoSweep {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 100%;
+    }
+}
+
+.div_task_status table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px !important;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #00aaff;
+}
+
+.div_task_status td {
+    padding: 6px 23px;
+    border: 1px solid rgba(0, 136, 204, 0.3);
+    border-left: 3px solid #0088cc;
+    vertical-align: middle;
+    color: #00d4ff;
+    background: linear-gradient(90deg, rgba(0, 136, 204, 0.1) 0%, transparent 50%);
+    position: relative;
+    transition: all 0.3s;
+    font-size: 11px !important;
+}
+
+.div_task_status tr:hover td {
+    background: linear-gradient(90deg, rgba(0, 136, 204, 0.2) 0%, rgba(0, 136, 204, 0.05) 100%);
+    border-left-color: #00d4ff;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+}
+
+.div_task_status td:first-child {
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    color: #0088cc;
+    background: none;
+    border: none;
+    border-right: 1px solid rgba(0, 136, 204, 0.3);
+    width: 200px;
+    text-align: right;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 11px !important;
+    padding-right: 30px;
+    position: relative;
+}
+
+    .div_task_status td:first-child::after {
+        content: '//';
+        position: absolute;
+        right: 15px;
+        color: #00aaff;
+        opacity: 0.5;
+    }
+
+.div_task_status td:nth-child(2) {
+    padding-left: 30px;
+    font-family: 'Orbitron', monospace;
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+.status-complete {
+    color: #00ff88 !important;
+    text-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+    font-weight: 700;
+    letter-spacing: 2px;
+    animation: completeGlow 2s ease-in-out infinite;
+}
+
+    .status-complete::before {
+        content: '[COMPLETE] ';
+        color: #00ff88;
+        font-size: 14px;
+    }
+
+@keyframes completeGlow {
+    0%, 100% {
+        text-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+    }
+
+    50% {
+        text-shadow: 0 0 25px rgba(0, 255, 136, 1), 0 0 35px rgba(0, 255, 136, 0.6);
+    }
+}
+
+.status-running {
+    color: #ffaa00 !important;
+    text-shadow: 0 0 15px rgba(255, 170, 0, 0.8);
+    font-weight: 700;
+    letter-spacing: 2px;
+    animation: processingData 0.5s infinite;
+}
+
+    .status-running::before {
+        content: '[PROCESSING] ';
+        color: #ffaa00;
+        font-size: 14px;
+    }
+
+@keyframes processingData {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.status-error {
+    color: #ff0044 !important;
+    text-shadow: 0 0 15px rgba(255, 0, 68, 0.8);
+    font-weight: 700;
+    letter-spacing: 2px;
+    animation: errorAlert 0.3s infinite;
+}
+
+    .status-error::before {
+        content: '[ERROR] ';
+        color: #ff0044;
+        font-size: 14px;
+    }
+
+@keyframes errorAlert {
+    0%, 100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-2px);
+    }
+
+    75% {
+        transform: translateX(2px);
+    }
+}
+
+/* Links in HUD theme */
+.div_task_status a,
+.div_task_status a.mainbutton {
+    color: #00d4ff;
+    background: rgba(0, 136, 204, 0.1);
+    border: 1px solid #0088cc;
+    text-decoration: none;
+    padding: 6px 20px;
+    display: inline-block;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 12px !important;
+    transition: all 0.3s;
+    position: relative;
+    clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+}
+
+    .div_task_status a:hover,
+    .div_task_status a.mainbutton:hover {
+        background: rgba(0, 212, 255, 0.2);
+        color: #fff;
+        border-color: #00d4ff;
+        text-decoration: none;
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.8), inset 0 0 20px rgba(0, 212, 255, 0.2);
+        text-shadow: 0 0 10px #00d4ff;
+    }
+
+/* Additional HUD elements */
+span {
+    color: #00d4ff;
+}
+
+/* Holographic glitch effect */
+@keyframes holoGlitch {
+    0%, 100% {
+        text-shadow: 0 0 10px rgba(0, 170, 255, 0.8), 2px 2px 0 rgba(255, 0, 170, 0.3), -2px -2px 0 rgba(0, 255, 170, 0.3);
+    }
+
+    50% {
+        text-shadow: 0 0 10px rgba(0, 170, 255, 0.8), -2px 2px 0 rgba(255, 0, 170, 0.3), 2px -2px 0 rgba(0, 255, 170, 0.3);
+    }
+}
+
+h1:hover {
+    animation: holoGlitch 0.2s infinite;
+}

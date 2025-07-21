@@ -1,0 +1,434 @@
+﻿/* Steampunk Victorian Theme - Enhanced Brass, Copper, Gears & Ornaments */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:ital@0;1&display=swap');
+
+body {
+    background: #1a1410;
+    background-image: radial-gradient(circle at 20% 50%, rgba(184, 134, 11, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(139, 69, 19, 0.3) 0%, transparent 50%), radial-gradient(circle at 40% 20%, rgba(205, 127, 50, 0.2) 0%, transparent 40%);
+    position: relative;
+}
+
+    /* Enhanced gear pattern overlay with intricate Victorian design */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(circle at 100% 0%, transparent 20%, rgba(184, 134, 11, 0.1) 21%, transparent 22%), radial-gradient(circle at 0% 100%, transparent 20%, rgba(139, 69, 19, 0.1) 21%, transparent 22%), repeating-linear-gradient( 45deg, rgba(205, 127, 50, 0.05), rgba(205, 127, 50, 0.05) 10px, transparent 10px, transparent 20px );
+        background-size: 100px 100px;
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
+.div-center-framed-content {
+    color: #c78f36;
+    font-family: 'Cinzel', serif;
+    background: linear-gradient(135deg, #2a2218 0%, #1a1410 100%);
+    border: 4px double #b8860b;
+    border-radius: 5px;
+    box-shadow: 0 0 40px rgba(184, 134, 11, 0.5), inset 0 0 40px rgba(0, 0, 0, 0.6), inset 0 0 120px rgba(184, 134, 11, 0.15);
+    position: relative;
+    overflow: visible;
+}
+
+    /* Ornate corner decorations with Victorian flourishes */
+    .div-center-framed-content::before,
+    .div-center-framed-content::after {
+        content: '⚙❧';
+        position: absolute;
+        font-size: 50px;
+        color: #b8860b;
+        text-shadow: 0 0 15px rgba(184, 134, 11, 0.6), 0 3px 6px rgba(0, 0, 0, 0.9);
+        animation: gearRotate 20s linear infinite;
+    }
+
+    .div-center-framed-content::before {
+        top: -30px;
+        left: -30px;
+        transform: rotate(-10deg);
+    }
+
+    .div-center-framed-content::after {
+        bottom: -30px;
+        right: -30px;
+        transform: rotate(10deg);
+        animation-direction: reverse;
+    }
+
+@keyframes gearRotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.div-center-framed-content h1 {
+    font-family: 'Cinzel', serif;
+    color: #b8860b;
+    text-align: center;
+    font-size: 40px !important;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9), 0 0 25px rgba(184, 134, 11, 0.5);
+    text-transform: uppercase;
+    position: relative;
+    padding: 25px 0;
+}
+
+    /* Enhanced Victorian ornamentation */
+    .div-center-framed-content h1::before,
+    .div-center-framed-content h1::after {
+        content: '❦✿';
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 28px;
+        color: #cd7f32;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    .div-center-framed-content h1::before {
+        left: 25px;
+    }
+
+    .div-center-framed-content h1::after {
+        right: 25px;
+    }
+
+input[type="file"] {
+    margin: 0 0 25px 15px;
+    padding: 12px;
+    border: 3px solid #cd7f32;
+    background: linear-gradient(135deg, #3a2818 0%, #2a1810 100%);
+    color: #daa520;
+    font-family: 'Crimson Text', serif;
+    font-size: 18px !important;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.15), 0 3px 6px rgba(0, 0, 0, 0.6);
+    border-radius: 5px;
+}
+
+    input[type="file"]:hover {
+        background: linear-gradient(135deg, #4a3828 0%, #3a2818 100%);
+        box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.25), 0 3px 10px rgba(184, 134, 11, 0.6);
+        border-color: #daa520;
+    }
+
+    input[type="file"]::file-selector-button {
+        background: linear-gradient(135deg, #3a2818 0%, #2a1810 100%);
+        color: #daa520;
+        border: 2px solid #cd7f32;
+        padding: 6px 12px;
+        font-family: 'Crimson Text', serif;
+        border-radius: 3px;
+    }
+
+input[type=submit], button, .buttonmain, a.buttonmain {
+    font-family: 'Cinzel', serif;
+    background: linear-gradient(135deg, #b8860b 0%, #8b6914 50%, #b8860b 100%);
+    border: 3px solid #cd7f32;
+    color: #1a1410;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.4), 0 5px 10px rgba(0, 0, 0, 0.6);
+    transition: all 0.4s;
+    text-shadow: 0 2px 0 rgba(255, 255, 255, 0.4);
+    border-radius: 5px;
+}
+
+    input[type=submit]:hover, button:hover, .buttonmain:hover, a.buttonmain:hover {
+        background: linear-gradient(135deg, #daa520 0%, #b8860b 50%, #daa520 100%);
+        box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.5), 0 5px 15px rgba(184, 134, 11, 0.7);
+        transform: translateY(-2px);
+    }
+
+    input[type=submit]:active, button:active {
+        transform: translateY(2px);
+        box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.2), 0 2px 5px rgba(0, 0, 0, 0.6);
+    }
+
+#progress_bar_container {
+    background: linear-gradient(90deg, #1a1410 0%, #2a2218 50%, #1a1410 100%);
+    border: 3px double #8b6914;
+    border-radius: 20px;
+    height: 50px;
+    position: relative;
+    overflow: hidden;
+    margin: 25px 0;
+    box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.9), 0 2px 0 rgba(184, 134, 11, 0.4);
+}
+
+    /* Enhanced rivet decoration with Victorian flair */
+    #progress_bar_container::before,
+    #progress_bar_container::after {
+        content: '◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉';
+        position: absolute;
+        left: 0;
+        right: 0;
+        color: #8b6914;
+        font-size: 10px;
+        letter-spacing: 30px;
+        text-align: center;
+        text-shadow: 0 2px 3px rgba(0, 0, 0, 0.9);
+    }
+
+    #progress_bar_container::before {
+        top: 3px;
+    }
+
+    #progress_bar_container::after {
+        bottom: 3px;
+    }
+
+#progress_bar_indicator {
+    background: linear-gradient(90deg, #cd7f32 0%, #daa520 25%, #b8860b 50%, #daa520 75%, #cd7f32 100%);
+    background-size: 250% 100%;
+    height: 100%;
+    border-radius: 18px;
+    width: 0%;
+    transition: width 0.6s ease;
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    position: relative;
+    animation: brassShine 3.5s linear infinite;
+    box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.4), inset 0 -3px 6px rgba(0, 0, 0, 0.4), 0 0 25px rgba(184, 134, 11, 0.7);
+}
+
+@keyframes brassShine {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 250% 50%;
+    }
+}
+
+/* Mechanical gauge with Victorian engraving effect */
+#progress_bar_indicator::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient( 90deg, transparent, transparent 6px, rgba(0, 0, 0, 0.15) 6px, rgba(0, 0, 0, 0.15) 12px );
+    border-radius: 18px;
+}
+
+#labelPercent {
+    color: #1a1410;
+    background: radial-gradient(circle, #daa520 0%, #b8860b 100%);
+    padding: 6px 15px;
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    font-size: 18px !important;
+    z-index: 10;
+    border: 2px solid #8b6914;
+    border-radius: 25px;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), 0 3px 6px rgba(0, 0, 0, 0.6);
+    text-shadow: 0 2px 0 rgba(255, 255, 255, 0.4);
+}
+
+.div_task_status {
+    margin-top: 25px;
+    padding: 25px;
+    background: linear-gradient(135deg, #2a2218 0%, #1a1410 100%);
+    border: 3px double #8b6914;
+    box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.6), 0 5px 10px rgba(0, 0, 0, 0.6);
+    position: relative;
+}
+
+    /* Decorative frame corners with Victorian scrollwork */
+    .div_task_status::before,
+    .div_task_status::after {
+        content: '';
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        border: 3px solid #b8860b;
+        background: radial-gradient(circle, #b8860b 0%, transparent 70%);
+    }
+
+    .div_task_status::before {
+        top: -3px;
+        left: -3px;
+        border-right: none;
+        border-bottom: none;
+        border-top-left-radius: 15px;
+    }
+
+    .div_task_status::after {
+        bottom: -3px;
+        right: -3px;
+        border-left: none;
+        border-top: none;
+        border-bottom-right-radius: 15px;
+    }
+
+    .div_task_status table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-family: 'Crimson Text', serif;
+        font-size: 20px !important;
+        line-height: 1.8;
+        color: #daa520;
+    }
+
+    .div_task_status td {
+        padding: 5px 25px;
+        border-bottom: 2px dashed rgba(184, 134, 11, 0.4);
+        vertical-align: middle;
+        color: #daa520;
+        background: rgba(0, 0, 0, 0.25);
+    }
+
+        .div_task_status td:first-child {
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            color: #cd7f32;
+            background: linear-gradient(90deg, rgba(139, 69, 19, 0.4) 0%, transparent 100%);
+            border-right: 3px solid #8b6914;
+            width: 240px;
+            text-align: right;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 16px !important;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.9);
+        }
+
+        .div_task_status td:nth-child(2) {
+            background: rgba(184, 134, 11, 0.1);
+            font-style: italic;
+            padding-left: 35px;
+        }
+
+    .div_task_status tr:last-child td {
+        border-bottom: none;
+    }
+
+.status-complete {
+    color: #90ee90 !important;
+    text-shadow: 0 0 15px rgba(144, 238, 144, 0.6);
+    position: relative;
+    padding-left: 30px !important;
+}
+
+    .status-complete::before {
+        content: '✓✿';
+        position: absolute;
+        left: 5px;
+        font-size: 22px;
+        color: #90ee90;
+    }
+
+.status-running {
+    color: #ffd700 !important;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    position: relative;
+    padding-left: 30px !important;
+    animation: steamPuff 2.5s ease-in-out infinite;
+}
+
+    .status-running::before {
+        content: '⚙❖';
+        position: absolute;
+        left: 5px;
+        font-size: 18px;
+        animation: gearSpin 2.5s linear infinite;
+    }
+
+@keyframes gearSpin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes steamPuff {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.status-error {
+    color: #dc143c !important;
+    text-shadow: 0 0 15px rgba(220, 20, 60, 0.6);
+    position: relative;
+    padding-left: 30px !important;
+}
+
+    .status-error::before {
+        content: '⚠❗';
+        position: absolute;
+        left: 5px;
+        font-size: 20px;
+        color: #dc143c;
+    }
+
+.div_task_status a,
+.div_task_status a.mainbutton {
+    color: #daa520;
+    background: linear-gradient(135deg, #8b6914 0%, #b8860b 100%);
+    border: 2px solid #cd7f32;
+    text-decoration: none;
+    padding: 6px 15px;
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 14px !important;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3), 0 3px 6px rgba(0, 0, 0, 0.6);
+    border-radius: 5px;
+    transition: all 0.4s;
+}
+
+    .div_task_status a:hover,
+    .div_task_status a.mainbutton:hover {
+        background: linear-gradient(135deg, #b8860b 0%, #daa520 100%);
+        color: #1a1410;
+        text-decoration: none;
+        box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), 0 3px 10px rgba(184, 134, 11, 0.7);
+        transform: translateY(-2px);
+    }
+
+span {
+    color: #daa520;
+}
+
+/* Victorian ornament divider with enhanced flourish */
+h1 + *::before {
+    content: '〜 ❦ ✿ 〜';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #8b6914;
+    font-size: 18px;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.9);
+}
+
+/* Copper pipe effect with Victorian engraving */
+input:focus, button:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #daa520;
+    box-shadow: 0 0 25px rgba(218, 165, 32, 0.5), inset 0 0 15px rgba(218, 165, 32, 0.15);
+    border-style: double;
+}
