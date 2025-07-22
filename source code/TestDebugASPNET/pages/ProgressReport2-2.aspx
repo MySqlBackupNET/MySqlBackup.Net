@@ -21,8 +21,6 @@
         <button type="button" onclick="backup();">Backup</button>
         <button type="button" onclick="restore();">Restore</button>
         <button type="button" onclick="stopTask();">Stop</button>
-
-        Restore File:
         <input type="file" id="fileRestore" />
 
         <button type="button" onclick="changeTheme();">Change Theme</button>
