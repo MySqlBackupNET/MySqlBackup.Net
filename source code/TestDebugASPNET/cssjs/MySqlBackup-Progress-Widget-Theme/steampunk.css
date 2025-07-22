@@ -174,7 +174,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
 }
 
     /* Enhanced rivet decoration with Victorian flair */
-    #progress_bar_container::before, .progress_bar_container::before
+    #progress_bar_container::before, .progress_bar_container::before,
     #progress_bar_container::after, .progress_bar_container::after {
         content: '◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉';
         position: absolute;

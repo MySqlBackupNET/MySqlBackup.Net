@@ -120,6 +120,18 @@ body::after {
     animation: dataStream 0.1s infinite;
 }
 
+.div-center-framed-content h2 {
+    font-family: 'Orbitron', monospace;
+    color: #00aaff;
+    text-align: center;
+    font-size: 20px !important;
+    font-weight: 900;
+    text-shadow: 0 0 20px rgba(0, 170, 255, 0.8), 0 0 40px rgba(0, 170, 255, 0.4), 0 0 60px rgba(0, 170, 255, 0.2);
+    margin: 30px 0;
+    position: relative;
+    animation: dataStream 0.1s infinite;
+}
+
 @keyframes dataStream {
     0% {
         opacity: 1;

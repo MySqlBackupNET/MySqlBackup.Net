@@ -105,6 +105,17 @@ body {
     position: relative;
 }
 
+.div-center-framed-content h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    color: #ff6600;
+    text-align: center;
+    font-size: 25px !important;
+    font-weight: 400;
+    text-shadow: 0 0 10px #ff3300, 0 0 20px #ff0000, 0 0 30px #cc0000, 0 -2px 10px #ffaa00;
+    animation: fireText 2s ease-in-out infinite alternate;
+    position: relative;
+}
+
 @keyframes fireText {
     0% {
         text-shadow: 0 0 10px #ff3300, 0 0 20px #ff0000, 0 0 30px #cc0000, 0 -2px 10px #ffaa00;

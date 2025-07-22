@@ -1,6 +1,7 @@
 ﻿/* Dark theme overrides */
 body {
     background: #1a1a1a;
+    overflow-x: hidden;
 }
 
 .div-center-framed-content {
@@ -10,6 +11,10 @@ body {
 }
 
     .div-center-framed-content h1 {
+        color: #e0e0e0;
+    }
+
+    .div-center-framed-content h2 {
         color: #e0e0e0;
     }
 
@@ -39,7 +44,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
         box-shadow: 0 0 10px rgba(0, 150, 255, 0.3);
     }
 
-#progress_bar_container {
+/*#progress_bar_container, .progress_bar_container {
     background: linear-gradient(90deg, #0a0a0a, #151515, #0a0a0a);
     background-size: 200% 100%;
     animation: backgroundShift 3s ease-in-out infinite;
@@ -51,7 +56,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
     overflow: hidden;
     border: 1px solid #1a1a1a;
     padding: 1px;
-}
+}*/
 
 #progress_bar_indicator, .progress_bar_indicator {
     background: linear-gradient(90deg, #00ff88, #00cc6a, #00ff88, #00ffaa);
@@ -231,7 +236,7 @@ span {
 }
 
 /* Progress bar container subtle animation for dark theme */
-#progress_bar_container::before {
+#progress_bar_container::before, .progress_bar_container::before {
     content: '';
     position: absolute;
     top: 0;
