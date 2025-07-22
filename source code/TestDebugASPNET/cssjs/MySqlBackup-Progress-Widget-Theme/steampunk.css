@@ -99,6 +99,14 @@ body {
         right: 25px;
     }
 
+.div-center-framed-content h2 {
+    font-family: 'Cinzel', serif;
+    color: #b8860b;
+    font-size: 20px !important;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
 input[type="file"] {
     margin: 0 0 25px 15px;
     padding: 12px;
@@ -154,7 +162,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
         box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.2), 0 2px 5px rgba(0, 0, 0, 0.6);
     }
 
-#progress_bar_container {
+#progress_bar_container, .progress_bar_container {
     background: linear-gradient(90deg, #1a1410 0%, #2a2218 50%, #1a1410 100%);
     border: 3px double #8b6914;
     border-radius: 20px;
@@ -166,8 +174,8 @@ input[type=submit], button, .buttonmain, a.buttonmain {
 }
 
     /* Enhanced rivet decoration with Victorian flair */
-    #progress_bar_container::before,
-    #progress_bar_container::after {
+    #progress_bar_container::before, .progress_bar_container::before
+    #progress_bar_container::after, .progress_bar_container::after {
         content: '◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉ ◉';
         position: absolute;
         left: 0;
@@ -179,15 +187,15 @@ input[type=submit], button, .buttonmain, a.buttonmain {
         text-shadow: 0 2px 3px rgba(0, 0, 0, 0.9);
     }
 
-    #progress_bar_container::before {
+    #progress_bar_container::before, .progress_bar_container::before {
         top: 3px;
     }
 
-    #progress_bar_container::after {
+    #progress_bar_container::after, .progress_bar_container::after {
         bottom: 3px;
     }
 
-#progress_bar_indicator {
+#progress_bar_indicator, .progress_bar_indicator {
     background: linear-gradient(90deg, #cd7f32 0%, #daa520 25%, #b8860b 50%, #daa520 75%, #cd7f32 100%);
     background-size: 250% 100%;
     height: 100%;
@@ -213,7 +221,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
 }
 
 /* Mechanical gauge with Victorian engraving effect */
-#progress_bar_indicator::after {
+#progress_bar_indicator::after, .progress_bar_indicator::after {
     content: '';
     position: absolute;
     top: 0;
@@ -224,7 +232,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
     border-radius: 18px;
 }
 
-#labelPercent {
+#labelPercent, .labelPercent {
     color: #1a1410;
     background: radial-gradient(circle, #daa520 0%, #b8860b 100%);
     padding: 6px 15px;

@@ -134,6 +134,7 @@
     <Content Include="cssjs\MySqlBackup-Progress-Widget-Theme\solarfire.css" />
     <Content Include="cssjs\MySqlBackup-Progress-Widget-Theme\steampunk.css" />
     <Content Include="cssjs\ProgressReport2-2-Theme.js" />
+    <Content Include="cssjs\ProgressReportWidget2-3.js" />
     <Content Include="pages\About.aspx" />
     <Content Include="pages\apiMain.aspx" />
     <Content Include="pages\apiProgressReport2.aspx" />
@@ -150,6 +151,7 @@
     <Content Include="pages\MySqlDateTimeTester.aspx" />
     <Content Include="pages\ParallelPipelineExport.aspx" />
     <Content Include="pages\ProgressReport2-2.aspx" />
+    <Content Include="pages\ProgressReport2-3.aspx" />
     <Content Include="pages\ProgressReport2.aspx" />
     <Content Include="pages\ProgressReportMenu.aspx" />
     <Content Include="pages\ProgressReportSimple.aspx" />
@@ -339,6 +341,13 @@
     </Compile>
     <Compile Include="pages\ProgressReport2-2.aspx.designer.cs">
       <DependentUpon>ProgressReport2-2.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\ProgressReport2-3.aspx.cs">
+      <DependentUpon>ProgressReport2-3.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\ProgressReport2-3.aspx.designer.cs">
+      <DependentUpon>ProgressReport2-3.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\ProgressReport2.aspx.cs">
       <DependentUpon>ProgressReport2.aspx</DependentUpon>

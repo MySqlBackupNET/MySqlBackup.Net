@@ -7,13 +7,18 @@
     <div class="div-center-framed-content">
 
         <h1>Progress Report Demo</h1>
-        <div style="line-height: 200%;">
+        <div style="line-height: 220%;">
             Recommended Basic Demo:<br />
-            <a href="/ProgressReport2-2">Progress Report 2-2</a> - Using <code>ConcurrentDictionary</code> as an intermediary to store progress information
+            <a href="/ProgressReport2-2">Progress Report 2-2</a> - Using <code>ConcurrentDictionary</code> as an intermediary to store progress information<br />
+
+            <a href="/ProgressReport2-3">Progress Report 2-3</a> - Using Portable Javascript Object to Build Progress Report Widget
 
             <div style="border: 1px solid #c8e8ff; max-width: 900px; padding: 10px; background: #e4f4ff;">
                 Demo Theme: Light | Dark | Cyberpunk | Alien 1986 Terminal | Steampunk Victorian | Solar Fire | Futuristic HUD
             </div>
+
+
+
             <hr />
             Other Demo:<br />
             <a href="/ProgressReportSimple">Progress Report - Simple API Demo</a> - Using <code>ConcurrentDictionary</code> as an intermediary to store progress information<br />

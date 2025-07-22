@@ -191,7 +191,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
     }
 }
 
-#progress_bar_container {
+#progress_bar_container, .progress_bar_container {
     background: #000;
     border: 1px solid #41ff00;
     height: 30px;
@@ -202,7 +202,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
 }
 
     /* ASCII-style progress markers */
-    #progress_bar_container::after {
+    #progress_bar_container::after, .progress_bar_container::after {
         content: '|--------10--------20--------30--------40--------50--------60--------70--------80--------90-------|';
         position: absolute;
         top: 50%;
@@ -217,7 +217,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
         pointer-events: none;
     }
 
-#progress_bar_indicator {
+#progress_bar_indicator, .progress_bar_indicator {
     background: #41ff00;
     height: 100%;
     width: 0%;
@@ -230,7 +230,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
 }
 
     /* Animated block characters */
-    #progress_bar_indicator::before {
+    #progress_bar_indicator::before, .progress_bar_indicator {
         content: '████████████████████████████████████████████████████████████████████████████████';
         position: absolute;
         left: 0;
@@ -250,7 +250,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
     }
 }
 
-#labelPercent {
+#labelPercent, .labelPercent {
     color: #000;
     background: #41ff00;
     padding: 2px 6px;

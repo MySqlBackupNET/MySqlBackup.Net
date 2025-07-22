@@ -11,8 +11,6 @@
 
     <link id="linkThemeFile" href="/cssjs/MySqlBackup-Progress-Widget-Theme/steampunk.css" rel="stylesheet" />
 
-    <script src="/cssjs/ProgressReport2-2-Theme.js"></script>
-
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
 
@@ -93,19 +91,19 @@
                 <tr>
                     <td>All Tables Rows</td>
                     <td>
-                        <span id="labelCurrentRowsAllTables"></span> / <span id="labelTotalRowsAllTable">0</span>
+                        <span id="labelCurrentRowsAllTables"></span>/ <span id="labelTotalRowsAllTable">0</span>
                     </td>
                 </tr>
                 <tr>
                     <td>Current Table Rows</td>
                     <td>
-                        <span id="labelCurrentRowsCurrentTables"></span> / <span id="labelTotalRowsCurrentTable">0</span>
+                        <span id="labelCurrentRowsCurrentTables"></span>/ <span id="labelTotalRowsCurrentTable">0</span>
                     </td>
                 </tr>
                 <tr>
                     <td>Total Bytes</td>
                     <td>
-                        <span id="labelCurrentBytes"></span> / <span id="lableTotalBytes"></span>
+                        <span id="labelCurrentBytes"></span>/ <span id="lableTotalBytes"></span>
                     </td>
                 </tr>
             </table>
@@ -144,14 +142,10 @@
         let labelCurrentBytes = document.querySelector("#labelCurrentBytes");
         let lableTotalBytes = document.querySelector("#lableTotalBytes");
 
-        async function backup() {
-
-            resetUIValues();
-
-            const formData = new FormData();
-            formData.append('action', 'backup');
+        async function fetchData(formData) {
 
             try {
+                let action = formData.get("action") || "";
 
                 const response = await fetch('/apiProgressReport2', {
                     method: 'POST',
@@ -160,47 +154,82 @@
                 });
 
                 if (response.ok) {
+
                     const responseText = await response.text();
 
                     if (responseText.startsWith("0|")) {
                         let err = responseText.substring(2);
-                        console.error('Error in API call:', err);
-                        showErrorMessage("Error", err);
+                        return { ok: false, errMsg: err };
                     }
                     else {
                         if (!responseText || responseText.trim() === '') {
-                            showErrorMessage("Error", "Empty response from server");
+                            let err = "Empty response from server";
+                            return { ok: false, errMsg: err };
                         }
                         else {
 
                             // Success
-                            taskid = parseInt(responseText);
 
-                            if (isNaN(taskid)) {
-                                showErrorMessage("Error", `Invalid Task ID: ${taskid}`);
+                            if (action == "backup" || action == "restore") {
+                                let _thisTaskid = parseInt(responseText);
+                                if (isNaN(_thisTaskid)) {
+                                    let err = `Invalid Task ID: ${_thisTaskid}`;
+                                    return { ok: false, errMsg: err };
+                                }
+                                else {
+                                    return { ok: true, thisTaskid: _thisTaskid };
+                                }
                             }
-                            else {
-                                intervalMs = 1000;
-                                startIntervalTimer();
-                                showGoodMessage("Success", "Backup Task Begin");
+                            else if (action == "stoptask") {
+                                if (responseText == "1") {
+                                    return { ok: true };
+                                }
+                                else {
+                                    let err = `Unable to stop task`;
+                                    return { ok: false, errMsg: err };
+                                }
+                            }
+                            else if (action == "gettaskstatus") {
+                                try {
+                                    let thisJsonObject = JSON.parse(responseText);
+                                    return { ok: true, jsonObject: thisJsonObject };
+                                }
+                                catch (err) {
+                                    return { ok: false, errMsg: err };
+                                }
                             }
                         }
                     }
                 }
                 else {
-                    const errorText = await response.text();
-                    showErrorMessage("Error", errorText);
+                    const err = await response.text();
+                    return { ok: false, errMsg: err };
                 }
             }
             catch (err) {
-                console.error('Error in API call:', err);
-                showErrorMessage("Error", err.message);
-                stopIntervalTimer();
+                return { ok: false, errMsg: err };
+            }
+        }
+
+        async function backup() {
+            resetUIValues();
+
+            const formData = new FormData();
+            formData.append('action', 'backup');
+
+            const result = await fetchData(formData);
+
+            if (result.ok) {
+                taskid = result.thisTaskid;
+                intervalMs = 1000;
+                startIntervalTimer();
+                showGoodMessage("Success", "Backup Task Begin");
+            } else {
+                showErrorMessage("Error", result.errMsg);
             }
         }
 
         async function restore() {
-
             resetUIValues();
 
             if (!fileRestore.files || fileRestore.files.length === 0) {
@@ -212,51 +241,15 @@
             formData.append('action', 'restore');
             formData.append('fileRestore', fileRestore.files[0]);
 
-            try {
+            const result = await fetchData(formData);
 
-                const response = await fetch('/apiProgressReport2', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'include'
-                });
-
-                if (response.ok) {
-                    const responseText = await response.text();
-
-                    if (responseText.startsWith("0|")) {
-                        let err = responseText.substring(2);
-                        console.error('Error in API call:', err);
-                        showErrorMessage("Error", err);
-                    }
-                    else {
-                        if (!responseText || responseText.trim() === '') {
-                            showErrorMessage("Error", "Empty response from server");
-                        }
-                        else {
-
-                            // Success
-                            taskid = parseInt(responseText);
-
-                            if (isNaN(taskid)) {
-                                showErrorMessage("Error", `Invalid Task ID: ${taskid}`);
-                            }
-                            else {
-                                intervalMs = 1000;
-                                startIntervalTimer();
-                                showGoodMessage("Success", "Restore Task Begin");
-                            }
-                        }
-                    }
-                }
-                else {
-                    const errorText = await response.text();
-                    showErrorMessage("Error", errorText);
-                }
-            }
-            catch (err) {
-                console.error('Error in API call:', err);
-                showErrorMessage("Error", err.message);
-                stopIntervalTimer();
+            if (result.ok) {
+                taskid = result.thisTaskid;
+                intervalMs = 1000;
+                startIntervalTimer();
+                showGoodMessage("Success", "Restore Task Begin");
+            } else {
+                showErrorMessage("Error", result.errMsg);
             }
         }
 
@@ -270,53 +263,17 @@
             formData.append("action", "stoptask");
             formData.append("taskid", taskid);
 
-            try {
+            const result = await fetchData(formData);
 
-                const response = await fetch('/apiProgressReport2', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'include'
-                });
-
-                if (response.ok) {
-                    const responseText = await response.text();
-
-                    if (responseText.startsWith("0|")) {
-                        let err = responseText.substring(2);
-                        console.error('Error in API call:', err);
-                        showErrorMessage("Error", err);
-                    }
-                    else {
-                        if (!responseText || responseText.trim() === '') {
-                            showErrorMessage("Error", "Empty response from server");
-                        }
-                        else {
-
-                            // Success
-                            if (responseText == "1") {
-                                showGoodMessage("The task is being called to stop.");
-                            }
-                            else {
-                                let err = responseText.startsWith("0|") ? responseText.substring(2) : responseText;
-                                showErrorMessage("Error", err);
-                            }
-                        }
-                    }
-                }
-                else {
-                    const errorText = await response.text();
-                    showErrorMessage("Error", errorText);
-                }
-            }
-            catch (err) {
-                console.error('Error in API call:', err);
-                showErrorMessage("Error", err.message);
+            if (result.ok) {
+                showGoodMessage("The task is being called to stop.");
+            } else {
+                showErrorMessage("Error", result.errMsg);
                 stopIntervalTimer();
             }
         }
 
         async function fetchTaskStatus() {
-
             apicallid++;
 
             const formData = new FormData();
@@ -324,56 +281,18 @@
             formData.append('taskid', taskid);
             formData.append('apicallid', apicallid);
 
-            try {
+            const result = await fetchData(formData);
 
-                const response = await fetch('/apiProgressReport2', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'include'
-                });
-
-                if (response.ok) {
-                    const responseText = await response.text();
-
-                    if (responseText.startsWith("0|")) {
-                        let err = responseText.substring(2);
-                        console.error('Error in API call:', err);
-                        showErrorMessage("Error", err);
-                    }
-                    else {
-                        if (!responseText || responseText.trim() === '') {
-                            showErrorMessage("Error", "Empty response from server");
-                        }
-                        else {
-
-                            // Success
-                            try {
-                                let jsonObject = JSON.parse(responseText);
-
-                                if (jsonObject.ApiCallIndex != apicallid) {
-                                    // late echo response - ignore
-                                    return;
-                                }
-
-                                console.log("before updateUIValues");
-
-                                updateUIValues(jsonObject);
-                            }
-                            catch (parseError) {
-                                console.error('JSON parsing error:', parseError);
-                                showErrorMessage("Error", "Invalid JSON response from server");
-                            }
-                        }
-                    }
+            if (result.ok) {
+                if (result.jsonObject.ApiCallIndex != apicallid) {
+                    // late echo response - ignore
+                    return;
                 }
-                else {
-                    const errorText = await response.text();
-                    showErrorMessage("Error", errorText);
-                }
-            }
-            catch (err) {
-                console.error('Error in API call:', err);
-                showErrorMessage("Error", err.message);
+
+                console.log("before updateUIValues");
+                updateUIValues(result.jsonObject);
+            } else {
+                showErrorMessage("Error", result.errMsg);
                 stopIntervalTimer();
             }
         }
@@ -513,8 +432,6 @@
 
             divThemes.style.display = divThemes.style.display == "block" ? "none" : "block";
         }
-
-        loadThemeSteampunkVictorian();
 
     </script>
 

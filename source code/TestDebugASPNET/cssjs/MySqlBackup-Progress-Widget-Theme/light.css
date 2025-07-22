@@ -13,7 +13,7 @@
         border-color: #4CAF50;
     }
 
-#progress_bar_container {
+#progress_bar_container, .progress_bar_container {
     background: linear-gradient(90deg, #2a2a2a, #1a1a1a, #2a2a2a);
     background-size: 200% 100%;
     animation: backgroundShift 3s ease-in-out infinite;
@@ -27,7 +27,7 @@
     padding: 1px;
 }
 
-#progress_bar_indicator {
+#progress_bar_indicator, .progress_bar_indicator {
     background: linear-gradient(90deg, #00ff88, #00cc6a, #00ff88);
     background-size: 200% 100%;
     height: 100%;
@@ -74,7 +74,7 @@
     }
 }
 
-#labelPercent {
+#labelPercent, .labelPercent {
     color: white;
     font-weight: bold;
     font-size: 14px;

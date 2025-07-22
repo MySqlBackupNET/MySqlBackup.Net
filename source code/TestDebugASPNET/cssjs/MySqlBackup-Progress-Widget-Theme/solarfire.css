@@ -187,7 +187,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
         text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.8);
     }
 
-#progress_bar_container {
+#progress_bar_container, .progress_bar_container {
     background: linear-gradient(90deg, #0a0000 0%, #1a0000 50%, #0a0000 100%);
     border: 1px solid #660000;
     border-radius: 25px;
@@ -199,7 +199,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
 }
 
     /* Molten lava texture */
-    #progress_bar_container::before {
+    #progress_bar_container::before, .progress_bar_container::before {
         content: '';
         position: absolute;
         top: 0;
@@ -220,7 +220,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
     }
 }
 
-#progress_bar_indicator {
+#progress_bar_indicator, .progress_bar_indicator {
     background: linear-gradient(90deg, #ff0000 0%, #ff3300 20%, #ff6600 40%, #ff9900 50%, #ffcc00 60%, #ff9900 70%, #ff6600 80%, #ff3300 90%, #ff0000 100%);
     background-size: 200% 100%;
     height: 100%;
@@ -259,7 +259,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
 }
 
 /* Flame particles inside progress */
-#progress_bar_indicator::after {
+#progress_bar_indicator::after, .progress_bar_indicator::after {
     content: '🔥';
     position: absolute;
     right: 10px;
@@ -279,7 +279,7 @@ input[type=submit], button, .buttonmain, a.buttonmain {
     }
 }
 
-#labelPercent {
+#labelPercent, .labelPercent {
     color: #000;
     background: radial-gradient(circle, #ffcc00 0%, #ff9900 50%, #ff6600 100%);
     padding: 4px 12px;
