@@ -99,8 +99,8 @@
                                 <tr>
                                     <td>Time</td>
                                     <td>
-                                        Start: <span id="mbp-time-start-${this.config.widgetId}">--</span><br>
-                                        End: <span id="mbp-time-end-${this.config.widgetId}">--</span><br>
+                                        Start: <span id="mbp-time-start-${this.config.widgetId}">--</span>
+                                        End: <span id="mbp-time-end-${this.config.widgetId}">--</span>
                                         Duration: <span id="mbp-time-duration-${this.config.widgetId}">--</span>
                                     </td>
                                 </tr>
