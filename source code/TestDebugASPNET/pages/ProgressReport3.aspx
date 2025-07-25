@@ -189,8 +189,12 @@
             disableButtons();
 
             try {
-                const result = await fetchAPI(urlApiEndpoint + '?action=start_backup', {
-                    method: 'POST'
+                const formData = new FormData();
+                formData.append('action', 'start_backup');
+
+                const result = await fetchAPI(urlApiEndpoint, {
+                    method: 'POST',
+                    body: formData
                 });
 
                 if (result.ok && result.data) {
@@ -219,9 +223,10 @@
 
             try {
                 const formData = new FormData();
+                formData.append('action', 'start_restore');
                 formData.append('file', fileRestore.files[0]);
 
-                const result = await fetchAPI(urlApiEndpoint + '?action=start_restore', {
+                const result = await fetchAPI(urlApiEndpoint, {
                     method: 'POST',
                     body: formData
                 });
@@ -247,8 +252,13 @@
             }
 
             try {
-                const result = await fetchAPI(urlApiEndpoint + `?action=stop&taskid=${currentTaskId}`, {
-                    method: 'POST'
+                const formData = new FormData();
+                formData.append('action', 'stop');
+                formData.append('taskid', currentTaskId);
+
+                const result = await fetchAPI(urlApiEndpoint, {
+                    method: 'POST',
+                    body: formData
                 });
 
                 if (result.ok) {
