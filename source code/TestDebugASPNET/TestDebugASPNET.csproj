@@ -138,6 +138,7 @@
     <Content Include="pages\About.aspx" />
     <Content Include="pages\apiMain.aspx" />
     <Content Include="pages\apiProgressReport2.aspx" />
+    <Content Include="pages\apiProgressReport3.aspx" />
     <Content Include="pages\DatabaseDumpViewer.aspx" />
     <Content Include="pages\Default.aspx" />
     <Content Include="Global.asax" />
@@ -153,6 +154,7 @@
     <Content Include="pages\ProgressReport2-2.aspx" />
     <Content Include="pages\ProgressReport2-3.aspx" />
     <Content Include="pages\ProgressReport2.aspx" />
+    <Content Include="pages\ProgressReport3.aspx" />
     <Content Include="pages\ProgressReportMenu.aspx" />
     <Content Include="pages\ProgressReportSimple.aspx" />
     <Content Include="pages\QuickTestAdjustColumnValue.aspx" />
@@ -198,6 +200,13 @@
     </Compile>
     <Compile Include="pages\apiProgressReport2.aspx.designer.cs">
       <DependentUpon>apiProgressReport2.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\apiProgressReport3.aspx.cs">
+      <DependentUpon>apiProgressReport3.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\apiProgressReport3.aspx.designer.cs">
+      <DependentUpon>apiProgressReport3.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\DatabaseDumpViewer.aspx.cs">
       <DependentUpon>DatabaseDumpViewer.aspx</DependentUpon>
@@ -355,6 +364,13 @@
     </Compile>
     <Compile Include="pages\ProgressReport2.aspx.designer.cs">
       <DependentUpon>ProgressReport2.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pages\ProgressReport3.aspx.cs">
+      <DependentUpon>ProgressReport3.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pages\ProgressReport3.aspx.designer.cs">
+      <DependentUpon>ProgressReport3.aspx</DependentUpon>
     </Compile>
     <Compile Include="pages\ProgressReportMenu.aspx.cs">
       <DependentUpon>ProgressReportMenu.aspx</DependentUpon>

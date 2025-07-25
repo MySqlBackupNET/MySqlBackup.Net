@@ -184,7 +184,19 @@ namespace System.Data.SQLite
         public dataType ExecuteScalar<dataType>(string sql)
         {
             cmd.CommandText = sql;
-            return (dataType)Convert.ChangeType(cmd.ExecuteScalar(), typeof(dataType));
+            object result = cmd.ExecuteScalar();
+
+            if (result == null || result == DBNull.Value)
+            {
+                // Handle null case
+                if (typeof(dataType).IsValueType)
+                {
+                    return default;
+                }
+                return (dataType)(object)null; // For reference types
+            }
+
+            return (dataType)Convert.ChangeType(result, typeof(dataType));
         }
 
         private List<SQLiteParameter> GetParametersList(Dictionary<string, object> dicParameters)
