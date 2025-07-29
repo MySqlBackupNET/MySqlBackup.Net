@@ -85,6 +85,12 @@ namespace System.pages
             // User authentication logic here
             // Check if user is logged in and has backup permissions
             // TEMPORARY - for testing and debugging use
+
+            //if (Session["user_login"] == null)
+            //{
+            //    return false;
+            //}
+
             return true;
         }
 
@@ -113,12 +119,14 @@ namespace System.pages
 
         private async Task HandleWebSocketProgressOnly(AspNetWebSocketContext httpContext)
         {
+            WebSocket webSocket = httpContext.WebSocket;
+
             if (!IsUserAuthenticated())
             {
+                await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Authentication failed", CancellationToken.None);
                 return;
             }
 
-            WebSocket webSocket = httpContext.WebSocket;
             byte[] buffer = new byte[1024];
 
             try
@@ -207,7 +215,7 @@ namespace System.pages
 
                 dicTaskInfo[newTaskId] = taskInfo;
 
-                // Start backup in background
+                // Start process in another separated thread
                 _ = Task.Run(() => BackupBegin(newTaskId));
 
                 // Return task ID immediately
@@ -270,7 +278,7 @@ namespace System.pages
                     ZipHelper.ExtractFile(filePath, sqlFilePath);
                 }
 
-                // Start restore in background
+                // Start process in another separated thread
                 _ = Task.Run(() => RestoreBegin(newTaskId, sqlFilePath));
 
                 // Return task ID immediately

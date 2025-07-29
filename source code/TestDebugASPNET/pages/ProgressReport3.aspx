@@ -72,8 +72,7 @@
                 </tr>
                 <tr>
                     <td>Backup File</td>
-                    <td>
-                        Download: <span id="labelSqlFilename"></span>
+                    <td>Download: <span id="labelSqlFilename"></span>
                         <br />
                         SHA 256: <span id="labelSha256"></span>
                     </td>
@@ -107,6 +106,8 @@
     </div>
 
     <script>
+
+        let currentPercent = 0;
 
         let divThemes = document.querySelector("#divThemes");
 
@@ -160,49 +161,31 @@
         btnRestore.addEventListener('click', startRestore);
         btnStop.addEventListener('click', stopTask);
 
-        // HTTP API Functions
-        async function fetchAPI(url, options = {}) {
-            try {
-                const response = await fetch(url, {
-                    credentials: 'include',
-                    ...options
-                });
-
-                if (response.ok) {
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        return { ok: true, data: await response.json() };
-                    } else {
-                        return { ok: true, text: await response.text() };
-                    }
-                } else {
-                    const errorText = await response.text();
-                    return { ok: false, error: errorText, status: response.status };
-                }
-            } catch (err) {
-                return { ok: false, error: err.message };
-            }
-        }
-
         async function startBackup() {
             resetUIValues();
             disableButtons();
+
+            currentPercent = 0;
 
             try {
                 const formData = new FormData();
                 formData.append('action', 'start_backup');
 
-                const result = await fetchAPI(urlApiEndpoint, {
+                const result = await fetch(urlApiEndpoint, {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    credentials: 'include'
                 });
 
-                if (result.ok && result.data) {
-                    currentTaskId = result.data.TaskId;
-                    showGoodMessage("Success", result.data.Status);
+                if (result.ok) {
+                    let jsonObject = await result.json();
+                    currentTaskId = jsonObject.TaskId;
+                    showGoodMessage("Success", jsonObject.Status);
                     connectWebSocket(currentTaskId);
-                } else {
-                    showErrorMessage("Error", result.error || "Failed to start backup");
+                }
+                else {
+                    let errMsg = await result.text();
+                    showErrorMessage("Error", errMsg);
                     enableButtons();
                 }
             } catch (err) {
@@ -226,17 +209,21 @@
                 formData.append('action', 'start_restore');
                 formData.append('file', fileRestore.files[0]);
 
-                const result = await fetchAPI(urlApiEndpoint, {
+                const result = await fetch(urlApiEndpoint, {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    credentials: 'include'
                 });
 
-                if (result.ok && result.data) {
-                    currentTaskId = result.data.TaskId;
-                    showGoodMessage("Success", result.data.Status);
+                if (result.ok) {
+                    let jsonObject = await result.json();
+                    currentTaskId = jsonObject.TaskId;
+                    showGoodMessage("Success", jsonObject.Status);
                     connectWebSocket(currentTaskId);
-                } else {
-                    showErrorMessage("Error", result.error || "Failed to start restore");
+                }
+                else {
+                    let errMsg = result.text();
+                    showErrorMessage("Error", errMsg);
                     enableButtons();
                 }
             } catch (err) {
@@ -256,15 +243,17 @@
                 formData.append('action', 'stop');
                 formData.append('taskid', currentTaskId);
 
-                const result = await fetchAPI(urlApiEndpoint, {
+                const result = await fetch(urlApiEndpoint, {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    credentials: 'include'
                 });
 
                 if (result.ok) {
                     showGoodMessage("Success", "Stop request sent to server");
                 } else {
-                    showErrorMessage("Error", result.error || "Failed to stop task");
+                    let errMsg = result.text();
+                    showErrorMessage("Error", errMsg);
                 }
             } catch (err) {
                 showErrorMessage("Error", err.message);
@@ -382,6 +371,15 @@
         }
 
         function updateUIValues(taskInfo) {
+
+            if (taskInfo.PercentCompleted < currentPercent) {
+                // late echo, ignore
+                return;
+            }
+            else {
+                currentPercent = taskInfo.PercentCompleted;
+            }
+
             // Basic task information
             labelTaskId.textContent = taskInfo.TaskId || "--";
             lableTimeStart.textContent = taskInfo.TimeStartDisplay || "---";
