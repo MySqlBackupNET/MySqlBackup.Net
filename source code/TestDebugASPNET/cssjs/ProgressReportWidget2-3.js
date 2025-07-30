@@ -82,6 +82,7 @@
                                 <button type="button" id="mbp-btn-restore-${this.config.widgetId}">Restore</button>
                                 <button type="button" id="mbp-btn-stop-${this.config.widgetId}">Stop</button>
                                 <input type="file" id="mbp-file-restore-${this.config.widgetId}" accept=".sql,.zip" />
+                                <button type="button" id="mbp-btn-remove-${this.config.widgetId}">Remove</button>
                             </div>
 
                             <table>
@@ -173,172 +174,137 @@
                     document.getElementById(`mbp-btn-backup-${this.config.widgetId}`).addEventListener('click', () => this.backup());
                     document.getElementById(`mbp-btn-restore-${this.config.widgetId}`).addEventListener('click', () => this.restore());
                     document.getElementById(`mbp-btn-stop-${this.config.widgetId}`).addEventListener('click', () => this.stopTask());
+                    document.getElementById(`mbp-btn-remove-${this.config.widgetId}`).addEventListener('click', () => this.remove());
                 },
 
-                // FetchAPI Helper
-                async fetchData(formData) {
+                async backup() {
+                    this.resetUI();
 
                     try {
-                        let action = formData.get("action") || "";
+                        const formData = new FormData();
+                        formData.append('action', 'start_backup');
 
                         const response = await fetch(this.config.apiUrl, {
                             method: 'POST',
-                            body: formData,
-                            credentials: 'include'
+                            body: formData
                         });
 
                         if (response.ok) {
-
-                            const responseText = await response.text();
-
-                            if (responseText.startsWith("0|")) {
-                                let err = responseText.substring(2);
-                                return { ok: false, errMsg: err };
-                            }
-                            else {
-                                if (!responseText || responseText.trim() === '') {
-                                    let err = "Empty response from server";
-                                    return { ok: false, errMsg: err };
-                                }
-                                else {
-
-                                    // Success
-
-                                    if (action == "backup" || action == "restore") {
-                                        let _thisTaskid = parseInt(responseText);
-                                        if (isNaN(_thisTaskid)) {
-                                            let err = `Invalid Task ID: ${_thisTaskid}`;
-                                            return { ok: false, errMsg: err };
-                                        }
-                                        else {
-                                            return { ok: true, thisTaskid: _thisTaskid };
-                                        }
-                                    }
-                                    else if (action == "stoptask") {
-                                        if (responseText == "1") {
-                                            return { ok: true };
-                                        }
-                                        else {
-                                            let err = `Unable to stop task`;
-                                            return { ok: false, errMsg: err };
-                                        }
-                                    }
-                                    else if (action == "gettaskstatus") {
-                                        try {
-                                            let thisJsonObject = JSON.parse(responseText);
-                                            return { ok: true, jsonObject: thisJsonObject };
-                                        }
-                                        catch (err) {
-                                            return { ok: false, errMsg: err };
-                                        }
-                                    }
-                                }
-                            }
+                            const jsonObject = await response.json();
+                            this.state.taskId = jsonObject.TaskId;
+                            this.state.intervalMs = this.config.updateInterval;
+                            this.startMonitoring();
+                            this.showSuccess("Backup task started");
+                        } else {
+                            const errorText = await response.text();
+                            this.showError(`HTTP ${response.status}: ${errorText}`);
                         }
-                        else {
-                            const err = await response.text();
-                            return { ok: false, errMsg: err };
-                        }
-                    }
-                    catch (err) {
-                        return { ok: false, errMsg: err };
+                    } catch (error) {
+                        this.showError(error.message);
                     }
                 },
 
-                // Backup function
-                async backup() {
-
-                    this.resetUI();
-
-                    const formData = new FormData();
-                    formData.append('action', 'backup');
-
-                    const result = await this.fetchData(formData);
-
-                    if (result.ok) {
-                        this.state.taskId = result.thisTaskid;
-                        this.state.intervalMs = 1000;
-                        this.startMonitoring();
-                        showGoodMessage("Success", "Backup Task Begin");
-                    } else {
-                        showErrorMessage("Error", result.errMsg);
-                    }
-                },
-
-                // Restore function
                 async restore() {
                     this.resetUI();
 
                     if (!this.state.elements.fileRestore.files || this.state.elements.fileRestore.files.length === 0) {
-                        showErrorMessage("Error", "Please select a file to restore");
+                        this.showError("Please select a file to restore");
                         return;
                     }
 
-                    const formData = new FormData();
-                    formData.append('action', 'restore');
-                    formData.append('fileRestore', this.state.elements.fileRestore.files[0]);
+                    try {
+                        const formData = new FormData();
+                        formData.append('action', 'start_restore');
+                        formData.append('file', this.state.elements.fileRestore.files[0]);
 
-                    const result = await this.fetchData(formData);
+                        const response = await fetch(this.config.apiUrl, {
+                            method: 'POST',
+                            body: formData
+                        });
 
-                    if (result.ok) {
-                        this.state.taskId = result.thisTaskid;
-                        this.state.intervalMs = 1000;
-                        this.startMonitoring();
-                        showGoodMessage("Success", "Restore Task Begin");
-                    } else {
-                        showErrorMessage("Error", result.errMsg);
+                        if (response.ok) {
+                            const jsonObject = await response.json();
+                            this.state.taskId = jsonObject.TaskId;
+                            this.state.intervalMs = this.config.updateInterval;
+                            this.startMonitoring();
+                            this.showSuccess("Restore task started");
+                        } else {
+                            const errorText = await response.text();
+                            this.showError(`HTTP ${response.status}: ${errorText}`);
+                        }
+                    } catch (error) {
+                        this.showError(error.message);
                     }
                 },
 
-                // Stop function
                 async stopTask() {
                     if (!this.state.taskId || this.state.taskId === 0) {
-                        showErrorMessage("Error", "No active task to stop");
+                        this.showError("No active task to stop");
                         return;
                     }
 
-                    const formData = new FormData();
-                    formData.append("action", "stoptask");
-                    formData.append("taskid", this.state.taskId);
+                    try {
+                        const formData = new FormData();
+                        formData.append("action", "stop_task");
+                        formData.append("taskid", this.state.taskId);
 
-                    const result = await this.fetchData(formData);
+                        const response = await fetch(this.config.apiUrl, {
+                            method: 'POST',
+                            body: formData
+                        });
 
-                    if (result.ok) {
-                        showGoodMessage("The task is being called to stop.");
-                    } else {
-                        showErrorMessage("Error", result.errMsg);
+                        if (response.ok) {
+                            this.showSuccess("Task is being stopped");
+                        } else {
+                            const errorText = await response.text();
+                            this.showError(`HTTP ${response.status}: ${errorText}`);
+                            this.stopMonitoring();
+                        }
+                    } catch (error) {
+                        this.showError(error.message);
                         this.stopMonitoring();
                     }
                 },
 
-                // Monitor progress
                 async fetchStatus() {
                     this.state.apiCallId++;
 
-                    const formData = new FormData();
-                    formData.append('action', 'gettaskstatus');
-                    formData.append('taskid', this.state.taskId);
-                    formData.append('apicallid', this.state.apiCallId);
+                    try {
+                        const formData = new FormData();
+                        formData.append('action', 'get_status');
+                        formData.append('taskid', this.state.taskId);
+                        formData.append('api_call_index', this.state.apiCallId);
 
-                    const result = await this.fetchData(formData);
+                        const response = await fetch(this.config.apiUrl, {
+                            method: 'POST',
+                            body: formData
+                        });
 
-                    if (result.ok) {
-                        if (result.jsonObject.ApiCallIndex != this.state.apiCallId) {
-                            // late echo response - ignore
-                            return;
+                        if (response.ok) {
+                            const jsonObject = await response.json();
+
+                            if (jsonObject.ApiCallIndex != this.state.apiCallId) {
+                                // late echo response - ignore
+                                return;
+                            }
+
+                            console.log("before updateUIValues");
+                            console.log(jsonObject);
+                            this.updateUI(jsonObject);
+                        } else {
+                            const errorText = await response.text();
+                            this.showError(`HTTP ${response.status}: ${errorText}`);
+                            this.stopMonitoring();
                         }
-
-                        console.log("before updateUIValues");
-                        console.log(result.jsonObject);
-                        this.updateUI(result.jsonObject);
-                    } else {
-                        showErrorMessage("Error", result.errMsg);
+                    } catch (error) {
+                        this.showError(error.message);
                         this.stopMonitoring();
                     }
                 },
 
                 // Update UI with progress data
                 updateUI(data) {
+
                     // Optimize update frequency when task starts
                     if (data.PercentCompleted > 0 && this.state.intervalMs === this.config.updateInterval) {
                         this.state.intervalMs = this.config.fastUpdateInterval;
@@ -361,10 +327,10 @@
                     this.state.elements.percent.textContent = percent + '%';
 
                     // Update basic info
-                    this.state.elements.taskId.textContent = data.TaskId || '--';
-                    this.state.elements.timeStart.textContent = data.TimeStartDisplay || '--';
-                    this.state.elements.timeEnd.textContent = data.TimeEndDisplay || '--';
-                    this.state.elements.timeDuration.textContent = data.TimeUsedDisplay || '--';
+                    this.state.elements.taskId.textContent = data.TaskId;
+                    this.state.elements.timeStart.textContent = data.TimeStartDisplay;
+                    this.state.elements.timeEnd.textContent = data.TimeEndDisplay;
+                    this.state.elements.timeDuration.textContent = data.TimeUsedDisplay;
 
                     // Update status
                     if (data.HasError) {
@@ -391,40 +357,27 @@
                     // Update file info
                     if (data.FileName && data.FileName.length > 0) {
                         this.state.elements.filename.innerHTML =
-                            `<a href="${data.FileDownloadUrl}" target="_blank">${data.FileName}</a>`;
+                            `<a href="${data.FileDownloadWebPath}" target="_blank">${data.FileName}</a>`;
                     } else {
-                        this.state.elements.filename.textContent = data.FileName || '--';
+                        this.state.elements.filename.textContent = data.FileName;
                     }
-                    this.state.elements.sha256.textContent = data.SHA256 || '--';
+                    this.state.elements.sha256.textContent = data.FileSha256;
 
                     // Update backup-specific info
                     if (data.TaskType === 1) {
-                        this.state.elements.tableName.textContent = data.CurrentTableName || '--';
-                        this.state.elements.tableIndex.textContent = data.CurrentTableIndex || '--';
-                        this.state.elements.tableTotal.textContent = data.TotalTables || '--';
-                        this.state.elements.rowsCurrent.textContent = data.CurrentRowIndex || '--';
-                        this.state.elements.rowsTotal.textContent = data.TotalRows || '--';
-                        this.state.elements.tableRowsCurrent.textContent = data.CurrentRowCurrentTable || '--';
-                        this.state.elements.tableRowsTotal.textContent = data.TotalRowsCurrentTable || '--';
-
-                        // Clear restore fields
-                        this.state.elements.bytesCurrent.textContent = '--';
-                        this.state.elements.bytesTotal.textContent = '--';
+                        this.state.elements.tableName.textContent = data.CurrentTableName;
+                        this.state.elements.tableIndex.textContent = data.CurrentTableIndex;
+                        this.state.elements.tableTotal.textContent = data.TotalTables;
+                        this.state.elements.rowsCurrent.textContent = data.CurrentRows;
+                        this.state.elements.rowsTotal.textContent = data.TotalRows;
+                        this.state.elements.tableRowsCurrent.textContent = data.CurrentRowsCurrentTable;
+                        this.state.elements.tableRowsTotal.textContent = data.TotalRowsCurrentTable;
                     }
 
                     // Update restore-specific info
                     if (data.TaskType === 2) {
-                        this.state.elements.bytesCurrent.textContent = this.formatBytes(data.CurrentBytes) || '--';
-                        this.state.elements.bytesTotal.textContent = this.formatBytes(data.TotalBytes) || '--';
-
-                        // Clear backup fields
-                        this.state.elements.tableName.textContent = '--';
-                        this.state.elements.tableIndex.textContent = '--';
-                        this.state.elements.tableTotal.textContent = '--';
-                        this.state.elements.rowsCurrent.textContent = '--';
-                        this.state.elements.rowsTotal.textContent = '--';
-                        this.state.elements.tableRowsCurrent.textContent = '--';
-                        this.state.elements.tableRowsTotal.textContent = '--';
+                        this.state.elements.bytesCurrent.textContent = this.formatBytes(data.CurrentBytes);
+                        this.state.elements.bytesTotal.textContent = this.formatBytes(data.TotalBytes);
                     }
 
                     // Call progress callback
@@ -494,11 +447,71 @@
                     };
                 },
 
-                destroy() {
+                remove() {
+                    // Stop any running monitoring
                     this.stopMonitoring();
+
+                    // Clear the task state
+                    this.state.taskId = 0;
+                    this.state.apiCallId = 0;
+
+                    // Remove all event listeners by cloning and replacing elements
+                    const buttonsToClean = [
+                        `mbp-btn-backup-${this.config.widgetId}`,
+                        `mbp-btn-restore-${this.config.widgetId}`,
+                        `mbp-btn-stop-${this.config.widgetId}`,
+                        `mbp-btn-remove-${this.config.widgetId}`
+                    ];
+
+                    buttonsToClean.forEach(buttonId => {
+                        const button = document.getElementById(buttonId);
+                        if (button) {
+                            const newButton = button.cloneNode(true);
+                            button.parentNode.replaceChild(newButton, button);
+                        }
+                    });
+
+                    // Clear element references
+                    this.state.elements = {};
+
+                    // Remove the widget from DOM
                     if (this.config.container) {
                         this.config.container.innerHTML = '';
+                        this.config.container.removeAttribute('data-mysqlbackup-widget');
                     }
+
+                    // Clear configuration
+                    this.config.container = null;
+                    this.config.onComplete = null;
+                    this.config.onError = null;
+                    this.config.onProgress = null;
+
+                    console.log('MySqlBackupProgress: Widget removed from DOM');
+                },
+
+                showSuccess(msg) {
+                    try {
+                        showGoodMessage("Ok", msg);
+                    }
+                    catch (err) {
+                        console.log(msg);
+                        conosle.log(err);
+                    }
+                },
+
+                showError(msg) {
+                    try {
+                        showErrorMessage("Error", msg);
+                    }
+                    catch (err) {
+                        console.log(msg);
+                        conosle.log(err);
+                    }
+                },
+
+                // Also update the destroy() method to be more thorough:
+                destroy() {
+                    this.remove(); // Use the remove method for complete cleanup
                 }
             };
 

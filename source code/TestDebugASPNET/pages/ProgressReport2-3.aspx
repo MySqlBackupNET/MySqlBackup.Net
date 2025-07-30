@@ -58,7 +58,12 @@
             div.append(newWidget);
 
             // Build a MySqlBackupProgress widget object
-            MySqlBackupProgress.init(newWidget.id, { apiUrl: urlApiEndPoint, widgetId: newWidgetId });
+            MySqlBackupProgress.init(
+                newWidget.id,
+                {
+                    apiUrl: urlApiEndPoint,
+                    widgetId: newWidgetId
+                });
         }
 
         function changeTheme(themename) {

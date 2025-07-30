@@ -107,8 +107,6 @@
 
     <script>
 
-        let currentPercent = 0;
-
         let divThemes = document.querySelector("#divThemes");
 
         let linkThemeFile = document.getElementById("linkThemeFile");
@@ -164,8 +162,6 @@
         async function startBackup() {
             resetUIValues();
             disableButtons();
-
-            currentPercent = 0;
 
             try {
                 const formData = new FormData();
@@ -371,14 +367,6 @@
         }
 
         function updateUIValues(taskInfo) {
-
-            if (taskInfo.PercentCompleted < currentPercent) {
-                // late echo, ignore
-                return;
-            }
-            else {
-                currentPercent = taskInfo.PercentCompleted;
-            }
 
             // Basic task information
             labelTaskId.textContent = taskInfo.TaskId || "--";

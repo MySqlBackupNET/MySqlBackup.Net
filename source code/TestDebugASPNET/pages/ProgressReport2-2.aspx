@@ -110,11 +110,6 @@
 
     <script>
 
-        let taskid = 0;
-        let apicallid = 0;
-        let intervalTimer = null;
-        let intervalMs = 1000;
-
         let divThemes = document.querySelector("#divThemes");
 
         let linkThemeFile = document.getElementById("linkThemeFile");
@@ -140,90 +135,36 @@
         let labelCurrentBytes = document.querySelector("#labelCurrentBytes");
         let lableTotalBytes = document.querySelector("#lableTotalBytes");
 
-        async function fetchData(formData) {
-
-            try {
-                let action = formData.get("action") || "";
-
-                const response = await fetch('/apiProgressReport2', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'include'
-                });
-
-                if (response.ok) {
-
-                    const responseText = await response.text();
-
-                    if (responseText.startsWith("0|")) {
-                        let err = responseText.substring(2);
-                        return { ok: false, errMsg: err };
-                    }
-                    else {
-                        if (!responseText || responseText.trim() === '') {
-                            let err = "Empty response from server";
-                            return { ok: false, errMsg: err };
-                        }
-                        else {
-
-                            // Success
-
-                            if (action == "backup" || action == "restore") {
-                                let _thisTaskid = parseInt(responseText);
-                                if (isNaN(_thisTaskid)) {
-                                    let err = `Invalid Task ID: ${_thisTaskid}`;
-                                    return { ok: false, errMsg: err };
-                                }
-                                else {
-                                    return { ok: true, thisTaskid: _thisTaskid };
-                                }
-                            }
-                            else if (action == "stoptask") {
-                                if (responseText == "1") {
-                                    return { ok: true };
-                                }
-                                else {
-                                    let err = `Unable to stop task`;
-                                    return { ok: false, errMsg: err };
-                                }
-                            }
-                            else if (action == "gettaskstatus") {
-                                try {
-                                    let thisJsonObject = JSON.parse(responseText);
-                                    return { ok: true, jsonObject: thisJsonObject };
-                                }
-                                catch (err) {
-                                    return { ok: false, errMsg: err };
-                                }
-                            }
-                        }
-                    }
-                }
-                else {
-                    const err = await response.text();
-                    return { ok: false, errMsg: err };
-                }
-            }
-            catch (err) {
-                return { ok: false, errMsg: err };
-            }
-        }
+        let taskid = 0;
+        let apicallid = 0;
+        let intervalTimer = null;
+        let intervalMs = 1000;
+        let urlApi = "/apiProgressReport2";
 
         async function backup() {
             resetUIValues();
 
-            const formData = new FormData();
-            formData.append('action', 'backup');
+            try {
+                const formData = new FormData();
+                formData.append('action', 'start_backup');
 
-            const result = await fetchData(formData);
+                const response = await fetch(urlApi, {
+                    method: 'POST',
+                    body: formData
+                });
 
-            if (result.ok) {
-                taskid = result.thisTaskid;
-                intervalMs = 1000;
-                startIntervalTimer();
-                showGoodMessage("Success", "Backup Task Begin");
-            } else {
-                showErrorMessage("Error", result.errMsg);
+                if (response.ok) {
+                    const jsonObject = await response.json();
+                    taskid = jsonObject.TaskId;
+                    intervalMs = 1000;
+                    startIntervalTimer();
+                    showGoodMessage("Success", "Backup Task Begin");
+                } else {
+                    const errorText = await response.text();
+                    showErrorMessage("Error", `HTTP ${response.status}: ${errorText}`);
+                }
+            } catch (error) {
+                showErrorMessage("Error", error.message);
             }
         }
 
@@ -235,19 +176,28 @@
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('action', 'restore');
-            formData.append('fileRestore', fileRestore.files[0]);
+            try {
+                const formData = new FormData();
+                formData.append('action', 'start_restore');
+                formData.append('file', fileRestore.files[0]);
 
-            const result = await fetchData(formData);
+                const response = await fetch(urlApi, {
+                    method: 'POST',
+                    body: formData
+                });
 
-            if (result.ok) {
-                taskid = result.thisTaskid;
-                intervalMs = 1000;
-                startIntervalTimer();
-                showGoodMessage("Success", "Restore Task Begin");
-            } else {
-                showErrorMessage("Error", result.errMsg);
+                if (response.ok) {
+                    const jsonObject = await response.json();
+                    taskid = jsonObject.TaskId;
+                    intervalMs = 1000;
+                    startIntervalTimer();
+                    showGoodMessage("Success", "Restore Task Begin");
+                } else {
+                    const errorText = await response.text();
+                    showErrorMessage("Error", `HTTP ${response.status}: ${errorText}`);
+                }
+            } catch (error) {
+                showErrorMessage("Error", error.message);
             }
         }
 
@@ -257,16 +207,25 @@
                 return;
             }
 
-            const formData = new FormData();
-            formData.append("action", "stoptask");
-            formData.append("taskid", taskid);
+            try {
+                const formData = new FormData();
+                formData.append("action", "stop_task");
+                formData.append("taskid", taskid);
 
-            const result = await fetchData(formData);
+                const response = await fetch('/pages/apiProgressReport2.aspx', {
+                    method: 'POST',
+                    body: formData
+                });
 
-            if (result.ok) {
-                showGoodMessage("The task is being called to stop.");
-            } else {
-                showErrorMessage("Error", result.errMsg);
+                if (response.ok) {
+                    showGoodMessage("The task is being called to stop.");
+                } else {
+                    const errorText = await response.text();
+                    showErrorMessage("Error", `HTTP ${response.status}: ${errorText}`);
+                    stopIntervalTimer();
+                }
+            } catch (error) {
+                showErrorMessage("Error", error.message);
                 stopIntervalTimer();
             }
         }
@@ -274,23 +233,34 @@
         async function fetchTaskStatus() {
             apicallid++;
 
-            const formData = new FormData();
-            formData.append('action', 'gettaskstatus');
-            formData.append('taskid', taskid);
-            formData.append('apicallid', apicallid);
+            try {
+                const formData = new FormData();
+                formData.append('action', 'get_status');
+                formData.append('taskid', taskid);
+                formData.append('api_call_index', apicallid);
 
-            const result = await fetchData(formData);
+                const response = await fetch(urlApi, {
+                    method: 'POST',
+                    body: formData
+                });
 
-            if (result.ok) {
-                if (result.jsonObject.ApiCallIndex != apicallid) {
-                    // late echo response - ignore
-                    return;
+                if (response.ok) {
+                    const jsonObject = await response.json();
+
+                    if (jsonObject.ApiCallIndex != apicallid) {
+                        // late echo response - ignore
+                        return;
+                    }
+
+                    console.log("before updateUIValues");
+                    updateUIValues(jsonObject);
+                } else {
+                    const errorText = await response.text();
+                    showErrorMessage("Error", `HTTP ${response.status}: ${errorText}`);
+                    stopIntervalTimer();
                 }
-
-                console.log("before updateUIValues");
-                updateUIValues(result.jsonObject);
-            } else {
-                showErrorMessage("Error", result.errMsg);
+            } catch (error) {
+                showErrorMessage("Error", error.message);
                 stopIntervalTimer();
             }
         }
@@ -326,7 +296,7 @@
 
             if (jsonObject.PercentCompleted > 0) {
                 if (intervalMs == 1000) {
-                    intervalMs = 100;
+                    intervalMs = 200;
                     stopIntervalTimer();
                     setTimeout(() => { startIntervalTimer(); }, 500);
                 }
@@ -336,23 +306,21 @@
                 stopIntervalTimer();
             }
 
-            labelTaskId.textContent = jsonObject.TaskId || "";
-            lableTimeStart.textContent = jsonObject.TimeStartDisplay || "";
-            lableTimeEnd.textContent = jsonObject.TimeEndDisplay || "";
-            lableTimeElapse.textContent = jsonObject.TimeUsedDisplay || "";
+            labelTaskId.textContent = jsonObject.TaskId;
+            lableTimeStart.textContent = jsonObject.TimeStartDisplay;
+            lableTimeEnd.textContent = jsonObject.TimeEndDisplay;
+            lableTimeElapse.textContent = jsonObject.TimeUsedDisplay;
 
-            // Update progress bar and percentage
-            const percent = jsonObject.PercentCompleted || 0;
+            const percent = jsonObject.PercentCompleted;
             labelPercent.style.display = "block";
             labelPercent.textContent = percent;
             progress_bar_indicator.style.width = percent + '%';
 
-            // Task status with color coding
             const statusCell = taskStatus.closest('td');
 
             if (jsonObject.HasError) {
                 taskStatus.textContent = "Error: ";
-                taskMessage.textContent = jsonObject.ErrorMsg || "";
+                taskMessage.textContent = jsonObject.ErrorMsg;
                 statusCell.className = "status-error";
             }
             else if (jsonObject.IsCancelled) {
@@ -371,41 +339,26 @@
                 statusCell.className = "status-running";
             }
 
-            if (jsonObject.FileName && jsonObject.FileName.length > 0) {
-                labelSqlFilename.innerHTML = `File: <a href='/apiFiles?folder=backup&filename=${jsonObject.FileName}' class='mainbutton'>Download</a>`;
+            if (jsonObject.FileDownloadWebPath && jsonObject.FileDownloadWebPath.length > 0) {
+                labelSqlFilename.innerHTML = `File: <a href='${jsonObject.FileDownloadWebPath}' class='mainbutton'>Download</a>`;
             } else {
-                labelSqlFilename.textContent = jsonObject.FileName || "---";
+                labelSqlFilename.textContent = jsonObject.FileName;
             }
-            labelSha256.textContent = jsonObject.SHA256 || "---";
+            labelSha256.textContent = jsonObject.FileSha256;
 
-            // Export/Backup specific data (table information)
             if (jsonObject.TaskType === 1) {
-                labelCurTableName.textContent = jsonObject.CurrentTableName || "";
-                labelCurTableIndex.textContent = jsonObject.CurrentTableIndex || "";
-                labelTotalTables.textContent = jsonObject.TotalTables || "";
-                labelCurrentRowsAllTables.textContent = jsonObject.CurrentRowIndex || "";
-                labelTotalRowsAllTable.textContent = jsonObject.TotalRows || "0";
-                labelCurrentRowsCurrentTables.textContent = jsonObject.CurrentRowCurrentTable || "";
-                labelTotalRowsCurrentTable.textContent = jsonObject.TotalRowsCurrentTable || "0";
-
-                // Clear bytes for backup
-                labelCurrentBytes.textContent = "---";
-                lableTotalBytes.textContent = "---";
+                labelCurTableName.textContent = jsonObject.CurrentTableName;
+                labelCurTableIndex.textContent = jsonObject.CurrentTableIndex;
+                labelTotalTables.textContent = jsonObject.TotalTables;
+                labelCurrentRowsAllTables.textContent = jsonObject.CurrentRows;
+                labelTotalRowsAllTable.textContent = jsonObject.TotalRows;
+                labelCurrentRowsCurrentTables.textContent = jsonObject.CurrentRowsCurrentTable;
+                labelTotalRowsCurrentTable.textContent = jsonObject.TotalRowsCurrentTable;
             }
 
-            // Import/Restore specific data (bytes information)
             if (jsonObject.TaskType === 2) {
-                labelCurrentBytes.textContent = jsonObject.CurrentBytes || "";
-                lableTotalBytes.textContent = jsonObject.TotalBytes || "";
-
-                // Clear table info for restore
-                labelCurTableName.textContent = "---";
-                labelCurTableIndex.textContent = "--";
-                labelTotalTables.textContent = "--";
-                labelCurrentRowsAllTables.textContent = "--";
-                labelTotalRowsAllTable.textContent = "--";
-                labelCurrentRowsCurrentTables.textContent = "--";
-                labelTotalRowsCurrentTable.textContent = "--";
+                labelCurrentBytes.textContent = jsonObject.CurrentBytes;
+                lableTotalBytes.textContent = jsonObject.TotalBytes;
             }
         }
 
