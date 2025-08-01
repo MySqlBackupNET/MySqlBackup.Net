@@ -25,7 +25,7 @@ namespace System.pages
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Check if this is an SSE request
+            // Check if this is an Server-Sent Event request
             if (Request.Headers["Accept"] == "text/event-stream" || Request.QueryString["stream"] == "true")
             {
                 HandleSSERequest();
@@ -46,13 +46,13 @@ namespace System.pages
                     case "start_restore":
                         StartRestore();
                         break;
-                    case "getstatus":
+                    case "get_status":
                         GetStatus();
                         break;
-                    case "stop":
+                    case "stop_task":
                         Stop();
                         break;
-                    case "getalltask":
+                    case "get_all_task":
                         GetAllTasks();
                         break;
                     case "removetask":
@@ -98,6 +98,7 @@ namespace System.pages
             {
                 Response.StatusCode = 401;
                 Response.Write("Unauthorized");
+                Response.End();
                 return;
             }
 
@@ -105,6 +106,7 @@ namespace System.pages
             {
                 Response.StatusCode = 400;
                 Response.Write("Invalid or missing taskid parameter");
+                Response.End();
                 return;
             }
 

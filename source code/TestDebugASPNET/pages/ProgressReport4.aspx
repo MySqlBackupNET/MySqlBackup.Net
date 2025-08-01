@@ -234,7 +234,7 @@
 
             try {
                 const formData = new FormData();
-                formData.append('action', 'stop');
+                formData.append('action', 'stop_task');
                 formData.append('taskid', currentTaskId);
 
                 const result = await fetch(urlApiEndpoint, {
