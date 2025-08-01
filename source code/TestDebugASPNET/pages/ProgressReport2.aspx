@@ -310,7 +310,7 @@
                 if (result.ok) {
                     let jsonObject = await result.json();
 
-                    if (jsonObject.api_call_index != api_call_index) {
+                    if (jsonObject.ApiCallIndex != api_call_index) {
                         // late echo, ignore
                         return;
                     }
