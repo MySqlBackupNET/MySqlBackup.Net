@@ -191,6 +191,7 @@
         let urlApi = "/apiProgressReport2";
         let intervalTimer = null;
         let networkErrorCount = 0;
+        let api_call_index = 0;
 
         async function startBackup() {
 
@@ -292,9 +293,13 @@
 
         async function getStatus() {
             try {
+                // increment the api call index
+                api_call_index++;
+
                 const formData = new FormData();
                 formData.append("action", "get_status");
                 formData.append("taskid", currentTaskId);
+                formData.append("api_call_index", api_call_index);
 
                 const result = await fetch(urlApi, {
                     method: "POST",
@@ -304,6 +309,12 @@
 
                 if (result.ok) {
                     let jsonObject = await result.json();
+
+                    if (jsonObject.api_call_index != api_call_index) {
+                        // late echo, ignore
+                        return;
+                    }
+
                     updateUiValues(jsonObject);
                 }
                 else {
