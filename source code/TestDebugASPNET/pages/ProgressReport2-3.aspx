@@ -27,9 +27,7 @@
             <button type="button" onclick="changeTheme('light');">Light</button>
             <button type="button" onclick="changeTheme('dark');">Dark</button>
             <button type="button" onclick="changeTheme('cyberpunk');">Cyberpunk</button>
-            <button type="button" onclick="changeTheme('retro');">
-                Terminal<br />
-                Alien 1986</button>
+            <button type="button" onclick="changeTheme('retro');">Retro Terminal</button>
             <button type="button" onclick="changeTheme('steampunk');">
                 Steampunk<br />
                 Victorian</button>

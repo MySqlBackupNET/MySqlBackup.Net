@@ -22,6 +22,10 @@
 
             <a href="/ProgressReport3">Progress Report 3</a> - (With Theme) Using Web Socket for Backend Server Pro-Actively Send Progress Status Data to FrontEnd
 
+            <h2>Using Server-Sent Event</h2>
+
+            <a href="/ProgressReport4">Progress Report 4</a> - (With Theme) Using Server-Sent Event for Backend Server to Send Progress Status to Frontend
+
             <div style="border: 1px solid #c8e8ff; max-width: 900px; padding: 10px; background: #e4f4ff; margin-top: 15px;">
                 Demo Theme: Light | Dark | Cyberpunk | Alien 1986 Terminal | Steampunk Victorian | Solar Fire | Futuristic HUD
             </div>

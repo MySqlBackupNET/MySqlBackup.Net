@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/masterPage1.Master" AutoEventWireup="true" CodeBehind="ProgressReport3.aspx.cs" Inherits="System.pages.ProgressReport3" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/masterPage1.Master" AutoEventWireup="true" CodeBehind="ProgressReport4.aspx.cs" Inherits="System.pages.ProgressReport4" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 
@@ -8,14 +8,14 @@
             margin: 15px 0;
         }
     </style>
-    <link id="linkThemeFile" href="/cssjs/MySqlBackup-Progress-Widget-Theme/steampunk.css" rel="stylesheet" />
+    <link id="linkThemeFile" href="/cssjs/MySqlBackup-Progress-Widget-Theme/light.css" rel="stylesheet" />
 
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
 
     <div class="div-center-framed-content">
 
-        <h1>Progress Report 3 - Web Socket</h1>
+        <h1>Progress Report 4 - Server Sent Event</h1>
 
         <button type="button" id="btnBackup">Backup</button>
         <button type="button" id="btnRestore">Restore</button>
@@ -131,7 +131,7 @@
         let lableTotalBytes = document.querySelector("#lableTotalBytes");
 
         // Routed URL API Endpoint
-        let urlApiEndpoint = "/apiProgressReport3";
+        let urlApiEndpoint = "/apiProgressReport4-ServerSentEvent";
 
         function changeTheme(themename) {
 
@@ -143,7 +143,7 @@
 
         // Global variables
         let currentTaskId = 0;
-        let webSocket = null;
+        let eventSource = null;
         let isConnecting = false;
 
         // Button references (add to existing button declarations)
@@ -175,7 +175,7 @@
                     let jsonObject = await result.json();
                     currentTaskId = jsonObject.TaskId;
                     showGoodMessage("Success", jsonObject.Status);
-                    connectWebSocket(currentTaskId);
+                    connectSSE(currentTaskId);
                 }
                 else {
                     let errMsg = await result.text();
@@ -213,7 +213,7 @@
                     let jsonObject = await result.json();
                     currentTaskId = jsonObject.TaskId;
                     showGoodMessage("Success", jsonObject.Status);
-                    connectWebSocket(currentTaskId);
+                    connectSSE(currentTaskId);
                 }
                 else {
                     let errMsg = await result.text();
@@ -254,80 +254,82 @@
             }
         }
 
-        // WebSocket Functions
-        function connectWebSocket(taskId) {
-            if (isConnecting || (webSocket && webSocket.readyState === WebSocket.OPEN)) {
+        function connectSSE(taskId) {
+            if (isConnecting || (eventSource && eventSource.readyState === EventSource.OPEN)) {
                 return;
             }
 
             isConnecting = true;
 
-            // Determine WebSocket URL (ws:// or wss://)
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}/${urlApiEndpoint}`;
-
             try {
-                webSocket = new WebSocket(wsUrl);
+                // Create SSE connection
+                const sseUrl = `${urlApiEndpoint}?stream=true&taskId=${taskId}`;
+                eventSource = new EventSource(sseUrl);
 
-                webSocket.onopen = function () {
-                    console.log('WebSocket connected');
+                eventSource.onopen = function (event) {
+                    console.log('SSE connected');
                     isConnecting = false;
-
-                    // Subscribe to task updates
-                    webSocket.send(`subscribe:${taskId}`);
                 };
 
-                webSocket.onmessage = function (event) {
+                // Handle different event types
+                eventSource.addEventListener('connected', function (event) {
+                    console.log('SSE subscription:', event.data);
+                });
+
+                eventSource.addEventListener('progress', function (event) {
                     try {
                         const data = JSON.parse(event.data);
-
-                        if (data.Error) {
-                            showErrorMessage("WebSocket Error", data.Error);
-                            return;
-                        }
-
                         updateUIValues(data);
-
-                        // Close WebSocket when task is completed
-                        if (data.IsCompleted || data.HasError || data.IsCancelled) {
-                            closeWebSocket();
-                        }
-
                     } catch (err) {
-                        console.error('Error parsing WebSocket message:', err);
+                        console.error('Error parsing SSE progress data:', err);
+                    }
+                });
+
+                eventSource.addEventListener('completed', function (event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        updateUIValues(data);
+                        showGoodMessage("Task Completed", "Task finished successfully");
+                        closeSSE();
+                    } catch (err) {
+                        console.error('Error parsing SSE completion data:', err);
+                    }
+                });
+
+                eventSource.addEventListener('error', function (event) {
+                    showErrorMessage("SSE Error", event.data || "Connection error");
+                    closeSSE();
+                });
+
+                eventSource.addEventListener('heartbeat', function (event) {
+                    console.log('SSE heartbeat:', event.data);
+                });
+
+                eventSource.onerror = function (event) {
+                    console.error('SSE error:', event);
+                    isConnecting = false;
+
+                    if (eventSource.readyState === EventSource.CLOSED) {
+                        showErrorMessage("Connection Error", "SSE connection failed");
+                        enableButtons();
                     }
                 };
 
-                webSocket.onclose = function (event) {
-                    console.log('WebSocket closed:', event.code, event.reason);
-                    isConnecting = false;
-                    webSocket = null;
-                    enableButtons();
-                };
-
-                webSocket.onerror = function (error) {
-                    console.error('WebSocket error:', error);
-                    isConnecting = false;
-                    showErrorMessage("Connection Error", "WebSocket connection failed");
-                    enableButtons();
-                };
-
             } catch (err) {
-                console.error('Failed to create WebSocket:', err);
+                console.error('Failed to create SSE connection:', err);
                 isConnecting = false;
-                showErrorMessage("Connection Error", "Failed to establish WebSocket connection");
+                showErrorMessage("Connection Error", "Failed to establish SSE connection");
                 enableButtons();
             }
         }
 
-        function closeWebSocket() {
-            if (webSocket) {
-                if (webSocket.readyState === WebSocket.OPEN) {
-                    webSocket.close(1000, "Task completed");
-                }
-                webSocket = null;
+        function closeSSE() {
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
             }
             isConnecting = false;
+            enableButtons();
         }
 
         // UI Update Functions
@@ -456,9 +458,8 @@
             currentTaskId = 0;
         }
 
-        // Cleanup on page unload
         window.addEventListener('beforeunload', function () {
-            closeWebSocket();
+            closeSSE();
         });
 
     </script>
