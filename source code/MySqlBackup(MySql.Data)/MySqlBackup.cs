@@ -2706,7 +2706,7 @@ namespace MySql.Data.MySqlClient
         {
             stopProcess = true;
             Command?.Cancel();
-            timerReport.Stop();
+            timerReport?.Stop();
 
             // Signal BlockingCollections to stop
             try
@@ -2729,7 +2729,7 @@ namespace MySql.Data.MySqlClient
             // Wait for tasks to complete with timeout
             try
             {
-                if (_phase1Task != null || _phase2Task != null || _phase3Task != null)
+                if (_phase1Task != null || _phase2Task != null || _phase3Task != null || _importPhase1Task != null || _importPhase2Task != null)
                 {
                     var tasks = new List<Task>();
                     if (_phase1Task != null) tasks.Add(_phase1Task);
@@ -2770,36 +2770,5 @@ namespace MySql.Data.MySqlClient
                 textReader = null;
             }
         }
-
-        //public void StopAllProcess()
-        //{
-        //    stopProcess = true;
-        //    Command?.Cancel();
-        //    timerReport.Stop();
-        //}
-
-        //public void Dispose()
-        //{
-        //    StopAllProcess();
-
-        //    if (timerReport != null)
-        //    {
-        //        timerReport.Stop();
-        //        timerReport.Dispose();
-        //        timerReport = null;
-        //    }
-
-        //    if (textWriter != null)
-        //    {
-        //        textWriter.Dispose();
-        //        textWriter = null;
-        //    }
-
-        //    if (textReader != null)
-        //    {
-        //        textReader.Dispose();
-        //        textReader = null;
-        //    }
-        //}
     }
 }

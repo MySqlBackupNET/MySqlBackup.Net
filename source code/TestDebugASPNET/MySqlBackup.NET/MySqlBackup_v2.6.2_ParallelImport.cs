@@ -2705,7 +2705,7 @@ namespace MySqlConnector
         {
             stopProcess = true;
             Command?.Cancel();
-            timerReport.Stop();
+            timerReport?.Stop();
 
             // Signal BlockingCollections to stop
             try
@@ -2742,9 +2742,10 @@ namespace MySqlConnector
             }
             catch
             {
-
+                // Ignore timeout exceptions
             }
 
+            // Dispose BlockingCollections
             _rowDataCollection?.Dispose();
             _sqlStatementCollection?.Dispose();
             _importQueryCollection?.Dispose();

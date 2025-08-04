@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup(Devart-Express)
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup(MySql.Data)", "MySqlBackup(MySql.Data)\MySqlBackup(MySql.Data).csproj", "{D2D668B6-0937-4497-9492-249553AB2A94}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsDemo", "WinFormsDemo\WinFormsDemo.csproj", "{3524FA2C-EA2B-4B3E-88B6-B5F240D5014A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,14 @@ Global
 		{D2D668B6-0937-4497-9492-249553AB2A94}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D2D668B6-0937-4497-9492-249553AB2A94}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
 		{D2D668B6-0937-4497-9492-249553AB2A94}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
+		{3524FA2C-EA2B-4B3E-88B6-B5F240D5014A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3524FA2C-EA2B-4B3E-88B6-B5F240D5014A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3524FA2C-EA2B-4B3E-88B6-B5F240D5014A}.NET20|Any CPU.ActiveCfg = Debug|Any CPU
+		{3524FA2C-EA2B-4B3E-88B6-B5F240D5014A}.NET20|Any CPU.Build.0 = Debug|Any CPU
+		{3524FA2C-EA2B-4B3E-88B6-B5F240D5014A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3524FA2C-EA2B-4B3E-88B6-B5F240D5014A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3524FA2C-EA2B-4B3E-88B6-B5F240D5014A}.ReleaseNET40_Only|Any CPU.ActiveCfg = Release|Any CPU
+		{3524FA2C-EA2B-4B3E-88B6-B5F240D5014A}.ReleaseNET40_Only|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
