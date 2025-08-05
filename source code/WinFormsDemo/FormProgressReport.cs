@@ -355,6 +355,7 @@ namespace WinFormsDemo
             if (taskInfo.HasError)
             {
                 WriteStatus($"{taskInfo.TaskName} task has error");
+                WriteStatus($"{taskInfo.ErrorMsg}");
             }
 
             if (taskInfo.IsCancelled)
