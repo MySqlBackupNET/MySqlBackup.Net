@@ -1367,6 +1367,18 @@ namespace Devart.Data.MySql
 
         void Phase2_ProcessRowData(RowData rowData, ref string currentInsertHeader, StringBuilder currentSqlBuilder, ref long currentSqlByteLength, ref bool isFirstRowInStatement, RowsDataExportMode exportMode)
         {
+            if (exportMode == RowsDataExportMode.Update)
+            {
+                Phase2_ProcessRowData_Update(rowData, currentSqlBuilder);
+                return;
+            }
+
+            if (exportMode == RowsDataExportMode.OnDuplicateKeyUpdate)
+            {
+                Phase2_ProcessRowData_OnDuplicateKeyUpdate(rowData, ref currentInsertHeader, currentSqlBuilder);
+                return;
+            }
+
             // Generate insert header if needed
             if (currentInsertHeader == null)
             {
@@ -1433,6 +1445,172 @@ namespace Devart.Data.MySql
 
             currentSqlBuilder.Append(valueString);
             currentSqlByteLength += sqlValueByteLength;
+        }
+
+        void Phase2_ProcessRowData_Update(RowData rowData, StringBuilder currentSqlBuilder)
+        {
+            MySqlTable table = rowData.Table;
+
+            // If all columns are primary keys or all are non-primary, fall back to INSERT
+            bool allPrimaryField = true;
+            bool allNonPrimaryField = true;
+            foreach (var col in table.Columns)
+            {
+                if (!col.IsPrimaryKey) allPrimaryField = false;
+                if (col.IsPrimaryKey) allNonPrimaryField = false;
+            }
+
+            if (allPrimaryField || allNonPrimaryField)
+            {
+                // Emit as a single-row INSERT
+                string header = Export_GetInsertStatementHeaderFromRowData(RowsDataExportMode.Insert, rowData);
+                StringBuilder sbVal = new StringBuilder();
+                Export_GetValueStringFromRowData(rowData, sbVal);
+
+                currentSqlBuilder.Append(header);
+                currentSqlBuilder.Append(sbVal);
+                currentSqlBuilder.AppendLine(";");
+
+                _sqlStatementCollection.Add(new SqlStatement
+                {
+                    SQL = currentSqlBuilder.ToString(),
+                    IsComplete = true,
+                    FlushRequired = false
+                });
+                currentSqlBuilder.Clear();
+                return;
+            }
+
+            // UPDATE `table` SET col=val,... WHERE pk=val AND ...;
+            currentSqlBuilder.Append("UPDATE `");
+            currentSqlBuilder.Append(QueryExpress.EscapeIdentifier(rowData.TableName));
+            currentSqlBuilder.Append("` SET ");
+            Phase2_GetUpdateStringFromRowData(rowData, currentSqlBuilder);
+            currentSqlBuilder.Append(" WHERE ");
+            Phase2_GetConditionStringFromRowData(rowData, currentSqlBuilder);
+            currentSqlBuilder.AppendLine(";");
+
+            _sqlStatementCollection.Add(new SqlStatement
+            {
+                SQL = currentSqlBuilder.ToString(),
+                IsComplete = true,
+                FlushRequired = false
+            });
+            currentSqlBuilder.Clear();
+        }
+
+        void Phase2_ProcessRowData_OnDuplicateKeyUpdate(RowData rowData, ref string currentInsertHeader, StringBuilder currentSqlBuilder)
+        {
+            MySqlTable table = rowData.Table;
+
+            // If all columns are primary keys, fall back to INSERT (no non-PK columns to update)
+            bool allPrimaryField = true;
+            foreach (var col in table.Columns)
+            {
+                if (!col.IsPrimaryKey)
+                {
+                    allPrimaryField = false;
+                    break;
+                }
+            }
+
+            if (allPrimaryField)
+            {
+                // Emit as a single-row INSERT
+                string header = Export_GetInsertStatementHeaderFromRowData(RowsDataExportMode.Insert, rowData);
+                StringBuilder sbVal = new StringBuilder();
+                Export_GetValueStringFromRowData(rowData, sbVal);
+
+                currentSqlBuilder.Append(header);
+                currentSqlBuilder.Append(sbVal);
+                currentSqlBuilder.AppendLine(";");
+
+                _sqlStatementCollection.Add(new SqlStatement
+                {
+                    SQL = currentSqlBuilder.ToString(),
+                    IsComplete = true,
+                    FlushRequired = false
+                });
+                currentSqlBuilder.Clear();
+                return;
+            }
+
+            // INSERT INTO `table`(cols) VALUES(vals) ON DUPLICATE KEY UPDATE col=val,...;
+            if (currentInsertHeader == null)
+            {
+                currentInsertHeader = Export_GetInsertStatementHeaderFromRowData(RowsDataExportMode.Insert, rowData);
+            }
+
+            currentSqlBuilder.Append(currentInsertHeader);
+
+            StringBuilder sbValue = new StringBuilder();
+            Export_GetValueStringFromRowData(rowData, sbValue);
+            currentSqlBuilder.Append(sbValue);
+
+            currentSqlBuilder.Append(" ON DUPLICATE KEY UPDATE ");
+            Phase2_GetUpdateStringFromRowData(rowData, currentSqlBuilder);
+            currentSqlBuilder.AppendLine(";");
+
+            _sqlStatementCollection.Add(new SqlStatement
+            {
+                SQL = currentSqlBuilder.ToString(),
+                IsComplete = true,
+                FlushRequired = false
+            });
+            currentSqlBuilder.Clear();
+        }
+
+        void Phase2_GetUpdateStringFromRowData(RowData rowData, StringBuilder sb)
+        {
+            bool isFirst = true;
+
+            for (int i = 0; i < rowData.ColumnNames.Length; i++)
+            {
+                string columnName = rowData.ColumnNames[i];
+                var col = rowData.Table.Columns[columnName];
+
+                if (col.IsGeneratedColumn)
+                    continue;
+
+                if (!col.IsPrimaryKey)
+                {
+                    if (isFirst)
+                        isFirst = false;
+                    else
+                        sb.Append(",");
+
+                    sb.Append("`");
+                    sb.Append(QueryExpress.EscapeIdentifier(columnName));
+                    sb.Append("`=");
+
+                    QueryExpress.ConvertToSqlFormat(sb, rowData.Values[i], col, true, true);
+                }
+            }
+        }
+
+        void Phase2_GetConditionStringFromRowData(RowData rowData, StringBuilder sb)
+        {
+            bool isFirst = true;
+
+            for (int i = 0; i < rowData.ColumnNames.Length; i++)
+            {
+                string columnName = rowData.ColumnNames[i];
+                var col = rowData.Table.Columns[columnName];
+
+                if (col.IsPrimaryKey)
+                {
+                    if (isFirst)
+                        isFirst = false;
+                    else
+                        sb.Append(" and ");
+
+                    sb.Append("`");
+                    sb.Append(QueryExpress.EscapeIdentifier(columnName));
+                    sb.Append("`=");
+
+                    QueryExpress.ConvertToSqlFormat(sb, rowData.Values[i], col, true, true);
+                }
+            }
         }
 
         void Phase3_WriteOutput()
@@ -2704,70 +2882,59 @@ namespace Devart.Data.MySql
         public void StopAllProcess()
         {
             stopProcess = true;
-            Command?.Cancel();
-            timerReport?.Stop();
+            try { Command?.Cancel(); } catch { }
+            try { timerReport?.Stop(); } catch { }
 
-            // Signal BlockingCollections to stop
             try
             {
-                _rowDataCollection?.CompleteAdding();
-                _sqlStatementCollection?.CompleteAdding();
-                _importQueryCollection?.CompleteAdding();
+                if (_rowDataCollection != null && !_rowDataCollection.IsAddingCompleted)
+                    _rowDataCollection.CompleteAdding();
             }
-            catch
+            catch { }
+
+            try
             {
-                // Ignore exceptions during cleanup
+                if (_sqlStatementCollection != null && !_sqlStatementCollection.IsAddingCompleted)
+                    _sqlStatementCollection.CompleteAdding();
             }
+            catch { }
+
+            try
+            {
+                if (_importQueryCollection != null && !_importQueryCollection.IsAddingCompleted)
+                    _importQueryCollection.CompleteAdding();
+            }
+            catch { }
         }
 
         // Override Dispose to handle parallel processing cleanup
         public void Dispose()
         {
-            StopAllProcess();
+            try { StopAllProcess(); } catch { }
 
             // Wait for tasks to complete with timeout
             try
             {
-                if (_phase1Task != null || _phase2Task != null || _phase3Task != null || _importPhase1Task != null || _importPhase2Task != null)
-                {
-                    var tasks = new List<Task>();
-                    if (_phase1Task != null) tasks.Add(_phase1Task);
-                    if (_phase2Task != null) tasks.Add(_phase2Task);
-                    if (_phase3Task != null) tasks.Add(_phase3Task);
-                    if (_importPhase1Task != null) tasks.Add(_importPhase1Task);
-                    if (_importPhase2Task != null) tasks.Add(_importPhase2Task);
-
+                var tasks = new List<Task>();
+                if (_phase1Task != null) tasks.Add(_phase1Task);
+                if (_phase2Task != null) tasks.Add(_phase2Task);
+                if (_phase3Task != null) tasks.Add(_phase3Task);
+                if (_importPhase1Task != null) tasks.Add(_importPhase1Task);
+                if (_importPhase2Task != null) tasks.Add(_importPhase2Task);
+                if (tasks.Count > 0)
                     Task.WaitAll(tasks.ToArray(), TimeSpan.FromSeconds(10));
-                }
             }
-            catch
-            {
-                // Ignore timeout exceptions
-            }
+            catch { }
 
-            // Dispose BlockingCollections
-            _rowDataCollection?.Dispose();
-            _sqlStatementCollection?.Dispose();
-            _importQueryCollection?.Dispose();
+            try { _rowDataCollection?.Dispose(); } catch { }
+            try { _sqlStatementCollection?.Dispose(); } catch { }
+            try { _importQueryCollection?.Dispose(); } catch { }
 
-            if (timerReport != null)
-            {
-                timerReport.Stop();
-                timerReport.Dispose();
-                timerReport = null;
-            }
+            try { timerReport?.Stop(); } catch { }
+            try { timerReport?.Dispose(); timerReport = null; } catch { }
 
-            if (textWriter != null)
-            {
-                textWriter.Dispose();
-                textWriter = null;
-            }
-
-            if (textReader != null)
-            {
-                textReader.Dispose();
-                textReader = null;
-            }
+            try { textWriter?.Dispose(); textWriter = null; } catch { }
+            try { textReader?.Dispose(); textReader = null; } catch { }
         }
     }
 }

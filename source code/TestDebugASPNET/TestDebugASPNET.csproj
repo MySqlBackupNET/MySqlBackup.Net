@@ -526,6 +526,7 @@
   <ItemGroup>
     <Content Include="masterPage1.Master" />
     <Compile Include="MySqlBackup.NET\MySqlBackup_v2.6.2_ParallelImport.cs" />
+    <Compile Include="MySqlBackup.NET\MySqlBackup_v2.7.cs" />
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
