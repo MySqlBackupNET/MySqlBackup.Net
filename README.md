@@ -57,6 +57,19 @@ See the detailed guide:
 
 ### Basic Usage
 
+Start by adding the appropriate using statement to your file:
+
+```csharp
+// For MySqlConnector.NET (MIT)
+using MySqlConnector;
+
+// For MySQL .NET Connector by Oracle
+using MySql.Data.MySqlClient;
+
+// For dotConnect for MySQL by Devart
+using Devart.Data.MySql;
+```
+
 #### Backup a Database
 ```csharp
 string constr = "server=localhost;user=root;pwd=1234;database=test1;convertzerodatetime=true;";
