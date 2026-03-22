@@ -62,9 +62,9 @@ See the detailed guide:
 string constr = "server=localhost;user=root;pwd=1234;database=test1;convertzerodatetime=true;";
 string filePath = @"C:\backup.sql";
 
-using (var conn = new MySqlConnection(constr))
-using (var cmd = conn.CreateCommand())
-using (var mb = new MySqlBackup(cmd))
+using (MySqlConnection conn = new MySqlConnection(constr))
+using (MySqlCommand cmd = conn.CreateCommand())
+using (MySqlBackup mb = new MySqlBackup(cmd))
 {
     conn.Open();
     mb.ExportToFile(filePath);
@@ -76,9 +76,9 @@ using (var mb = new MySqlBackup(cmd))
 string constr = "server=localhost;user=root;pwd=1234;database=test1;convertzerodatetime=true;";
 string filePath = @"C:\backup.sql";
 
-using (var conn = new MySqlConnection(constr))
-using (var cmd = conn.CreateCommand())
-using (var mb = new MySqlBackup(cmd))
+using (MySqlConnection conn = new MySqlConnection(constr))
+using (MySqlCommand cmd = conn.CreateCommand())
+using (MySqlBackup mb = new MySqlBackup(cmd))
 {
     conn.Open();
     mb.ImportFromFile(filePath);
