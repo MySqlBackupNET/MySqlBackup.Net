@@ -76,11 +76,15 @@ string constr = "server=localhost;user=root;pwd=1234;database=test1;convertzerod
 string filePath = @"C:\backup.sql";
 
 using (MySqlConnection conn = new MySqlConnection(constr))
-using (MySqlCommand cmd = conn.CreateCommand())
-using (MySqlBackup mb = new MySqlBackup(cmd))
 {
-    conn.Open();
-    mb.ExportToFile(filePath);
+    using (MySqlCommand cmd = conn.CreateCommand())
+    {
+        using (MySqlBackup mb = new MySqlBackup(cmd))
+        {
+            conn.Open();
+            mb.ExportToFile(filePath);
+        }
+    }
 }
 ```
 
@@ -90,11 +94,15 @@ string constr = "server=localhost;user=root;pwd=1234;database=test1;convertzerod
 string filePath = @"C:\backup.sql";
 
 using (MySqlConnection conn = new MySqlConnection(constr))
-using (MySqlCommand cmd = conn.CreateCommand())
-using (MySqlBackup mb = new MySqlBackup(cmd))
 {
-    conn.Open();
-    mb.ImportFromFile(filePath);
+    using (MySqlCommand cmd = conn.CreateCommand())
+    {
+        using (MySqlBackup mb = new MySqlBackup(cmd))
+        {
+            conn.Open();
+            mb.ImportFromFile(filePath);
+        }
+    }
 }
 ```
 
