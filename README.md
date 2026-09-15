@@ -5,6 +5,8 @@
 *Latest Release: v2.7.1 (May 11, 2026)*  
 [Change Log](https://github.com/MySqlBackupNET/MySqlBackup.Net/wiki/Change-Log)
 
+We are attempting to build a new successor, a total different strategy and architecture, bypassing .NET objects conversertion, direct MySQL raw bytes to IO stream output, attempting to achieve MySQLDump speed and constant low memory. Please visit: [MySqlBackup.NET.RawBytes](https://github.com/MySqlBackupNET/MySqlBackup.NET.RawBytes)
+
 ---
 
 ## Overview
